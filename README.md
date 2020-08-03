@@ -1,4 +1,4 @@
-# rotary_net
+# RotaryNet Application
 
 Rotary Net Application.
 
