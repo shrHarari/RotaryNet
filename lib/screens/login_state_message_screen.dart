@@ -8,7 +8,7 @@ import 'package:rotary_net/shared/loading.dart';
 
 class LoginStateMessageScreen extends StatefulWidget {
   static const routeName = '/LoginStateMessageScreen';
-  final ArgDataObject argDataObject;
+  final ArgDataUserObject argDataObject;
 
   LoginStateMessageScreen({Key key, @required this.argDataObject}) : super(key: key);
 

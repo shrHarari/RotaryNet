@@ -146,8 +146,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   void openLoginStateMessageScreen() {
     /// Create ArgDataObject to pass to MessageTrackerRequest Screen
-    ArgDataObject argToLoginStateMessageScreen;
-    argToLoginStateMessageScreen = ArgDataObject(newUserObj, newLoginObject);
+    ArgDataUserObject argToLoginStateMessageScreen;
+    argToLoginStateMessageScreen = ArgDataUserObject(newUserObj, newLoginObject);
 
     /// Navigate to MessageTrackerRequest Screen
     Navigator.pushReplacement(
@@ -160,8 +160,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   Future<void> openDebugSettingsScreen() async {
     /// Create ArgDataObject to pass to DebugSettings Screen
-    ArgDataObject argToDebugSettingsScreen;
-    argToDebugSettingsScreen = ArgDataObject(newUserObj, newLoginObject);
+    ArgDataUserObject argToDebugSettingsScreen;
+    argToDebugSettingsScreen = ArgDataUserObject(newUserObj, newLoginObject);
 
     /// Navigate to DebugSettings Screen
     Navigator.push(

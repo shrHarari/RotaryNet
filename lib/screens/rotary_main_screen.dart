@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
+import 'package:rotary_net/screens/person_cards_search_result_screen.dart';
 import 'package:rotary_net/screens/debug_setting_screen.dart';
 import 'package:rotary_net/shared/loading.dart';
 import 'package:rotary_net/widgets/side_menu_widget.dart';
 
 class RotaryMainScreen extends StatefulWidget {
   static const routeName = '/RotaryMainScreen';
-  final ArgDataObject argDataObject;
+  final ArgDataUserObject argDataObject;
 
   RotaryMainScreen({Key key, @required this.argDataObject}) : super(key: key);
 
@@ -49,6 +50,11 @@ class _RotaryMainScreen extends State<RotaryMainScreen> {
     }
   }
 
+  Future<void> openMenu() async {
+    // Open Menu from Left side
+    _scaffoldKey.currentState.openDrawer();
+  }
+
   Future<void> openDebugSettings() async {
     // Navigate to DebugSettings Screen
     Navigator.push(
@@ -59,19 +65,27 @@ class _RotaryMainScreen extends State<RotaryMainScreen> {
     );
   }
 
-  Future<void> openMenu() async {
-    // Open Menu from Left side
-    _scaffoldKey.currentState.openDrawer();
+  Future<void> openPersonCardsSearchResultScreen(String aValueToSearch) async {
+    /// Navigate to PersonCardsSearchResultScreen Screen
+    if (searchController.text != "")
+      {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PersonCardsSearchResultScreen(argDataObject: widget.argDataObject, searchText: aValueToSearch),
+          ),
+        );
+      }
   }
 
-  Future<void> executeSearch(String aValue) async {
-    setState(() {
-      messageTitle = 'Search For $aValue,';
-      messageBody = 'Search Results Screen.\n';
+  Future<void> executeSearch(String aValueToSearch) async {
+    // Hide Keyboard
+    FocusScope.of(context).requestFocus(FocusNode());
 
-      // Hide Keyboard
-      FocusScope.of(context).requestFocus(FocusNode());
-    });
+    if (searchController.text != "")
+    {
+      openPersonCardsSearchResultScreen(aValueToSearch);
+    }
   }
 
   @override
@@ -201,30 +215,6 @@ class _RotaryMainScreen extends State<RotaryMainScreen> {
                       ],
                     ),
                   ],
-                ),
-              ),
-            ),
-            SizedBox(height: 30.0,),
-
-            /// --------------- Result Area ---------------------
-            Container(
-              color: Colors.blue[50],
-              child: Text(messageTitle,
-                style: TextStyle(
-                    color: Colors.blue[900],
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-
-            SizedBox(height: 20.0,),
-            Container(
-              color: Colors.blue[50],
-              child: Center(
-                child: Text(messageBody,
-                  style: TextStyle(
-                      color: Colors.blue[900],
-                      fontSize: 18.0),
                 ),
               ),
             ),

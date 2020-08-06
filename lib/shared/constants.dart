@@ -14,6 +14,7 @@
   // ==============================================================
   const Map<String, String> rotaryUrlHeader = {"Content-type": "application/json"};
   const String rotaryUserRegistrationUrl = 'http://159.89.225.231:7775/api/registration/customers';
+  const String rotaryGetPersonCardListUrl = 'http://159.89.225.231:7775/api/registration/customers';
   //#endregion
 
   //#region User Data: SharedPreferences [Key Name]

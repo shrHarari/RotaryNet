@@ -20,7 +20,7 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => RegistrationScreen());
 
       case RotaryMainScreen.routeName:
-        if (args is ArgDataObject) {
+        if (args is ArgDataUserObject) {
           return MaterialPageRoute(builder: (_) => RotaryMainScreen(argDataObject: args)
           );
         } else {

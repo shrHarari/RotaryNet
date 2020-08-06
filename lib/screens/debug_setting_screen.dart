@@ -10,7 +10,7 @@ import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class DebugSettings extends StatefulWidget {
   static const routeName = '/DebugSettings';
-  final ArgDataObject argDataObject;
+  final ArgDataUserObject argDataObject;
 
   DebugSettings({Key key, @required this.argDataObject}) : super(key: key);
 

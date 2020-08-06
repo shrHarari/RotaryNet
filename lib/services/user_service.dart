@@ -15,9 +15,9 @@ class UserService {
       String aFirstName,
       String aLastName,
       String aPhoneNumber,
-      String aPhoneNumberCountry,
+      String aPhoneNumberDialCode,
       String aPhoneNumberParse,
-      String aPhoneNumberClear) {
+      String aPhoneNumberCleanLongFormat) {
 
     if (aEmail == null)
       return UserObject(
@@ -36,9 +36,9 @@ class UserService {
           firstName: aFirstName,
           lastName: aLastName,
           phoneNumber: aPhoneNumber,
-          phoneNumberDialCode: aPhoneNumberCountry,
+          phoneNumberDialCode: aPhoneNumberDialCode,
           phoneNumberParse: aPhoneNumberParse,
-          phoneNumberCleanLongFormat: aPhoneNumberClear);
+          phoneNumberCleanLongFormat: aPhoneNumberCleanLongFormat);
   }
   //#endregion
 
@@ -50,9 +50,9 @@ class UserService {
     String _firstName;
     String _lastName;
     String _phoneNumber;
-    String _phoneCountry;
-    String _phoneParse;
-    String _phoneClear;
+    String _phoneNumberDialCode;
+    String _phoneNumberParse;
+    String _phoneNumberCleanLongFormat;
 
     try{
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -62,9 +62,9 @@ class UserService {
       _firstName = prefs.getString(Constants.rotaryUserFirstName);
       _lastName = prefs.getString(Constants.rotaryUserLastName);
       _phoneNumber = prefs.getString(Constants.rotaryUserPhoneNumber);
-      _phoneCountry = prefs.getString(Constants.rotaryUserPhoneNumberDialCode);
-      _phoneParse = prefs.getString(Constants.rotaryUserPhoneNumberParse);
-      _phoneClear = prefs.getString(Constants.rotaryUserPhoneNumberCleanLongFormat);
+      _phoneNumberDialCode = prefs.getString(Constants.rotaryUserPhoneNumberDialCode);
+      _phoneNumberParse = prefs.getString(Constants.rotaryUserPhoneNumberParse);
+      _phoneNumberCleanLongFormat = prefs.getString(Constants.rotaryUserPhoneNumberCleanLongFormat);
 
       return createUserAsObject(
           _requestId,
@@ -72,9 +72,9 @@ class UserService {
           _firstName,
           _lastName,
           _phoneNumber,
-          _phoneCountry,
-          _phoneParse,
-          _phoneClear);
+          _phoneNumberDialCode,
+          _phoneNumberParse,
+          _phoneNumberCleanLongFormat);
     }
     catch  (e) {
       await LoggerService.log('<UserService> Read User Object Data From SharedPreferences >>> ERROR: ${e.toString()}');

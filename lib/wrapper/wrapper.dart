@@ -26,7 +26,7 @@ class _WrapperState extends State<Wrapper> {
   Future<LoginObject> loginObjForBuild;
   final UserService personCardService = UserService();
   final RegistrationService registrationService = RegistrationService();
-  ArgDataObject argDataObject;
+  ArgDataUserObject argDataObject;
   bool loading = true;
 
   @override
@@ -58,7 +58,7 @@ class _WrapperState extends State<Wrapper> {
     print('readLoginObjectDataFromSharedPreferences: ${loginObject.loginStatus}');
     await LoginService.setLogin(loginObject);
 
-    argDataObject = ArgDataObject(userObj, loginObject);
+    argDataObject = ArgDataUserObject(userObj, loginObject);
 
     await LoggerService.log('<${this.runtimeType}> Set Application Phase >>> Login State: ${LoginService.loginObject.loginStatus}');
 
