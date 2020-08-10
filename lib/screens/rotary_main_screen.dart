@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
 import 'package:rotary_net/screens/person_cards_search_result_screen.dart';
 import 'package:rotary_net/screens/debug_setting_screen.dart';
@@ -29,8 +30,25 @@ class _RotaryMainScreen extends State<RotaryMainScreen> {
 
   @override
   void initState() {
-    createDataToDisplay();
     super.initState();
+    createDataToDisplay();
+
+    /// Lock Screen orientation
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
+  @override
+  dispose(){
+    /// UnLock Screen orientation
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    super.dispose();
   }
 
   Future<Null> createDataToDisplay() async {

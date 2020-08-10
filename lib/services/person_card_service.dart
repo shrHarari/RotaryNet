@@ -155,9 +155,9 @@ class PersonCardService {
           '"phoneNumberDialCode": "972", '
           '"phoneNumberParse": "525464640", '
           '"phoneNumberCleanLongFormat": "972525464640", '
-          '"pictureUrl": "", '
+          '"pictureUrl": "10.jpg", '
           '"cardDescription": "תיאור מפורט של כרטיס הביקור של שחר הררי", '
-          '"internetSiteUrl": "", '
+          '"internetSiteUrl": "shahar.co.il", '
           '"address": "הנשיאים 6, הוד-השרון" '
         '},'
         '{'
@@ -170,7 +170,7 @@ class PersonCardService {
         '"phoneNumberDialCode": "972", '
         '"phoneNumberParse": "521111111", '
         '"phoneNumberCleanLongFormat": "972521111111", '
-        '"pictureUrl": "", '
+        '"pictureUrl": "1.jpg", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של גלעד ארדן", '
         '"internetSiteUrl": "", '
         '"address": "גלעד ארדן 55, הוד-השרון" '
@@ -185,7 +185,7 @@ class PersonCardService {
         '"phoneNumberDialCode": "972", '
         '"phoneNumberParse": "522222222", '
         '"phoneNumberCleanLongFormat": "972522222222", '
-        '"pictureUrl": "", '
+        '"pictureUrl": "2.jpg", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של יועז הנדל", '
         '"internetSiteUrl": "", '
         '"address": "יועז הנדל 21, הוד-השרון" '
@@ -200,7 +200,7 @@ class PersonCardService {
         '"phoneNumberDialCode": "972", '
         '"phoneNumberParse": "523333333", '
         '"phoneNumberCleanLongFormat": "972523333333", '
-        '"pictureUrl": "", '
+        '"pictureUrl": "3.jpg", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של בנימין נתניהו", '
         '"internetSiteUrl": "", '
         '"address": "בנימין נתניהו 888, ירושלים" '
@@ -215,7 +215,7 @@ class PersonCardService {
         '"phoneNumberDialCode": "972", '
         '"phoneNumberParse": "524444444", '
         '"phoneNumberCleanLongFormat": "972524444444", '
-        '"pictureUrl": "", '
+        '"pictureUrl": "4.jpg", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של גבי אשכנזי", '
         '"internetSiteUrl": "", '
         '"address": "גבי אשכנזי 18, כפר-סבא" '
@@ -230,7 +230,7 @@ class PersonCardService {
         '"phoneNumberDialCode": "972", '
         '"phoneNumberParse": "525555555", '
         '"phoneNumberCleanLongFormat": "972525555555", '
-        '"pictureUrl": "", '
+        '"pictureUrl": "5.jpg", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של בני גנץ", '
         '"internetSiteUrl": "", '
         '"address": "בני גנץ 99, נתניה" '
@@ -245,7 +245,7 @@ class PersonCardService {
         '"phoneNumberDialCode": "972", '
         '"phoneNumberParse": "526666666", '
         '"phoneNumberCleanLongFormat": "9726666666", '
-        '"pictureUrl": "", '
+        '"pictureUrl": "6.jpg", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של ישראל כץ", '
         '"internetSiteUrl": "", '
         '"address": "ישראל כץ 6, חדרה" '
@@ -260,9 +260,9 @@ class PersonCardService {
         '"phoneNumberDialCode": "972", '
         '"phoneNumberParse": "527777777", '
         '"phoneNumberCleanLongFormat": "97257777777", '
-        '"pictureUrl": "", '
+        '"pictureUrl": "7.jpg", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של עומר ינקלביץ", '
-        '"internetSiteUrl": "", '
+        '"internetSiteUrl": "google.com", '
         '"address": "עומר ינקלביץ 6, רמת-השרון" '
         '}'
         ']';
@@ -280,11 +280,11 @@ class PersonCardService {
       // When the Server side will be ready >>> remove that calling
       if (GlobalsService.isDebugMode) {
         String jsonResponseForDebug = createJsonForPersonCardList();
-        print('jsonResponseForDebug: $jsonResponseForDebug');
+//        print('jsonResponseForDebug: $jsonResponseForDebug');
 
         var personCardsListForDebug = jsonDecode(jsonResponseForDebug) as List;    // List of PersonCard to display;
         List<PersonCardObject> personCardObjListForDebug = personCardsListForDebug.map((personCardJsonDebug) => PersonCardObject.fromJson(personCardJsonDebug)).toList();
-        print('personCardObjListForDebug.length: ${personCardObjListForDebug.length}');
+//        print('personCardObjListForDebug.length: ${personCardObjListForDebug.length}');
 
         personCardObjListForDebug.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
         return personCardObjListForDebug;

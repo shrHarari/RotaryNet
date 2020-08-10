@@ -1,8 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
 import 'package:rotary_net/services/person_card_service.dart';
+import 'package:rotary_net/shared/bubbles_box_decoration.dart';
 import 'package:rotary_net/shared/decoration_style.dart';
 import 'package:rotary_net/shared/loading.dart';
 import 'package:rotary_net/widgets/side_menu_widget.dart';
@@ -24,36 +25,9 @@ class _PersonCardDetailScreenState extends State<PersonCardDetailScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormState>();
 
+  AssetImage personCardImage;
+
   String appBarTitle = 'Rotary';
-
-  /// Fields Param
-  TextEditingController eMailController;
-  TextEditingController firstNameController;
-  TextEditingController lastNameController;
-  TextEditingController firstNameEngController;
-  TextEditingController lastNameEngController;
-  TextEditingController phoneNumberController;
-  TextEditingController phoneNumberDialCodeController;
-  TextEditingController phoneNumberParseController;
-  TextEditingController phoneNumberCleanLongFormatController;
-  TextEditingController pictureUrlController;
-  TextEditingController cardDescriptionController;
-  TextEditingController internetSiteUrlController;
-  TextEditingController addressController;
-
-  String newEmail;
-  String newFirstName;
-  String newLastName;
-  String newFirstNameEng;
-  String newLastNameEng;
-  String newPhoneNumber;
-  String newPhoneNumberDialCode;
-  String newPhoneNumberParse;
-  String newPhoneNumberCleanLongFormat;
-  String newPictureUrl;
-  String newCardDescription;
-  String newInternetSiteUrl;
-  String newAddress;
 
   String error = '';
   bool loading = false;
@@ -62,100 +36,12 @@ class _PersonCardDetailScreenState extends State<PersonCardDetailScreen> {
 
   @override
   void initState() {
-    setPersonCardVariables();
     super.initState();
   }
 
   Future<void> openMenu() async {
     // Open Menu from Left side
     _scaffoldKey.currentState.openDrawer();
-  }
-
-  Future<void> setPersonCardVariables() async {
-    eMailController = TextEditingController(text: widget.argDataObject.passPersonCardObj.email);
-    firstNameController = TextEditingController(text: widget.argDataObject.passPersonCardObj.firstName);
-    lastNameController = TextEditingController(text: widget.argDataObject.passPersonCardObj.lastName);
-    firstNameEngController = TextEditingController(text: widget.argDataObject.passPersonCardObj.firstNameEng);
-    lastNameEngController = TextEditingController(text: widget.argDataObject.passPersonCardObj.lastNameEng);
-    phoneNumberController = TextEditingController(text: widget.argDataObject.passPersonCardObj.phoneNumber);
-    phoneNumberDialCodeController = TextEditingController(text: widget.argDataObject.passPersonCardObj.phoneNumberDialCode);
-    phoneNumberParseController = TextEditingController(text: widget.argDataObject.passPersonCardObj.phoneNumberParse);
-    phoneNumberCleanLongFormatController = TextEditingController(text: widget.argDataObject.passPersonCardObj.phoneNumberCleanLongFormat);
-    pictureUrlController = TextEditingController(text: widget.argDataObject.passPersonCardObj.pictureUrl);
-    cardDescriptionController = TextEditingController(text: widget.argDataObject.passPersonCardObj.cardDescription);
-    internetSiteUrlController = TextEditingController(text: widget.argDataObject.passPersonCardObj.internetSiteUrl);
-    addressController = TextEditingController(text: widget.argDataObject.passPersonCardObj.address);
-  }
-
-  void setEmailValueFunc(String aEmail){
-    newEmail = aEmail;
-  }
-  void setFirstNameValueFunc(String aFirstName){
-    newFirstName = aFirstName;
-  }
-  void setLastNameValueFunc(String aLastName){
-    newLastName = aLastName;
-  }
-
-  void setFirstNameEngValueFunc(String aFirstNameEng){
-    newFirstNameEng = aFirstNameEng;
-  }
-
-  void setLastNameEngValueFunc(String aLastNameEng){
-    newLastNameEng = aLastNameEng;
-  }
-
-  void setPhoneNumberValueFunc(String aPhoneNumber){
-    newPhoneNumber = aPhoneNumber;
-  }
-
-  void setPhoneNumberDialCodeValueFunc(String aPhoneNumberDialCode){
-    newPhoneNumberDialCode = aPhoneNumberDialCode;
-  }
-
-  void setPhoneNumberParseValueFunc(String aPhoneNumberParse){
-    newPhoneNumberParse = aPhoneNumberParse;
-  }
-
-  void setPhoneNumberCleanLongFormatValueFunc(String aPhoneNumberCleanLongFormat){
-    newPhoneNumberCleanLongFormat = aPhoneNumberCleanLongFormat;
-  }
-
-  void setPictureUrlValueFunc(String aPictureUrl){
-    newPictureUrl = aPictureUrl;
-  }
-
-  void setCardDescriptionValueFunc(String aLastName){
-    newLastName = aLastName;
-  }
-
-  void setInternetSiteUrlValueFunc(String aCardDescription){
-    newCardDescription = aCardDescription;
-  }
-
-  void setAddressValueFunc(String aAddress){
-    newAddress = aAddress;
-  }
-
-  Future<bool> checkValidation() async {
-    bool _validationVal = false;
-
-    if (formKey.currentState.validate()){
-      if (isPhoneNumberEnteredOK) {
-        _validationVal = true;
-      } else {
-        setState(() {
-          phoneNumberHintText = 'Enter Number';
-        });
-      }
-    } else {
-      if (!isPhoneNumberEnteredOK) {
-        setState(() {
-          phoneNumberHintText = 'Enter Number';
-        });
-      }
-    }
-    return _validationVal;
   }
 
   @override
@@ -249,101 +135,127 @@ class _PersonCardDetailScreenState extends State<PersonCardDetailScreen> {
 
             Container(
               height: 500,
-              child: buildPersonCardDetailDisplay(),
+              child: buildPersonCardDetailDisplay(widget.argDataObject.passPersonCardObj),
               ),
           ]
       );
   }
 
-  Widget buildPersonCardDetailDisplay() {
+  /// ====================== Person Card All Fields ==========================
+  Widget buildPersonCardDetailDisplay(PersonCardObject aPersonCardObj) {
+    personCardImage = AssetImage('assets/images/${aPersonCardObj.pictureUrl}');
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 50.0, horizontal: 50.0),
-        child: Form(
-          key: formKey,
-          child: Column(
-            children: <Widget>[
-              /// ------------------- Input Text Fields ----------------------
-              buildEnabledTextInput(eMailController, 'Email', setEmailValueFunc),
-              SizedBox(height: 10.0,),
-              buildEnabledTextInput(firstNameController, 'First Name', setFirstNameValueFunc),
-              SizedBox(height: 10.0,),
-              buildEnabledTextInput(lastNameController, 'Last Name', setLastNameValueFunc),
-              SizedBox(height: 10.0,),
-              buildEnabledTextInput(firstNameEngController, 'First Name Eng', setFirstNameEngValueFunc),
-              SizedBox(height: 10.0,),
-              buildEnabledTextInput(lastNameEngController, 'Last NameEng', setLastNameEngValueFunc),
-              SizedBox(height: 10.0,),
-              buildEnabledTextInput(phoneNumberController, 'Phone Number', setPhoneNumberValueFunc),
-              SizedBox(height: 10.0,),
-              buildEnabledTextInput(phoneNumberDialCodeController, 'Phone Number Dial', setPhoneNumberDialCodeValueFunc),
-              SizedBox(height: 10.0,),
-              buildEnabledTextInput(phoneNumberParseController, 'Phone Number Parse', setPhoneNumberParseValueFunc),
-              SizedBox(height: 10.0,),
-              buildEnabledTextInput(phoneNumberCleanLongFormatController, 'Phone Number Clean Long Format', setPhoneNumberCleanLongFormatValueFunc),
-              SizedBox(height: 10.0,),
-              buildEnabledTextInput(pictureUrlController, 'Picture Url', setPictureUrlValueFunc),
-              SizedBox(height: 10.0,),
-              buildEnabledTextInput(cardDescriptionController, 'Card Description', setCardDescriptionValueFunc),
-              SizedBox(height: 10.0,),
-              buildEnabledTextInput(internetSiteUrlController, 'Internet Site Url', setInternetSiteUrlValueFunc),
-              SizedBox(height: 10.0,),
-              buildEnabledTextInput(addressController, 'Address', setAddressValueFunc),
+        padding: EdgeInsets.symmetric(vertical: 40.0, horizontal: 40.0),
+        child: Column(
+          children: <Widget>[
+            /// ------------------- Image + card name -------------------------
+            Row(
+              textDirection: TextDirection.rtl,
+              children: <Widget>[
+                CircleAvatar(
+                      radius: 30.0,
+                      backgroundColor: Colors.blue[900],
+                      backgroundImage: personCardImage,
+                    ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 20.0),
+                    child: Column(
+                      textDirection: TextDirection.rtl,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Text(
+                            aPersonCardObj.firstName + " " + aPersonCardObj.lastName,
+                            style: TextStyle(color: Colors.grey[900], fontSize: 20.0, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Text(
+                          aPersonCardObj.firstNameEng + " " + aPersonCardObj.lastNameEng,
+                          style: TextStyle(color: Colors.grey[900], fontSize: 16.0, fontWeight: FontWeight.w400),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 50.0,),
 
-              SizedBox(height: 20.0,),
+            /// --------------------- Card Description -------------------------
+            Row(
+              textDirection: TextDirection.rtl,
+              children: <Widget>[
+                BubblesBoxDecoration(
+                  aText: aPersonCardObj.cardDescription,
+                  bubbleColor: Colors.blue[100],
+                  isWithShadow: false,
+                  isWithGradient: false,
+                ),
+              ],
+            ),
+            SizedBox(height: 40.0,),
 
-              /// ---------------------- Display Error -----------------------
-              Text(
-                error,
-                style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 14.0),
-              ),
-            ],
-          ),
+            /// ---------------- Card Details (Icon Images) --------------------
+            Column(
+              textDirection: TextDirection.rtl,
+//              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                if (aPersonCardObj.email != "") buildDetailImageIcon(Icons.mail_outline, aPersonCardObj.email),
+                if (aPersonCardObj.phoneNumber != "") buildDetailImageIcon(Icons.phone, aPersonCardObj.phoneNumber),
+                if (aPersonCardObj.address != "") buildDetailImageIcon(Icons.home, aPersonCardObj.address),
+                if (aPersonCardObj.internetSiteUrl != "") buildDetailImageIcon(Icons.alternate_email, aPersonCardObj.internetSiteUrl),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Column buildEnabledTextInput(TextEditingController aController, String textInputName, Function setValFunc) {
-    return Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
+  Row buildDetailImageIcon(IconData aIcon, String aTitle) {
+    return Row(
+        textDirection: TextDirection.rtl,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            height: 60.0,
-            child: TextFormField(
-              controller: aController,
-              style: TextStyle(fontSize: 16.0),
-              decoration: myTextInputDecoration.copyWith(hintText: textInputName),
-              validator: (val) => val.isEmpty ? 'Enter $textInputName' : null,
-              onChanged: (val){
-                setState(() {
-                  setValFunc(val);
-                });
-              },
+          Padding(
+            padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
+            child: MaterialButton(
+              elevation: 0.0,
+              onPressed: () {},
+              color: Colors.blue[10],
+              textColor: Colors.white,
+              child:
+              IconTheme(
+                data: IconThemeData(
+                    color: Colors.blue[300]
+                ),
+                child: Icon(
+                  aIcon,
+                  size: 20,
+                ),
+              ),
+              padding: EdgeInsets.all(10),
+              shape: CircleBorder(side: BorderSide(color: Colors.blue)),
             ),
           ),
-        ]
-    );
-  }
 
-  Column buildDisabledTextInput(TextEditingController aController, String textInputName) {
-    return Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-              height: 60.0,
-              child: TextFormField(
-                controller: aController,
-                style: TextStyle(fontSize: 16.0),
-                decoration: myDisabledTextInputDecoration.copyWith(hintText: textInputName), // Disabled Field
-                enabled: false,
-              )
-          )
+          Expanded(
+            child: Container(
+              alignment: Alignment.centerRight,
+//            width: 150,
+              child: Text(
+                aTitle,
+                style: TextStyle(
+                    color: Colors.blue[300],
+                    fontSize: 12.0),
+              ),
+            ),
+          ),
         ]
     );
   }

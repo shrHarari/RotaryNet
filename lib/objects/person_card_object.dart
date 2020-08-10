@@ -89,19 +89,3 @@ class PersonCardObject {
     'address': address,
   };
 }
-
-//{
-//  "email": "shr.harari@gmail.com",
-//  "firstName": "שחר",
-//  "lastName": "הררי",
-//  "firstNameEng": "Shahar",
-//  "lastNameEng": "Harari",
-//  "phoneNumber": "+972525464640",
-//  "phoneNumberDialCode": "972",
-//  "phoneNumberParse": "525464640",
-//  "phoneNumberCleanLongFormat": "972525464640",
-//  "pictureUrl": "",
-//  "cardDescription": "תיאור מפורט של כרטיס הביקור",
-//  "internetSiteUrl": "",
-//  "address": "הנשיאים 6, הוד-השרון"
-//}
