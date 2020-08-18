@@ -142,6 +142,7 @@ class PersonCardService {
 
   //#region Set PersonCard Data for Debug [Data]
   String createJsonForPersonCardList() {
+    final String someText = "*N*של כרטיס הביקור של שחר הררי*N*פירוט נוסף*N*ועוד פירוט*N*שורה נונספת ארוכה מאודדדדדדדדדדד דדדדדדדדדדדדד דדדדדדדדדדדד  דדדדד*N*ועוד שורה ארררררוככככה יחדגיכחגי דגיכגדי דגכי ידגכי דגכי דגכי דגכי*N*סוף";
 
     String personCardListJson =
         '['
@@ -156,9 +157,10 @@ class PersonCardService {
           '"phoneNumberParse": "525464640", '
           '"phoneNumberCleanLongFormat": "972525464640", '
           '"pictureUrl": "10.jpg", '
-          '"cardDescription": "תיאור מפורט של כרטיס הביקור של שחר הררי", '
-          '"internetSiteUrl": "shahar.co.il", '
-          '"address": "הנשיאים 6, הוד-השרון" '
+//          '"cardDescription": "תיאור מפורט של כרטיס הביקור של שחר הררי", '
+          '"cardDescription": "$someText", '
+          '"internetSiteUrl": "https://www.google.co.il/", '
+          '"address": "הנשיאים 6, הוד-השרון ישראל" '
         '},'
         '{'
         '"email": "gilad.ardan@gmail.com", '
@@ -173,7 +175,7 @@ class PersonCardService {
         '"pictureUrl": "1.jpg", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של גלעד ארדן", '
         '"internetSiteUrl": "", '
-        '"address": "גלעד ארדן 55, הוד-השרון" '
+        '"address": "ויצמן 32, כפר-סבא ישראל" '
         '},'
         '{'
         '"email": "yoaz.hendel@gmail.com", '
@@ -188,7 +190,7 @@ class PersonCardService {
         '"pictureUrl": "2.jpg", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של יועז הנדל", '
         '"internetSiteUrl": "", '
-        '"address": "יועז הנדל 21, הוד-השרון" '
+        '"address": "יפו 32 ירושלים ישראל" '
         '},'
         '{'
         '"email": "benjamin.nethanyahu@gmail.com", '
@@ -203,7 +205,7 @@ class PersonCardService {
         '"pictureUrl": "3.jpg", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של בנימין נתניהו", '
         '"internetSiteUrl": "", '
-        '"address": "בנימין נתניהו 888, ירושלים" '
+        '"address": "הכנסת 1, ירושלים" '
         '},'
         '{'
         '"email": "gabi.ashkenazi@gmail.com", '
@@ -218,7 +220,7 @@ class PersonCardService {
         '"pictureUrl": "4.jpg", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של גבי אשכנזי", '
         '"internetSiteUrl": "", '
-        '"address": "גבי אשכנזי 18, כפר-סבא" '
+        '"address": "תל-חי 18, כפר-סבא ישראל" '
         '},'
         '{'
         '"email": "beni.gantz@gmail.com", '
@@ -233,7 +235,7 @@ class PersonCardService {
         '"pictureUrl": "5.jpg", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של בני גנץ", '
         '"internetSiteUrl": "", '
-        '"address": "בני גנץ 99, נתניה" '
+        '"address": "סוקולוב 6, נתניה" '
         '},'
         '{'
         '"email": "israel.katz@gmail.com", '
@@ -248,7 +250,7 @@ class PersonCardService {
         '"pictureUrl": "6.jpg", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של ישראל כץ", '
         '"internetSiteUrl": "", '
-        '"address": "ישראל כץ 6, חדרה" '
+        '"address": "ויצמן 6, חדרה" '
         '},'
         '{'
         '"email": "omer.yankalevich@gmail.com", '
@@ -263,7 +265,7 @@ class PersonCardService {
         '"pictureUrl": "7.jpg", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של עומר ינקלביץ", '
         '"internetSiteUrl": "google.com", '
-        '"address": "עומר ינקלביץ 6, רמת-השרון" '
+        '"address": "סוקולוב 6, רמת-השרון" '
         '}'
         ']';
 

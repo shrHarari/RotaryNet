@@ -6,6 +6,7 @@ import 'package:rotary_net/services/person_card_service.dart';
 import 'package:rotary_net/shared/decoration_style.dart';
 import 'package:rotary_net/shared/loading.dart';
 import 'package:rotary_net/widgets/side_menu_widget.dart';
+import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class PersonCardDetailEditScreen extends StatefulWidget {
   static const routeName = '/PersonCardDetailEditScreen';
@@ -23,8 +24,6 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormState>();
-
-  String appBarTitle = 'Rotary';
 
   /// Fields Param
   TextEditingController eMailController;
@@ -222,10 +221,11 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
                             ),
                             SizedBox(height: 10.0,),
 
-                            Text(appBarTitle,
+                            Text(Constants.rotaryApplicationName,
                               style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 14.0),
+                                  fontSize: 14.0,
+                                  fontWeight: FontWeight.bold),
                             ),
 
                           ],

@@ -62,7 +62,7 @@ class BubblesBoxDecoration extends StatelessWidget {
           Positioned(
             top: 0,
             child: CustomPaint(
-              painter: BubblesBoxDecorationPin(bubbleColor: bubbleColor),
+              painter: BubblesBoxDecorationPin(aBubbleColor: bubbleColor),
             ),
           )
         ],
@@ -90,13 +90,13 @@ class BubblesBoxDecoration extends StatelessWidget {
 // Draw the Bubble Pin
 // The Pin location is set on positioning which call this function
 class BubblesBoxDecorationPin extends CustomPainter {
-  Color bubbleColor;
-  BubblesBoxDecorationPin({this.bubbleColor});
+  Color aBubbleColor;
+  BubblesBoxDecorationPin({this.aBubbleColor});
 
   @override
   void paint(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = bubbleColor;
+    paint.color = aBubbleColor;
 
     var path = Path();
     path.lineTo(-10, 0);

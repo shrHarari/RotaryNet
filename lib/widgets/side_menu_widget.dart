@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/user_object.dart';
+import 'package:rotary_net/screen_about/about_screen.dart';
 import 'package:rotary_net/screen_about/privacy_policy_screen.dart';
 
 class SideMenuDrawer extends StatelessWidget {
@@ -64,7 +65,14 @@ class SideMenuDrawer extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.dvr),
             title: Text('אודות'),
-            onTap: () => {},
+            onTap: () => {
+              Navigator.of(context).pop(),
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => AboutScreen(),
+                ),
+              )
+            },
           ),
           ListTile(
             leading: Icon(Icons.verified_user),

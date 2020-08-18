@@ -6,6 +6,7 @@ import 'package:rotary_net/objects/person_card_object.dart';
 import 'package:rotary_net/services/person_card_service.dart';
 import 'package:rotary_net/shared/loading.dart';
 import 'package:rotary_net/widgets/side_menu_widget.dart';
+import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class PersonCardsSearchResultScreen extends StatefulWidget {
   static const routeName = '/PersonCardsSearchResultScreen';
@@ -22,7 +23,6 @@ class _PersonCardsSearchResultScreen extends State<PersonCardsSearchResultScreen
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  String appBarTitle = 'Rotary';
   bool loading = true;
   String error = '';
   bool isShowDataForDebug = false;
@@ -119,7 +119,7 @@ class _PersonCardsSearchResultScreen extends State<PersonCardsSearchResultScreen
         /// --------------- Title Area ---------------------
         Container(
           height: 230,
-          color: Colors.blue[500],
+          color: Colors.lightBlue[400],
           child: SafeArea(
             child: Column(
               children: <Widget>[
@@ -145,7 +145,7 @@ class _PersonCardsSearchResultScreen extends State<PersonCardsSearchResultScreen
                           MaterialButton(
                             elevation: 0.0,
                             onPressed: () {},
-                            color: Colors.blue,
+                            color: Colors.lightBlue,
                             textColor: Colors.white,
                             child: Icon(
                               Icons.account_balance,
@@ -156,10 +156,11 @@ class _PersonCardsSearchResultScreen extends State<PersonCardsSearchResultScreen
                           ),
                           SizedBox(height: 10.0,),
 
-                          Text(appBarTitle,
+                          Text(Constants.rotaryApplicationName,
                             style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 14.0),
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.bold),
                           ),
 
                         ],

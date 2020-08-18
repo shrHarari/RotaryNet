@@ -1,5 +1,10 @@
 
-  //#region Application Parameters: SharedPreferences [Key Name]
+//#region Application Global Parameters
+// ==============================================================
+const String rotaryApplicationName = 'מועדון רוטרי';
+//#endregion
+
+//#region Application Parameters: SharedPreferences [Key Name]
   // ==============================================================
   const String rotaryEncryptedTimeOffsetMin = 'Encrypted Time Offset Min';
   const String rotaryDebugMode = 'Rotary Debug Mode';

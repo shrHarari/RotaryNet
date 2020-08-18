@@ -5,6 +5,7 @@ import 'package:rotary_net/screens/person_cards_search_result_screen.dart';
 import 'package:rotary_net/screens/debug_setting_screen.dart';
 import 'package:rotary_net/shared/loading.dart';
 import 'package:rotary_net/widgets/side_menu_widget.dart';
+import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class RotaryMainScreen extends StatefulWidget {
   static const routeName = '/RotaryMainScreen';
@@ -20,7 +21,6 @@ class _RotaryMainScreen extends State<RotaryMainScreen> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  String appBarTitle = 'Rotary';
   String messageTitle = '';
   String messageBody = '';
   bool loading = true;
@@ -135,7 +135,7 @@ class _RotaryMainScreen extends State<RotaryMainScreen> {
             /// --------------- Title Area ---------------------
             Container(
               height: 230,
-              color: Colors.blue[500],
+              color: Colors.lightBlue[400],
               child: SafeArea(
                 child: Column(
                   children: <Widget>[
@@ -161,7 +161,7 @@ class _RotaryMainScreen extends State<RotaryMainScreen> {
                               MaterialButton(
                                 elevation: 0.0,
                                 onPressed: () {},
-                                color: Colors.blue,
+                                color: Colors.lightBlue,
                                 textColor: Colors.white,
                                 child: Icon(
                                   Icons.account_balance,
@@ -172,10 +172,11 @@ class _RotaryMainScreen extends State<RotaryMainScreen> {
                               ),
                               SizedBox(height: 10.0,),
 
-                              Text(appBarTitle,
+                              Text(Constants.rotaryApplicationName,
                                 style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 14.0),
+                                    fontSize: 14.0,
+                                    fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
