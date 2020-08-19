@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
+import 'package:rotary_net/screens/person_cards_search_result/person_cards_search_result_page.dart';
 import 'package:rotary_net/screens/person_cards_search_result_screen.dart';
 import 'package:rotary_net/screens/debug_setting_screen.dart';
+import 'package:rotary_net/screens/sliver_header_example/sliver_header_example_page.dart';
 import 'package:rotary_net/shared/loading.dart';
 import 'package:rotary_net/widgets/side_menu_widget.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
@@ -90,7 +92,9 @@ class _RotaryMainScreen extends State<RotaryMainScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => PersonCardsSearchResultScreen(argDataObject: widget.argDataObject, searchText: aValueToSearch),
+//            builder: (context) => PersonCardsSearchResultScreen(argDataObject: widget.argDataObject, searchText: aValueToSearch),
+//            builder: (context) => SliverHeaderExamplePage(),
+            builder: (context) => PersonCardSearchResultPage(argDataObject: widget.argDataObject, searchText: aValueToSearch),
           ),
         );
       }
