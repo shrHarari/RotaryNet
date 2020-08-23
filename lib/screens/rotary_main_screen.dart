@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
-import 'package:rotary_net/screens/person_cards_search_result/person_cards_search_result_page.dart';
-import 'package:rotary_net/screens/person_cards_search_result_screen.dart';
+//import 'package:rotary_net/screens/person_cards_search_result/person_cards_search_result_page.dart';
+import 'package:rotary_net/screens/person_card_search_result_page/person_card_search_result_page.dart';
 import 'package:rotary_net/screens/debug_setting_screen.dart';
-import 'package:rotary_net/screens/sliver_header_example/sliver_header_example_page.dart';
 import 'package:rotary_net/shared/loading.dart';
 import 'package:rotary_net/widgets/side_menu_widget.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
@@ -16,10 +15,10 @@ class RotaryMainScreen extends StatefulWidget {
   RotaryMainScreen({Key key, @required this.argDataObject}) : super(key: key);
 
   @override
-  _RotaryMainScreen createState() => _RotaryMainScreen();
+  _RotaryMainScreenState createState() => _RotaryMainScreenState();
 }
 
-class _RotaryMainScreen extends State<RotaryMainScreen> {
+class _RotaryMainScreenState extends State<RotaryMainScreen> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
@@ -41,6 +40,7 @@ class _RotaryMainScreen extends State<RotaryMainScreen> {
       DeviceOrientation.portraitDown,
     ]);
   }
+
   @override
   dispose(){
     /// UnLock Screen orientation
@@ -87,17 +87,28 @@ class _RotaryMainScreen extends State<RotaryMainScreen> {
 
   Future<void> openPersonCardsSearchResultScreen(String aValueToSearch) async {
     /// Navigate to PersonCardsSearchResultScreen Screen
-    if (searchController.text != "")
-      {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-//            builder: (context) => PersonCardsSearchResultScreen(argDataObject: widget.argDataObject, searchText: aValueToSearch),
-//            builder: (context) => SliverHeaderExamplePage(),
-            builder: (context) => PersonCardSearchResultPage(argDataObject: widget.argDataObject, searchText: aValueToSearch),
-          ),
-        );
-      }
+    if (searchController.text != "") {
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+//        builder: (context) => SliverHeaderExamplePage(),
+          builder: (context) =>
+              PersonCardSearchResultPage(argDataObject: widget.argDataObject,
+                  searchText: aValueToSearch),
+        ),
+      );
+
+      if (result == null) {
+        setState(() {
+          searchController.text = '';
+        });
+      } else {
+        setState(() {
+          searchController.text = result;
+//          searchController.text = '';
+        });
+      };
+    }
   }
 
   Future<void> executeSearch(String aValueToSearch) async {
@@ -112,7 +123,6 @@ class _RotaryMainScreen extends State<RotaryMainScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return loading ? Loading() :
     Scaffold(
         key: _scaffoldKey,
@@ -130,118 +140,106 @@ class _RotaryMainScreen extends State<RotaryMainScreen> {
   }
 
   Widget buildMainScaffoldBody() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            /// --------------- Title Area ---------------------
-            Container(
-              height: 230,
-              color: Colors.lightBlue[400],
-              child: SafeArea(
-                child: Column(
-                  children: <Widget>[
-                    /// --------------- First line - Menu Area ---------------------
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-
-                      children: <Widget>[
-                        /// Menu Icon
-                        Expanded(
-                          flex: 3,
-                          child: IconButton(
-                            icon: Icon(Icons.menu, color: Colors.white),
-                            onPressed: () async {await openMenu();},
-                          ),
-                        ),
-
-                        Expanded(
-                          flex: 8,
-                          child: Column(
-                            children: <Widget>[
-                              SizedBox(height: 10.0,),
-                              MaterialButton(
-                                elevation: 0.0,
-                                onPressed: () {},
-                                color: Colors.lightBlue,
-                                textColor: Colors.white,
-                                child: Icon(
-                                  Icons.account_balance,
-                                  size: 30,
-                                ),
-                                padding: EdgeInsets.all(20),
-                                shape: CircleBorder(side: BorderSide(color: Colors.white)),
-                              ),
-                              SizedBox(height: 10.0,),
-
-                              Text(Constants.rotaryApplicationName,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14.0,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        /// Debug Icon --->>> Remove before Production
-                        Expanded(
-                          flex: 3,
-                          child: IconButton(
-                            icon: Icon(Icons.build, color: Colors.white),
-                            onPressed: () async {await openDebugSettings();},
-                          ),
-                        ),
-                      ],
+    return Container(
+      height: 230,
+      color: Colors.lightBlue[400],
+      child: SafeArea(
+        child: Stack(
+          children: <Widget>[
+            /// ----------- Header - First line - Application Logo -----------------
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0),
+                  child: MaterialButton(
+                    elevation: 0.0,
+                    onPressed: () {},
+                    color: Colors.lightBlue,
+                    textColor: Colors.white,
+                    child: Icon(
+                      Icons.account_balance,
+                      size: 30,
                     ),
-                    SizedBox(height: 20.0,),
-
-                    /// --------------- Second line - Search Box Area ---------------------
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        SizedBox(width: 30.0,),
-                        Flexible(
-                          child: TextField(
-                            maxLines: 1,
-                            controller: searchController,
-                            textAlign: TextAlign.right,
-                            textInputAction: TextInputAction.search,
-                            onSubmitted: (value) async {await executeSearch(value);},
-                            style: TextStyle(
-                                fontSize: 14.0,
-                                height: 0.8,
-                                color: Colors.black
-                            ),
-                            decoration: InputDecoration(
-                                prefixIcon: IconButton(
-                                  color: Colors.blue,
-                                  icon: Icon(Icons.search),
-                                  onPressed: () async {await executeSearch(searchController.text);},
-                                ),
-                                border: new OutlineInputBorder(
-                                  borderRadius: const BorderRadius.all(
-                                    const Radius.circular(30.0),
-                                  ),
-                                ),
-                              filled: true,
-                              hintStyle: TextStyle(color: Colors.grey[800]),
-                              hintText: "מילת חיפוש",
-                              fillColor: Colors.white
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 30.0,),
-                      ],
-                    ),
-                  ],
+                    padding: EdgeInsets.all(20),
+                    shape: CircleBorder(side: BorderSide(color: Colors.white)),
+                  ),
                 ),
-              ),
+
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0),
+                  child: Text(Constants.rotaryApplicationName,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.bold
+                    ),
+                  ),
+                ),
+
+                /// ----------- Header - Second line - Search Box Area -----------------
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 50.0, top: 10.0, right: 50.0, bottom: 10.0),
+                    child: TextField(
+                      maxLines: 1,
+                      controller: searchController,
+                      textAlign: TextAlign.right,
+                      textInputAction: TextInputAction.search,
+                      onSubmitted: (value) async {await executeSearch(value);},
+                      style: TextStyle(
+                          fontSize: 14.0,
+                          height: 0.8,
+                          color: Colors.black
+                      ),
+                      decoration: InputDecoration(
+                          prefixIcon: IconButton(
+                            color: Colors.blue,
+                            icon: Icon(Icons.search),
+                            onPressed: () async {await executeSearch(searchController.text);},
+                          ),
+                          border: new OutlineInputBorder(
+                            borderRadius: const BorderRadius.all(
+                              const Radius.circular(30.0),
+                            ),
+                          ),
+                        filled: true,
+                        hintStyle: TextStyle(color: Colors.grey[800]),
+                        hintText: "מילת חיפוש",
+                        fillColor: Colors.white
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ]
+
+            /// --------------- Application Menu ---------------------
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                /// Menu Icon
+                Padding(
+                  padding: const EdgeInsets.only(left: 10.0, top: 10.0, right: 0.0, bottom: 0.0),
+                  child: IconButton(
+                    icon: Icon(Icons.menu, color: Colors.white),
+                    onPressed: () async {await openMenu();},
+                  ),
+                ),
+                Spacer(flex: 8),
+                /// Debug Icon --->>> Remove before Production
+                Padding(
+                  padding: const EdgeInsets.only(left: 0.0, top: 10.0, right: 10.0, bottom: 0.0),
+                  child: IconButton(
+                    icon: Icon(Icons.build, color: Colors.white),
+                    onPressed: () async {await openDebugSettings();},
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

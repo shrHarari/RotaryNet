@@ -50,8 +50,9 @@ class BubblesBoxDecoration extends StatelessWidget {
                 ),
             ),
             child: Align(
+              alignment: Alignment.centerRight,
               child: Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.only(left: 30.0, top: 15.0, right: 30.0, bottom: 15.0),
                 child: Text.rich(
                   buildTextSpan(aText),
                   textDirection: TextDirection.rtl,
@@ -60,7 +61,7 @@ class BubblesBoxDecoration extends StatelessWidget {
             ),
           ),
           Positioned(
-            top: 0,
+            right: 0,
             child: CustomPaint(
               painter: BubblesBoxDecorationPin(aBubbleColor: bubbleColor),
             ),
@@ -97,10 +98,16 @@ class BubblesBoxDecorationPin extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     var paint = Paint();
     paint.color = aBubbleColor;
+//    paint.color = Colors.black;
 
     var path = Path();
-    path.lineTo(-10, 0);
-    path.lineTo(0, -10);
+    path.moveTo(0, 0);
+    path.lineTo(-15, 0);
+    path.lineTo(0, -15);
+
+//    path.moveTo(0, 0);
+//    path.lineTo(0, 15);
+//    path.lineTo(15, 0);
     canvas.drawPath(path, paint);
   }
 

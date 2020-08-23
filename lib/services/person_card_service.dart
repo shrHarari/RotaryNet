@@ -122,27 +122,57 @@ class PersonCardService {
   }
   //#endregion
 
-  //#region Write PersonCard Object Data To DataBase [WriteToDB]
+  //#region Update PersonCard Object Data To DataBase [WriteToDB]
   //=============================================================================
-  Future writePersonCardObjectDataToDataBase(PersonCardObject aPersonCardObj) async {
+  Future updatePersonCardObjectDataToDataBase(PersonCardObject aPersonCardObj) async {
     try{
+      String jsonToPost = jsonEncode(aPersonCardObj);
+      print('updatePersonCardObjectDataToDataBase / Json: \n$jsonToPost');
 
+      /// *** debug:
+      if(GlobalsService.isDebugMode)
+          return "100";  // >>> Success
+      /// debug***
+
+      Response response = await post(Constants.rotaryPersonCardWriteToDataBaseRequestUrl,
+          headers: Constants.rotaryUrlHeader,
+          body: jsonToPost);
+
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+
+        String dbResult = jsonResponse;
+        if (int.parse(dbResult) > 0){
+          await LoggerService.log('<PersonCardService> PersonCard Update >>> OK');
+          return dbResult;
+        } else {
+          await LoggerService.log('<PersonCardService> PersonCard Update >>> Failed');
+          print('<PersonCardService> PersonCard Update >>> Failed');
+          return null;
+        }
+      } else {
+        await LoggerService.log('<PersonCardService> PersonCard Update >>> Failed');
+        print('<PersonCardService> PersonCard Update >>> Failed');
+        return null;
+      }
     }
     catch  (e) {
       await LoggerService.log('<PersonCardService> Write PersonCard Object Data To DataBase >>> ERROR: ${e.toString()}');
       developer.log(
         'writePersonCardObjectDataToDataBase',
         name: 'PersonCardService',
-        error: 'Write PersonCard Object Data To dataBase >>> ERROR: ${e.toString()}',
+        error: 'Write PersonCard Object Data To DataBase >>> ERROR: ${e.toString()}',
       );
       return null;
     }
   }
   //#endregion
 
-  //#region Set PersonCard Data for Debug [Data]
+  //#region Create Json PersonCardList [Data for Debug]
   String createJsonForPersonCardList() {
-    final String someText = "*N*של כרטיס הביקור של שחר הררי*N*פירוט נוסף*N*ועוד פירוט*N*שורה נונספת ארוכה מאודדדדדדדדדדד דדדדדדדדדדדדד דדדדדדדדדדדד  דדדדד*N*ועוד שורה ארררררוככככה יחדגיכחגי דגיכגדי דגכי ידגכי דגכי דגכי דגכי*N*סוף";
+    final String someText = "\\nשל כרטיס הביקור של שחר הררי\\nפירוט נוסף\\nועוד פירוט\\nשורה נונספת ארוכה מאודדדדדדדדדדד דדדדדדדדדדדדד דדדדדדדדדדדד  דדדדד\\nועוד שורה ארררררוככככה יחדגיכחגי דגיכגדי דגכי ידגכי דגכי דגכי דגכי\\nסוף";
 
     String personCardListJson =
         '['
@@ -359,4 +389,5 @@ class PersonCardService {
     }
   }
   //#endregion
+
 }

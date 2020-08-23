@@ -29,6 +29,7 @@ class _PersonCardSearchResultPageContentState extends State<PersonCardSearchResu
   }
 
   Future<List<PersonCardObject>> getPersonCardsListFromServer(bool shouldFail) async {
+    print('>>>>>>>>>>>>>>>>>>>>>getPersonCardsListFromServer');
     await Future<void>.delayed(Duration(seconds: 1));
     if (shouldFail) {
       throw PlatformException(code: '404');
@@ -66,10 +67,10 @@ class _PersonCardSearchResultPageContentState extends State<PersonCardSearchResu
           );
         }
         if (snapshot.hasError) {
-          print('PersonCardsSearchResultScreen / Snapshot Error Message: ${snapshot.error}');
+          print('PersonCardSearchResultPageContent / Snapshot Error Message: ${snapshot.error}');
           return SliverFillRemaining(
-            child: TextAndButton(
-              content: 'An error occurred',
+            child: DisplayErrorTextAndRetryButton(
+              errorText: 'שגיאה בשליפת כרטיסי הביקור',
               buttonText: 'נסה שוב',
               onPressed: retryGetData,
             ),
@@ -84,7 +85,7 @@ class _PersonCardSearchResultPageContentState extends State<PersonCardSearchResu
           );
         }
         return SliverFillRemaining(
-          child: Center(child: Text('No Content')),
+          child: Center(child: Text('אין תוצאות')),
         );
       },
     );
@@ -102,7 +103,6 @@ class BuildPersonCardListView extends StatelessWidget {
       width: double.infinity,
       margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
       child: ListView.builder(
-//          scrollDirection: Axis.vertical,
           shrinkWrap: true,
           physics: ScrollPhysics(),
           itemCount: personCardObjectsList.length,
@@ -180,10 +180,10 @@ class BuildPersonCardListView extends StatelessWidget {
   }
 }
 
-class TextAndButton extends StatelessWidget {
-  const TextAndButton({Key key, this.content, this.buttonText, this.onPressed})
+class DisplayErrorTextAndRetryButton extends StatelessWidget {
+  const DisplayErrorTextAndRetryButton({Key key, this.errorText, this.buttonText, this.onPressed})
       : super(key: key);
-  final String content;
+  final String errorText;
   final String buttonText;
   final VoidCallback onPressed;
 
@@ -195,7 +195,7 @@ class TextAndButton extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Text(
-            content,
+            errorText,
             style: Theme.of(context).textTheme.headline,
           ),
           RaisedButton(
