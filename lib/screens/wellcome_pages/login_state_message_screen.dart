@@ -34,7 +34,7 @@ class _LoginStateMessageScreen extends State<LoginStateMessageScreen> {
 
   Future<Null> createDataToDisplay() async {
 
-    if (widget.argDataObject.passUserObj.phoneNumberCleanLongFormat == null)
+    if (widget.argDataObject.passUserObj.email == null)
     {
       setState(() {
         sharedPreferencesData = 'Unable to read SharedPreferences';
@@ -51,9 +51,9 @@ class _LoginStateMessageScreen extends State<LoginStateMessageScreen> {
 
         sharedPreferencesData = 'User Data To Display: \n'
             'User Request Id: ${widget.argDataObject.passUserObj.requestId}\n'
-            'User Phone Number: ${widget.argDataObject.passUserObj.phoneNumberCleanLongFormat}\n'
-            'User Name: ${widget.argDataObject.passUserObj.firstName} ${widget.argDataObject.passUserObj.lastName}\n'
             'User Email: ${widget.argDataObject.passUserObj.email}\n'
+            'User Name: ${widget.argDataObject.passUserObj.firstName} ${widget.argDataObject.passUserObj.lastName}\n'
+            'User Password: ${widget.argDataObject.passUserObj.password}\n'
             'Login Status: ${EnumToString.parse(widget.argDataObject.passLoginObj.loginStatus)}';
         loading = false;
       });
@@ -86,7 +86,7 @@ class _LoginStateMessageScreen extends State<LoginStateMessageScreen> {
           title: Text(appBarTitle),
           actions: <Widget>[
             IconButton(
-              icon: Icon(Icons.open_with, color: Colors.white),
+              icon: Icon(Icons.build, color: Colors.white),
               onPressed: () async {await openDebugSettings();},
             ),
             FlatButton.icon(
@@ -116,7 +116,7 @@ class _LoginStateMessageScreen extends State<LoginStateMessageScreen> {
             GestureDetector(
               child: Container(
                 color: Colors.blue[50],
-                child: Text('Tracker Request',
+                child: Text('Login Request',
                   style: TextStyle(
                       color: Colors.blue[900],
                       fontSize: 20.0,

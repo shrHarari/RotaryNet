@@ -14,10 +14,8 @@ class UserService {
       String aEmail,
       String aFirstName,
       String aLastName,
-      String aPhoneNumber,
-      String aPhoneNumberDialCode,
-      String aPhoneNumberParse,
-      String aPhoneNumberCleanLongFormat) {
+      String aPassword,
+      bool aStayConnected) {
 
     if (aEmail == null)
       return UserObject(
@@ -25,20 +23,16 @@ class UserService {
           email: '',
           firstName: '',
           lastName: '',
-          phoneNumber: '',
-          phoneNumberDialCode: '',
-          phoneNumberParse: '',
-          phoneNumberCleanLongFormat: '');
+          password: '',
+          stayConnected: false);
     else
       return UserObject(
           requestId: aRequestId,
           email: aEmail,
           firstName: aFirstName,
           lastName: aLastName,
-          phoneNumber: aPhoneNumber,
-          phoneNumberDialCode: aPhoneNumberDialCode,
-          phoneNumberParse: aPhoneNumberParse,
-          phoneNumberCleanLongFormat: aPhoneNumberCleanLongFormat);
+          password: aPassword,
+          stayConnected: aStayConnected);
   }
   //#endregion
 
@@ -49,10 +43,8 @@ class UserService {
     String _email;
     String _firstName;
     String _lastName;
-    String _phoneNumber;
-    String _phoneNumberDialCode;
-    String _phoneNumberParse;
-    String _phoneNumberCleanLongFormat;
+    String _password;
+    bool _stayConnected = false;
 
     try{
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -61,20 +53,16 @@ class UserService {
       _email = prefs.getString(Constants.rotaryUserEmail);
       _firstName = prefs.getString(Constants.rotaryUserFirstName);
       _lastName = prefs.getString(Constants.rotaryUserLastName);
-      _phoneNumber = prefs.getString(Constants.rotaryUserPhoneNumber);
-      _phoneNumberDialCode = prefs.getString(Constants.rotaryUserPhoneNumberDialCode);
-      _phoneNumberParse = prefs.getString(Constants.rotaryUserPhoneNumberParse);
-      _phoneNumberCleanLongFormat = prefs.getString(Constants.rotaryUserPhoneNumberCleanLongFormat);
+      _password = prefs.getString(Constants.rotaryUserPassword);
+      _stayConnected = prefs.getBool(Constants.rotaryUserStayConnected);
 
       return createUserAsObject(
           _requestId,
           _email,
           _firstName,
           _lastName,
-          _phoneNumber,
-          _phoneNumberDialCode,
-          _phoneNumberParse,
-          _phoneNumberCleanLongFormat);
+          _password,
+          _stayConnected);
     }
     catch  (e) {
       await LoggerService.log('<UserService> Read User Object Data From SharedPreferences >>> ERROR: ${e.toString()}');
@@ -97,10 +85,8 @@ class UserService {
       await prefs.setString(Constants.rotaryUserEmail, aUserObj.email);
       await prefs.setString(Constants.rotaryUserFirstName, aUserObj.firstName);
       await prefs.setString(Constants.rotaryUserLastName, aUserObj.lastName);
-      await prefs.setString(Constants.rotaryUserPhoneNumber, aUserObj.phoneNumber);
-      await prefs.setString(Constants.rotaryUserPhoneNumberDialCode, aUserObj.phoneNumberDialCode);
-      await prefs.setString(Constants.rotaryUserPhoneNumberParse, aUserObj.phoneNumberParse);
-      await prefs.setString(Constants.rotaryUserPhoneNumberCleanLongFormat, aUserObj.phoneNumberCleanLongFormat);
+      await prefs.setString(Constants.rotaryUserPassword, aUserObj.password);
+      await prefs.setBool(Constants.rotaryUserStayConnected, aUserObj.stayConnected);
     }
     catch  (e) {
       await LoggerService.log('<UserService> Write User Object Data To SharedPreferences >>> ERROR: ${e.toString()}');
@@ -123,10 +109,8 @@ class UserService {
       await prefs.remove(Constants.rotaryUserEmail);
       await prefs.remove(Constants.rotaryUserFirstName);
       await prefs.remove(Constants.rotaryUserLastName);
-      await prefs.remove(Constants.rotaryUserPhoneNumber);
-      await prefs.remove(Constants.rotaryUserPhoneNumberDialCode);
-      await prefs.remove(Constants.rotaryUserPhoneNumberParse);
-      await prefs.remove(Constants.rotaryUserPhoneNumberCleanLongFormat);
+      await prefs.remove(Constants.rotaryUserPassword);
+      await prefs.remove(Constants.rotaryUserStayConnected);
     }
     catch (e){
       await LoggerService.log('<UserService> Clear User Object Data From SharedPreferences >>> ERROR: ${e.toString()}');
@@ -134,6 +118,26 @@ class UserService {
         'clearUserObjectDataFromSharedPreferences',
         name: 'UserService',
         error: 'Clear User Object Data From SharedPreferences >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+  //#endregion
+
+  //#region Exit From Application Update Shared Preferences
+  //=============================================================================
+  Future exitFromApplicationUpdateSharedPreferences() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+//      await prefs.remove(Constants.rotaryUserPassword);
+      await prefs.remove(Constants.rotaryUserStayConnected);
+    }
+    catch (e){
+      await LoggerService.log('<UserService> Exit From Application Update Shared Preferences >>> ERROR: ${e.toString()}');
+      developer.log(
+        'exitFromApplicationUpdateSharedPreferences',
+        name: 'UserService',
+        error: 'Exit From Application Update SharedPreferences >>> ERROR: ${e.toString()}',
       );
       return null;
     }

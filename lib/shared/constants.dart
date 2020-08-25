@@ -18,9 +18,10 @@ const String rotaryApplicationName = 'מועדון רוטרי';
   //#region Server URL
   // ==============================================================
   const Map<String, String> rotaryUrlHeader = {"Content-type": "application/json"};
-  const String rotaryUserRegistrationUrl = 'http://159.89.225.231:7775/api/registration/customers';
-  const String rotaryGetPersonCardListUrl = 'http://159.89.225.231:7775/api/registration/customers';
-  const String rotaryPersonCardWriteToDataBaseRequestUrl = 'http://159.89.225.231:7775/api/registration/register';
+  const String rotaryUserRegistrationUrl = 'http://159.89.225.231:7775/api/registration/';
+  const String rotaryUserLoginUrl = 'http://159.89.225.231:7775/api/login/';
+  const String rotaryGetPersonCardListUrl = 'http://159.89.225.231:7775/api/registration/';
+  const String rotaryPersonCardWriteToDataBaseRequestUrl = 'http://159.89.225.231:7775/api/registration/';
   //#endregion
 
   //#region User Data: SharedPreferences [Key Name]
@@ -29,10 +30,8 @@ const String rotaryApplicationName = 'מועדון רוטרי';
   const String rotaryUserEmail = 'Rotary User Email';
   const String rotaryUserFirstName = 'Rotary User First Name';
   const String rotaryUserLastName = 'Rotary User Family Name';
-  const String rotaryUserPhoneNumber = 'Rotary User Phone Number';
-  const String rotaryUserPhoneNumberDialCode = 'Rotary User Phone Number DialCode';
-  const String rotaryUserPhoneNumberParse = 'Rotary User Phone Number Parse';
-  const String rotaryUserPhoneNumberCleanLongFormat = 'Rotary User Phone Number Clean Long Format';
+  const String rotaryUserPassword = 'Rotary User Password';
+  const String rotaryUserStayConnected = 'Rotary User StayConnected';
   //#endregion
 
   //#region User Data: SharedPreferences [Initial Value]

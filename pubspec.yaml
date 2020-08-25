@@ -34,6 +34,7 @@ dependencies:
   connectivity: ^0.4.8+6
   path_provider: ^1.6.11
   shared_preferences: ^0.5.7+3
+  google_fonts: ^1.1.0
   http: ^0.12.1
   enum_to_string: ^1.0.9
   intl_phone_number_input: ^0.4.6+2

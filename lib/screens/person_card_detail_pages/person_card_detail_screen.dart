@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
-import 'package:rotary_net/screens/person_card_detail_edit_screen.dart';
+import 'file:///C:/FLUTTER_OCTIA/rotary_net/lib/screens/person_card_detail_pages/person_card_detail_edit_screen.dart';
 import 'package:rotary_net/services/person_card_service.dart';
 import 'package:rotary_net/shared/bubbles_box_decoration.dart';
 import 'package:rotary_net/shared/loading.dart';

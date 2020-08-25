@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
-//import 'package:rotary_net/screens/person_cards_search_result/person_cards_search_result_page.dart';
-import 'package:rotary_net/screens/person_card_search_result_page/person_card_search_result_page.dart';
 import 'package:rotary_net/screens/debug_setting_screen.dart';
-import 'package:rotary_net/shared/loading.dart';
+import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page.dart';
 import 'package:rotary_net/widgets/side_menu_widget.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 
@@ -32,7 +30,6 @@ class _RotaryMainScreenState extends State<RotaryMainScreen> {
   @override
   void initState() {
     super.initState();
-    createDataToDisplay();
 
     /// Lock Screen orientation
     SystemChrome.setPreferredOrientations([
@@ -51,23 +48,6 @@ class _RotaryMainScreenState extends State<RotaryMainScreen> {
       DeviceOrientation.portraitDown,
     ]);
     super.dispose();
-  }
-
-  Future<Null> createDataToDisplay() async {
-
-    if (widget.argDataObject.passUserObj.phoneNumberCleanLongFormat == null)
-    {
-      setState(() {
-        loading = false;
-      });
-    } else {
-      setState(() {
-        messageTitle = 'Dear ${widget.argDataObject.passUserObj.firstName} ${widget.argDataObject.passUserObj.lastName},';
-        messageBody = 'TODO: Design Main Screen.\n';
-
-        loading = false;
-      });
-    }
   }
 
   Future<void> openMenu() async {
@@ -91,7 +71,6 @@ class _RotaryMainScreenState extends State<RotaryMainScreen> {
       final result = await Navigator.push(
         context,
         MaterialPageRoute(
-//        builder: (context) => SliverHeaderExamplePage(),
           builder: (context) =>
               PersonCardSearchResultPage(argDataObject: widget.argDataObject,
                   searchText: aValueToSearch),
@@ -123,8 +102,7 @@ class _RotaryMainScreenState extends State<RotaryMainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return loading ? Loading() :
-    Scaffold(
+    return Scaffold(
         key: _scaffoldKey,
         backgroundColor: Colors.blue[50],
 

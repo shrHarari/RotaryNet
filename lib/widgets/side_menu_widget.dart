@@ -1,8 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/user_object.dart';
-import 'package:rotary_net/screen_about/about_screen.dart';
-import 'package:rotary_net/screen_about/privacy_policy_screen.dart';
+import 'file:///C:/FLUTTER_OCTIA/rotary_net/lib/screens/menu_pages/about_screen.dart';
+import 'file:///C:/FLUTTER_OCTIA/rotary_net/lib/screens/menu_pages/privacy_policy_screen.dart';
+import 'package:rotary_net/services/user_service.dart';
 
 class SideMenuDrawer extends StatelessWidget {
   static const routeName = '/RotaryMainScreen';
@@ -10,58 +11,49 @@ class SideMenuDrawer extends StatelessWidget {
 
   SideMenuDrawer({Key key, @required this.userObj}) : super(key: key);
 
-  Text getUserTitle() {
-    String userTitle = 'שלום אורח';
+  void exitFromApp() async {
+    // Update SharedPreferences [Remove StayConnected]
+    final UserService userService = UserService();
+    await userService.exitFromApplicationUpdateSharedPreferences();
 
-    if (this.userObj.firstName.toString() != '') {
-      userTitle = 'שלום ${userObj.firstName} ${userObj.lastName}';
-    }
-
-    return Text(
-        userTitle,
-        style: TextStyle(color: Colors.black, fontSize: 16)
-    );
-  }
-
-  void exitFromApp() {
     exit(0);
   }
 
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+    print('height: $height');
     return Drawer(
       elevation: 10.0,
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          DrawerHeader(
-            child:
-            Column(
-              children: <Widget>[
-                SizedBox(height: 10.0,),
-                MaterialButton(
-                  onPressed: () {},
-                  color: Colors.blue,
-                  textColor: Colors.white,
-                  child: Icon(
-                    Icons.person_outline,
-                    size: 30,
+          Container(
+            height: height * .28,
+            child: DrawerHeader(
+              child:
+              Column(
+                children: <Widget>[
+                  SizedBox(height: 10.0,),
+                  MaterialButton(
+                    onPressed: () {},
+                    color: Colors.blue,
+                    textColor: Colors.white,
+                    child: Icon(
+                      Icons.person_outline,
+                      size: 30,
+                    ),
+                    padding: EdgeInsets.all(16),
+                    shape: CircleBorder(),
                   ),
-                  padding: EdgeInsets.all(16),
-                  shape: CircleBorder(),
-                ),
-                SizedBox(height: 10.0,),
 
-                // שלום אורח
-                getUserTitle(),
-
-                Text(
-                  'התחברות',
-                  style: TextStyle(color: Colors.blue, fontSize: 14),
-                ),
-              ],
+                  buildUserWelcomeTitle(),  // שלום אורח
+                  buildPersonalAreaTitle(context), // לאיזור האישי
+                ],
+              ),
             ),
           ),
+
           ListTile(
             leading: Icon(Icons.dvr),
             title: Text('אודות'),
@@ -105,6 +97,39 @@ class SideMenuDrawer extends StatelessWidget {
             },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget buildUserWelcomeTitle ()
+  {
+    String userTitle = 'שלום אורח';
+
+    if (this.userObj.firstName.toString() != '') {
+      userTitle = 'שלום ${userObj.firstName} ${userObj.lastName}';
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 10.0),
+      child: Text(
+        userTitle,
+        style: TextStyle(color: Colors.black, fontSize: 16)
+      ),
+    );
+  }
+
+  Widget buildPersonalAreaTitle (BuildContext context)
+  {
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).pop();
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(top: 20.0),
+        child: Text(
+          'לאיזור האישי',
+          style: TextStyle(color: Colors.blue, fontSize: 14),
+      ),
       ),
     );
   }

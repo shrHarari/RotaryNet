@@ -85,14 +85,14 @@ class RegistrationService {
       String _formattedTime = DateFormat('Hms').format(_now);
       String _formattedDateTime = '${_formattedDate}T${_formattedTime}Z';
 
-      String jsonToPost =
-          '{'
-            '"email": ${aUserObj.email.toString()}, '
-            '"firstName": ${aUserObj.firstName}, '
-            '"lastName": ${aUserObj.lastName} '
-            '"phoneNumberDialCode": ${aUserObj.phoneNumberDialCode} '
-            '"phoneNumberParse": ${aUserObj.phoneNumberParse} '
-          '}';
+      String jsonToPost = jsonEncode(aUserObj);
+//          '{'
+//            '"email": ${aUserObj.email.toString()}, '
+//            '"firstName": ${aUserObj.firstName}, '
+//            '"lastName": ${aUserObj.lastName} '
+//            '"password": ${aUserObj.password} '
+//          '}';
+//      print('>>>>>>> createUserRegistrationRequestJson / jsonToPost: $jsonToPost');
 
       await LoggerService.log('<RegistrationService> Create User Registration Request JSON: \n$jsonToPost');
       return jsonToPost;
@@ -155,5 +155,94 @@ class RegistrationService {
     }
   }
   //#endregion
+
+  //#region Create User Login Request Json [JSON]
+  // ============================================================
+  Future<String> createUserLoginRequestJson(UserObject aUserObj) async {
+    try {
+      String jsonToPost = jsonEncode(aUserObj);
+
+      await LoggerService.log('<RegistrationService> Create User Login Request JSON: \n$jsonToPost');
+      return jsonToPost;
+    }
+    catch (e) {
+      await LoggerService.log('<RegistrationService> Create User Login Request JSON >>> ERROR: ${e.toString()}');
+      developer.log(
+        'createUserLoginRequestJson',
+        name: 'RegistrationService',
+        error: 'User Request JSON >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+  //#endregion
+
+  //#region User Login Confirm At SERVER [POST]
+  // ===============================================================
+  Future<UserObject> userLoginConfirmAtServer(UserObject aUserObj) async {
+    try {
+      final UserService userService = UserService();
+      UserObject currentUserObj = await userService.readUserObjectDataFromSharedPreferences();
+
+      //***** for debug *****
+      // When the Server side will be ready >>> remove that calling
+      if (GlobalsService.isDebugMode) {
+
+        if((currentUserObj.email == aUserObj.email) && (currentUserObj.password == aUserObj.password))
+        {
+          // Return full UserObject (with User Name)
+          currentUserObj.setRequestId('10'); // ===>>> if Login Check OK
+        } else {
+          // Return Empty UserObject (without User Name)
+          currentUserObj = aUserObj;
+          currentUserObj.setRequestId('-9');  // ===>>> if Login Check Failed
+          ;
+        }
+        return currentUserObj;
+      }
+      //***** for debug *****
+
+      // Create UserObject to send to Server to confirm User Login
+      String jsonToPost = await createUserLoginRequestJson(aUserObj);
+      // Check If User Login Parameters are OK !!!
+      Response response = await post(Constants.rotaryUserLoginUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
+
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+
+        String checkResult = jsonResponse;
+        if (int.parse(checkResult) > 0)
+        {
+          await LoggerService.log('<RegistrationService> User Login Confirm At SERVER >>> OK\nHeader: $contentType \nUserRequestID: $checkResult');
+          // Return full UserObject (with User Name)
+          currentUserObj.setRequestId(checkResult); // ===>>> if Login Check OK
+          return currentUserObj;
+        } else {
+          await LoggerService.log('<RegistrationService> User Login Confirm At SERVER >>> Failed: Unable to get UserRequestID: $checkResult');
+          print('<RegistrationService> User Login Confirm At SERVER >>> Failed: Unable to get UserRequestID: $checkResult');
+          // Return Empty UserObject (without User Name)
+          currentUserObj = aUserObj;
+          currentUserObj.setRequestId('-9');  // ===>>> if Login Check Failed
+          return currentUserObj;
+        }
+      } else {
+        await LoggerService.log('<RegistrationService> User Login Confirm At SERVER >>> Failed: Could not Login >>> ${response.statusCode}');
+        print('<RegistrationService> User Login Confirm At SERVER Failed >>> Could not Login >>> ${response.statusCode}');
+        return null;
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<RegistrationService> Send Register User Request To SERVER >>> Server ERROR: ${e.toString()}');
+      developer.log(
+        'sendRegisterUserRequestToServer',
+        name: 'RegistrationService',
+        error: 'User Request >>> Server ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+//#endregion
 
 }

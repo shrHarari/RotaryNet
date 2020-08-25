@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
 import 'package:rotary_net/objects/user_object.dart';
-import 'package:rotary_net/screens/login_state_message_screen.dart';
-import 'package:rotary_net/screens/registration_screen.dart';
+import 'file:///C:/FLUTTER_OCTIA/rotary_net/lib/screens/wellcome_pages/login_state_message_screen.dart';
 import 'package:rotary_net/screens/rotary_main_screen.dart';
+import 'package:rotary_net/screens/wellcome_pages/login_screen.dart';
+import 'package:rotary_net/screens/wellcome_pages/register_screen.dart';
 import 'package:rotary_net/services/login_service.dart';
 import 'package:rotary_net/services/user_service.dart';
 import 'package:rotary_net/services/registration_service.dart';
@@ -24,7 +25,7 @@ class Wrapper extends StatefulWidget {
 class _WrapperState extends State<Wrapper> {
 
   Future<LoginObject> loginObjForBuild;
-  final UserService personCardService = UserService();
+  final UserService userService = UserService();
   final RegistrationService registrationService = RegistrationService();
   ArgDataUserObject argDataObject;
   bool loading = true;
@@ -53,7 +54,8 @@ class _WrapperState extends State<Wrapper> {
       loading = true;
     });
 
-    userObj = await personCardService.readUserObjectDataFromSharedPreferences();
+    userObj = await userService.readUserObjectDataFromSharedPreferences();
+
     loginObject = await LoginService.readLoginObjectDataFromSharedPreferences();
     print('readLoginObjectDataFromSharedPreferences: ${loginObject.loginStatus}');
     await LoginService.setLogin(loginObject);
@@ -86,14 +88,15 @@ class _WrapperState extends State<Wrapper> {
 
               switch (currentLoginObj.loginStatus) {
                 case Constants.LoginStatusEnum.NoRequest:
-                  return RegistrationScreen();
-                  break;
+                  return RegisterScreen(argDataObject: argDataObject);
                 case Constants.LoginStatusEnum.Waiting:
                   return LoginStateMessageScreen(argDataObject: argDataObject);
                   break;
                 case Constants.LoginStatusEnum.Accepted:
-                /// If RequestStatus = "Accepted" => Display Gates List
-                  return RotaryMainScreen(argDataObject: argDataObject);
+                  if ((argDataObject.passUserObj.stayConnected == null) || (!argDataObject.passUserObj.stayConnected))
+                    return LoginScreen(argDataObject: argDataObject);
+                  else
+                    return RotaryMainScreen(argDataObject: argDataObject);
                   break;
                 case Constants.LoginStatusEnum.NoStatus:
                   return ErrorMessage(

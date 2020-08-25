@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
-import 'package:rotary_net/screens/registration_screen.dart';
+import 'file:///C:/FLUTTER_OCTIA/rotary_net/lib/z_old_screens/registration_screen.dart';
 import 'package:rotary_net/screens/rotary_main_screen.dart';
+import 'package:rotary_net/screens/wellcome_pages/register_screen.dart';
 import 'package:rotary_net/shared/error_message.dart';
 import 'package:rotary_net/wrapper/wrapper.dart';
 
@@ -16,8 +17,11 @@ class RouteGenerator {
       case Wrapper.routeName:
         return MaterialPageRoute(builder: (_) => Wrapper());
 
-      case RegistrationScreen.routeName:
-        return MaterialPageRoute(builder: (_) => RegistrationScreen());
+//      case RegistrationScreen.routeName:
+//        return MaterialPageRoute(builder: (_) => RegistrationScreen());
+
+      case RegisterScreen.routeName:
+        return MaterialPageRoute(builder: (_) => RegisterScreen());
 
       case RotaryMainScreen.routeName:
         if (args is ArgDataUserObject) {

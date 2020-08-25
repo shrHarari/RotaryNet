@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
-import 'package:rotary_net/screens/person_card_search_result_page/person_card_search_result_page_content.dart';
-import 'package:rotary_net/screens/person_card_search_result_page/person_card_search_result_page_header_textbox.dart';
-import 'package:rotary_net/screens/person_card_search_result_page/person_card_search_result_page_header_title.dart';
+import 'file:///C:/FLUTTER_OCTIA/rotary_net/lib/screens/person_card_detail_pages/person_card_detail_screen.dart';
+import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_card_tile.dart';
+import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_header_textbox.dart';
+import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_header_title.dart';
 import 'package:rotary_net/services/person_card_service.dart';
 import 'package:rotary_net/shared/loading.dart';
 import 'package:rotary_net/widgets/side_menu_widget.dart';
@@ -24,14 +25,15 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
   TextEditingController searchController = TextEditingController();
 
   final PersonCardService personCardService = PersonCardService();
-  Future<List<PersonCardObject>> personCardsForBuild;
+  Future<List<PersonCardObject>> personCardsListForBuild;
+  List<PersonCardObject> currentPersonCardsList;
 
   @override
   void initState() {
     super.initState();
 
     searchController = TextEditingController(text: widget.searchText);
-    personCardsForBuild = getPersonCardsListFromServer(widget.searchText);
+    personCardsListForBuild = getPersonCardsListFromServer(widget.searchText);
   }
 
   void renderSearch(String aSearchText){
@@ -40,7 +42,7 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
 
     setState(() {
       searchController = TextEditingController(text: aSearchText);
-      personCardsForBuild = getPersonCardsListFromServer(aSearchText);
+      personCardsListForBuild = getPersonCardsListFromServer(aSearchText);
     });
   }
 
@@ -57,12 +59,28 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
     _scaffoldKey.currentState.openDrawer();
   }
 
+  openPersonCardDetailScreen(PersonCardObject aPersonCardObj) {
+    ArgDataPersonCardObject argDataPersonCardObject;
+    argDataPersonCardObject = ArgDataPersonCardObject(widget.argDataObject.passUserObj, aPersonCardObj, widget.argDataObject.passLoginObj);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PersonCardDetailScreen(argDataObject: argDataPersonCardObject),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final _itemExtent = 56.0;
+    final generatedList = List.generate(500, (index) => 'Item $index');
 
     return FutureBuilder<List<PersonCardObject>>(
-      future: personCardsForBuild,
+      future: personCardsListForBuild,
       builder: (context, snapshot) {
+        if (snapshot.hasData) currentPersonCardsList = snapshot.data;
+
         return Scaffold(
           key: _scaffoldKey,
           drawer: Container(
@@ -101,7 +119,7 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
                         child: Loading()
                     ) :
 
-                    (snapshot.hasError)  ?
+                    (snapshot.hasError) ?
                       SliverFillRemaining(
                         child: DisplayErrorTextAndRetryButton(
                             errorText: 'שגיאה בשליפת כרטיסי הביקור',
@@ -110,13 +128,20 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
                         ),
                       ) :
 
-                      (snapshot.hasData)  ?
-                      SliverToBoxAdapter(
-                        child: PersonCardSearchResultPageContent(
-                            argDataObject: widget.argDataObject,
-                            personCardsList: snapshot.data
-                        ),
-                      ) :
+                      (snapshot.hasData) ?
+                          SliverFixedExtentList(
+                              itemExtent: 130.0,
+                              delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                    return BuildPersonCardTile(
+                                        aPersonCardObj: currentPersonCardsList[index],
+                                        aFuncOpenPersonCardDetail: openPersonCardDetailScreen,
+                                    );
+                                  },
+                              childCount: currentPersonCardsList.length,
+                            ),
+                          ) :
+                      //========================================
                       SliverFillRemaining(
                         child: Center(child: Text('אין תוצאות')),
                       ),
@@ -153,39 +178,6 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
           ),
         );
       },
-    );
-  }
-}
-
-class DisplayErrorTextAndRetryButton extends StatelessWidget {
-  const DisplayErrorTextAndRetryButton({Key key, this.errorText, this.buttonText, this.onPressed})
-      : super(key: key);
-  final String errorText;
-  final String buttonText;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            errorText,
-            style: Theme.of(context).textTheme.headline,
-          ),
-          RaisedButton(
-            color: Theme.of(context).primaryColor,
-            child: Text(buttonText,
-                style: Theme.of(context)
-                    .textTheme
-                    .headline
-                    .copyWith(color: Colors.white)),
-            onPressed: onPressed,
-          ),
-        ],
-      ),
     );
   }
 }
