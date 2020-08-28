@@ -8,7 +8,6 @@ import 'package:rotary_net/screens/debug_setting_screen.dart';
 import 'package:rotary_net/screens/rotary_main_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/register_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/wellcome_decoration_style.dart';
-import 'package:rotary_net/services/login_service.dart';
 import 'package:rotary_net/services/registration_service.dart';
 import 'package:rotary_net/services/user_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;

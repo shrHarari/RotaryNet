@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
 import 'package:rotary_net/objects/user_object.dart';
-import 'file:///C:/FLUTTER_OCTIA/rotary_net/lib/screens/wellcome_pages/login_state_message_screen.dart';
 import 'package:rotary_net/screens/rotary_main_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/login_screen.dart';
+import 'package:rotary_net/screens/wellcome_pages/login_state_message_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/register_screen.dart';
 import 'package:rotary_net/services/login_service.dart';
 import 'package:rotary_net/services/user_service.dart';
@@ -12,7 +12,7 @@ import 'package:rotary_net/shared/constants.dart' as Constants;
 import 'package:rotary_net/objects/login_object.dart';
 import 'package:rotary_net/services/globals_service.dart';
 import 'package:rotary_net/services/logger_service.dart';
-import 'package:rotary_net/shared/error_message.dart';
+import 'package:rotary_net/shared/error_message_screen.dart';
 import 'package:rotary_net/shared/loading.dart';
 
 class Wrapper extends StatefulWidget {
@@ -99,19 +99,19 @@ class _WrapperState extends State<Wrapper> {
                     return RotaryMainScreen(argDataObject: argDataObject);
                   break;
                 case Constants.LoginStatusEnum.NoStatus:
-                  return ErrorMessage(
+                  return ErrorMessageScreen(
                       errTitle: 'Registration Message',
                       errMsg: 'NoStatus Phase'
                   );
                   break;
                 case Constants.LoginStatusEnum.Rejected:
-                  return ErrorMessage(
+                  return ErrorMessageScreen(
                       errTitle: 'Registration Message',
                       errMsg: 'Rejected Phase'
                   );
                   break;
                 default:
-                  return ErrorMessage(
+                  return ErrorMessageScreen(
                       errTitle: 'Registration Message',
                       errMsg: 'Default Phase'
                   );

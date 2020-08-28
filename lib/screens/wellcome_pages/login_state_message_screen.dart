@@ -34,7 +34,7 @@ class _LoginStateMessageScreen extends State<LoginStateMessageScreen> {
 
   Future<Null> createDataToDisplay() async {
 
-    if (widget.argDataObject.passUserObj.email == null)
+    if (widget.argDataObject.passUserObj.emailId == null)
     {
       setState(() {
         sharedPreferencesData = 'Unable to read SharedPreferences';
@@ -51,7 +51,7 @@ class _LoginStateMessageScreen extends State<LoginStateMessageScreen> {
 
         sharedPreferencesData = 'User Data To Display: \n'
             'User Request Id: ${widget.argDataObject.passUserObj.requestId}\n'
-            'User Email: ${widget.argDataObject.passUserObj.email}\n'
+            'User Email: ${widget.argDataObject.passUserObj.emailId}\n'
             'User Name: ${widget.argDataObject.passUserObj.firstName} ${widget.argDataObject.passUserObj.lastName}\n'
             'User Password: ${widget.argDataObject.passUserObj.password}\n'
             'Login Status: ${EnumToString.parse(widget.argDataObject.passLoginObj.loginStatus)}';

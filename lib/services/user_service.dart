@@ -11,16 +11,16 @@ class UserService {
   //=============================================================================
   UserObject createUserAsObject(
       String aRequestId,
-      String aEmail,
+      String aEmailId,
       String aFirstName,
       String aLastName,
       String aPassword,
       bool aStayConnected) {
 
-    if (aEmail == null)
+    if (aEmailId == null)
       return UserObject(
           requestId: Constants.rotaryNoRequestIdInitValue,
-          email: '',
+          emailId: '',
           firstName: '',
           lastName: '',
           password: '',
@@ -28,7 +28,7 @@ class UserService {
     else
       return UserObject(
           requestId: aRequestId,
-          email: aEmail,
+          emailId: aEmailId,
           firstName: aFirstName,
           lastName: aLastName,
           password: aPassword,
@@ -40,7 +40,7 @@ class UserService {
   //=============================================================================
   Future<UserObject> readUserObjectDataFromSharedPreferences() async {
     String _requestId;
-    String _email;
+    String _emailId;
     String _firstName;
     String _lastName;
     String _password;
@@ -50,7 +50,7 @@ class UserService {
       SharedPreferences prefs = await SharedPreferences.getInstance();
 
       _requestId = prefs.getString(Constants.rotaryUserRequestId);
-      _email = prefs.getString(Constants.rotaryUserEmail);
+      _emailId = prefs.getString(Constants.rotaryUserEmailId);
       _firstName = prefs.getString(Constants.rotaryUserFirstName);
       _lastName = prefs.getString(Constants.rotaryUserLastName);
       _password = prefs.getString(Constants.rotaryUserPassword);
@@ -58,7 +58,7 @@ class UserService {
 
       return createUserAsObject(
           _requestId,
-          _email,
+          _emailId,
           _firstName,
           _lastName,
           _password,
@@ -82,7 +82,7 @@ class UserService {
     try{
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString(Constants.rotaryUserRequestId, aUserObj.requestId);
-      await prefs.setString(Constants.rotaryUserEmail, aUserObj.email);
+      await prefs.setString(Constants.rotaryUserEmailId, aUserObj.emailId);
       await prefs.setString(Constants.rotaryUserFirstName, aUserObj.firstName);
       await prefs.setString(Constants.rotaryUserLastName, aUserObj.lastName);
       await prefs.setString(Constants.rotaryUserPassword, aUserObj.password);
@@ -106,7 +106,7 @@ class UserService {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.remove(Constants.rotaryUserRequestId);
-      await prefs.remove(Constants.rotaryUserEmail);
+      await prefs.remove(Constants.rotaryUserEmailId);
       await prefs.remove(Constants.rotaryUserFirstName);
       await prefs.remove(Constants.rotaryUserLastName);
       await prefs.remove(Constants.rotaryUserPassword);

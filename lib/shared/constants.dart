@@ -27,7 +27,7 @@ const String rotaryApplicationName = 'מועדון רוטרי';
   //#region User Data: SharedPreferences [Key Name]
   // ==============================================================
   const String rotaryUserRequestId = 'Rotary User Request ID';
-  const String rotaryUserEmail = 'Rotary User Email';
+  const String rotaryUserEmailId = 'Rotary User EmailId';
   const String rotaryUserFirstName = 'Rotary User First Name';
   const String rotaryUserLastName = 'Rotary User Family Name';
   const String rotaryUserPassword = 'Rotary User Password';

@@ -1,15 +1,48 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/user_object.dart';
-import 'file:///C:/FLUTTER_OCTIA/rotary_net/lib/screens/menu_pages/about_screen.dart';
-import 'file:///C:/FLUTTER_OCTIA/rotary_net/lib/screens/menu_pages/privacy_policy_screen.dart';
+import 'package:rotary_net/screens/menu_pages/about_screen.dart';
+import 'package:rotary_net/screens/menu_pages/privacy_policy_screen.dart';
+import 'package:rotary_net/screens/personal_area_pages/personal_area_page_screen.dart';
 import 'package:rotary_net/services/user_service.dart';
 
-class SideMenuDrawer extends StatelessWidget {
-  static const routeName = '/RotaryMainScreen';
-  final  UserObject userObj;
+class ApplicationMenuDrawer extends StatefulWidget {
+  final  UserObject argUserObj;
+  final Function argReturnDataFunc;
 
-  SideMenuDrawer({Key key, @required this.userObj}) : super(key: key);
+  ApplicationMenuDrawer({Key key, @required this.argUserObj, this.argReturnDataFunc }) : super(key: key);
+
+  @override
+  _ApplicationMenuDrawerState createState() => _ApplicationMenuDrawerState();
+}
+
+class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
+
+//  UserObject displayUserObj;
+
+  @override
+  void initState() {
+//    displayUserObj = widget.argUserObj;
+    super.initState();
+  }
+
+  openPersonalAreaScreen(UserObject aUserObj) async {
+
+    // 1. Drawer --> open PersonalAreaScreen --> then get updated User Object
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => PersonalAreaScreen(argUserObject: aUserObj),
+      ),
+    );
+
+    // 2. We have to send User Object back to RotaryMainScreen
+    // 3. so -->> Call RotaryMainScreen Function (callback function)
+    if (result != null)
+      widget.argReturnDataFunc(result);
+
+    // 4. finally, close the Drawer
+    Navigator.of(context).pop();
+  }
 
   void exitFromApp() async {
     // Update SharedPreferences [Remove StayConnected]
@@ -22,7 +55,6 @@ class SideMenuDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
-    print('height: $height');
     return Drawer(
       elevation: 10.0,
       child: ListView(
@@ -48,7 +80,7 @@ class SideMenuDrawer extends StatelessWidget {
                   ),
 
                   buildUserWelcomeTitle(),  // שלום אורח
-                  buildPersonalAreaTitle(context), // לאיזור האישי
+                  buildPersonalAreaTitle(context, widget.argUserObj), // לאיזור האישי
                 ],
               ),
             ),
@@ -72,11 +104,11 @@ class SideMenuDrawer extends StatelessWidget {
             onTap: () => {
               Navigator.of(context).pop(),
               Navigator.of(context).push(
-                  MaterialPageRoute(
+                MaterialPageRoute(
                   builder: (context) => PrivacyPolicyScreen(),
-                  ),
-                )
-              },
+                ),
+              )
+            },
           ),
           ListTile(
             leading: Icon(Icons.receipt),
@@ -105,31 +137,29 @@ class SideMenuDrawer extends StatelessWidget {
   {
     String userTitle = 'שלום אורח';
 
-    if (this.userObj.firstName.toString() != '') {
-      userTitle = 'שלום ${userObj.firstName} ${userObj.lastName}';
+    if (widget.argUserObj.firstName.toString() != '') {
+      userTitle = 'שלום ${widget.argUserObj.firstName} ${widget.argUserObj.lastName}';
     }
 
     return Padding(
       padding: const EdgeInsets.only(top: 10.0),
       child: Text(
-        userTitle,
-        style: TextStyle(color: Colors.black, fontSize: 16)
+          userTitle,
+          style: TextStyle(color: Colors.black, fontSize: 16)
       ),
     );
   }
 
-  Widget buildPersonalAreaTitle (BuildContext context)
+  Widget buildPersonalAreaTitle (BuildContext context, UserObject aUserObj)
   {
     return InkWell(
-      onTap: () {
-        Navigator.of(context).pop();
-      },
+      onTap: () {openPersonalAreaScreen(aUserObj);},
       child: Padding(
         padding: const EdgeInsets.only(top: 20.0),
         child: Text(
           'לאיזור האישי',
           style: TextStyle(color: Colors.blue, fontSize: 14),
-      ),
+        ),
       ),
     );
   }

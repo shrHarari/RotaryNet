@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
-import 'file:///C:/FLUTTER_OCTIA/rotary_net/lib/screens/person_card_detail_pages/person_card_detail_screen.dart';
+import 'package:rotary_net/screens/person_card_detail_pages/person_card_detail_screen.dart';
 import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_card_tile.dart';
 import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_header_textbox.dart';
 import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_header_title.dart';
 import 'package:rotary_net/services/person_card_service.dart';
 import 'package:rotary_net/shared/loading.dart';
-import 'package:rotary_net/widgets/side_menu_widget.dart';
+import 'package:rotary_net/widgets/application_menu_widget.dart';
 
 class PersonCardSearchResultPage extends StatefulWidget {
   static const routeName = '/PersonCardSearchResultPage';
@@ -50,7 +50,7 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
 
 //    await Future<void>.delayed(Duration(seconds: 1));
 
-    dynamic personCardsList = await personCardService.getPersonCardListSearchFromServer(widget.searchText);
+    dynamic personCardsList = await personCardService.getPersonCardsListSearchFromServer(widget.searchText);
     return personCardsList;
   }
 
@@ -73,9 +73,6 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
 
   @override
   Widget build(BuildContext context) {
-    final _itemExtent = 56.0;
-    final generatedList = List.generate(500, (index) => 'Item $index');
-
     return FutureBuilder<List<PersonCardObject>>(
       future: personCardsListForBuild,
       builder: (context, snapshot) {
@@ -86,9 +83,10 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
           drawer: Container(
             width: 250,
             child: Drawer(
-              child: SideMenuDrawer(userObj: widget.argDataObject.passUserObj),
+              child: ApplicationMenuDrawer(argUserObj: widget.argDataObject.passUserObj),
             ),
           ),
+
           body: Container(
             child: Stack(
               children: [
@@ -129,18 +127,18 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
                       ) :
 
                       (snapshot.hasData) ?
-                          SliverFixedExtentList(
-                              itemExtent: 130.0,
-                              delegate: SliverChildBuilderDelegate(
-                                  (context, index) {
-                                    return BuildPersonCardTile(
-                                        aPersonCardObj: currentPersonCardsList[index],
-                                        aFuncOpenPersonCardDetail: openPersonCardDetailScreen,
-                                    );
-                                  },
-                              childCount: currentPersonCardsList.length,
-                            ),
-                          ) :
+                        SliverFixedExtentList(
+                            itemExtent: 130.0,
+                            delegate: SliverChildBuilderDelegate(
+                                (context, index) {
+                                  return BuildPersonCardTile(
+                                      aPersonCardObj: currentPersonCardsList[index],
+                                      aFuncOpenPersonCardDetail: openPersonCardDetailScreen,
+                                  );
+                                },
+                            childCount: currentPersonCardsList.length,
+                          ),
+                        ) :
                       //========================================
                       SliverFillRemaining(
                         child: Center(child: Text('אין תוצאות')),
@@ -178,6 +176,39 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
           ),
         );
       },
+    );
+  }
+}
+
+class DisplayErrorTextAndRetryButton extends StatelessWidget {
+  const DisplayErrorTextAndRetryButton({Key key, this.errorText, this.buttonText, this.onPressed})
+      : super(key: key);
+  final String errorText;
+  final String buttonText;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            errorText,
+            style: Theme.of(context).textTheme.headline,
+          ),
+          RaisedButton(
+            color: Theme.of(context).primaryColor,
+            child: Text(buttonText,
+                style: Theme.of(context)
+                    .textTheme
+                    .headline
+                    .copyWith(color: Colors.white)),
+            onPressed: onPressed,
+          ),
+        ],
+      ),
     );
   }
 }

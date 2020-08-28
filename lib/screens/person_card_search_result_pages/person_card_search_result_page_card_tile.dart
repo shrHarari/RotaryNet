@@ -54,7 +54,7 @@ class BuildPersonCardTile extends StatelessWidget {
                         ),
                         Text(
                           aPersonCardObj.address,
-                          style: TextStyle(color: Colors.grey[900], fontSize: 16.0, fontWeight: FontWeight.w400),
+                          style: TextStyle(color: Colors.grey[900], fontSize: 12.0, fontWeight: FontWeight.w400),
                         ),
                       ],
                     ),
@@ -68,39 +68,6 @@ class BuildPersonCardTile extends StatelessWidget {
         {
           aFuncOpenPersonCardDetail(aPersonCardObj);
         },
-      ),
-    );
-  }
-}
-
-class DisplayErrorTextAndRetryButton extends StatelessWidget {
-  const DisplayErrorTextAndRetryButton({Key key, this.errorText, this.buttonText, this.onPressed})
-      : super(key: key);
-  final String errorText;
-  final String buttonText;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            errorText,
-            style: Theme.of(context).textTheme.headline,
-          ),
-          RaisedButton(
-            color: Theme.of(context).primaryColor,
-            child: Text(buttonText,
-                style: Theme.of(context)
-                    .textTheme
-                    .headline
-                    .copyWith(color: Colors.white)),
-            onPressed: onPressed,
-          ),
-        ],
       ),
     );
   }

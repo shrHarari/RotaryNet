@@ -2,15 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
-import 'file:///C:/FLUTTER_OCTIA/rotary_net/lib/screens/person_card_detail_pages/person_card_detail_edit_screen.dart';
+import 'package:rotary_net/screens/person_card_detail_pages/person_card_detail_edit_screen.dart';
 import 'package:rotary_net/services/person_card_service.dart';
 import 'package:rotary_net/shared/bubbles_box_decoration.dart';
 import 'package:rotary_net/shared/loading.dart';
-import 'package:rotary_net/widgets/side_menu_widget.dart';
+import 'package:rotary_net/widgets/application_menu_widget.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 import 'package:rotary_net/utils/utils_class.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:geolocator/geolocator.dart';
 
 class PersonCardDetailScreen extends StatefulWidget {
   static const routeName = '/PersonCardDetailScreen';
@@ -48,90 +46,6 @@ class _PersonCardDetailScreenState extends State<PersonCardDetailScreen> {
     _scaffoldKey.currentState.openDrawer();
   }
 
-  Future<void> makePhoneCall(String aPhoneNumber) async {
-    try {
-      final String _phoneCommand = "tel:$aPhoneNumber";
-      if (await canLaunch(_phoneCommand)) {
-        await launch(_phoneCommand);
-      } else {
-        throw 'Could not Make a Phone Call: $aPhoneNumber';
-      }
-    }
-    catch (ex) {
-      print ('$ex.toString()');
-    }
-  }
-
-  Future<void> sendSms(String aPhoneNumber) async {
-    try {
-      final String _phoneCommand = "sms:$aPhoneNumber";
-      if (await canLaunch(_phoneCommand)) {
-        await launch(_phoneCommand);
-      } else {
-        throw 'Could not Send an SMS to: $aPhoneNumber';
-      }
-    }
-    catch (ex) {
-      print ('$ex.toString()');
-    }
-  }
-
-  Future<void> sendEmail(String aMail) async {
-    try {
-      final Uri _emailLaunchUri = Uri(
-          scheme: 'mailto',
-          path: aMail,
-          queryParameters: {
-            'subject': 'Enter Subject...'
-          }
-      );
-      launch(_emailLaunchUri.toString());
-    }
-    catch (ex) {
-      print ('Could not send an Email To: $ex.toString()');
-    }
-  }
-
-  Future<void> launchInBrowser(String aUrl) async {
-    try {
-      if (await canLaunch(aUrl)) {
-        await launch(
-          aUrl,
-          forceSafariVC: false,
-          forceWebView: false,
-//        headers: <String, String>{'my_header_key': 'my_header_value'},
-        );
-      } else {
-        throw 'Could not Launch In Browser: $aUrl';
-      }
-    }
-    catch (ex){
-      print ('$ex.toString()');
-    }
-  }
-
-  Future<void> launchInMap(String aAddress) async {
-    try {
-      List<Placemark> placeMarksList = await Geolocator().placemarkFromAddress(aAddress);
-//      print ('>>>>>>>> Placemarks: ${placemarks[0].toJson()}');
-
-      if (placeMarksList != null && placeMarksList.isNotEmpty) {
-        final List<String>position = placeMarksList.map((placeMark) =>
-              placeMark.position?.latitude.toString() + ', ' + placeMark.position?.longitude.toString()).toList();
-//        print ('>>>>>>>> coords: ${position}');
-
-        final Placemark pos = placeMarksList[0];
-        double latitude = pos.position?.latitude;
-        double longitude = pos.position?.longitude;
-        print ('>>>>>>>> Latitude: $latitude, Longitude: $longitude');
-        GoogleMapUtil.openMap(latitude,longitude);
-      }
-    }
-    catch (ex){
-      print ('$ex.toString()');
-    }
-  }
-
   openPersonCardDetailEditScreen(PersonCardObject aPersonCardObj) async {
     ArgDataPersonCardObject argDataPersonCardObject;
     argDataPersonCardObject = ArgDataPersonCardObject(widget.argDataObject.passUserObj, aPersonCardObj, widget.argDataObject.passLoginObj);
@@ -160,7 +74,7 @@ class _PersonCardDetailScreenState extends State<PersonCardDetailScreen> {
         drawer: Container(
           width: 250,
           child: Drawer(
-            child: SideMenuDrawer(userObj: widget.argDataObject.passUserObj),
+            child: ApplicationMenuDrawer(argUserObj: widget.argDataObject.passUserObj),
           ),
         ),
       body: buildMainScaffoldBody(),
@@ -337,13 +251,12 @@ class _PersonCardDetailScreenState extends State<PersonCardDetailScreen> {
                   /// ---------------- Card Details (Icon Images) --------------------
                   Column(
                     textDirection: TextDirection.rtl,
-//              crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      if (aPersonCardObj.email != "") buildDetailImageIcon(Icons.mail_outline, aPersonCardObj.email, sendEmail),
-                      if (aPersonCardObj.phoneNumber != "") buildDetailImageIcon(Icons.phone, aPersonCardObj.phoneNumber, makePhoneCall),
-                      if (aPersonCardObj.phoneNumber != "") buildDetailImageIcon(Icons.sms, aPersonCardObj.phoneNumber, sendSms),
-                      if (aPersonCardObj.address != "") buildDetailImageIcon(Icons.home, aPersonCardObj.address, launchInMap),
-                      if (aPersonCardObj.internetSiteUrl != "") buildDetailImageIcon(Icons.alternate_email, aPersonCardObj.internetSiteUrl, launchInBrowser),
+                      if (aPersonCardObj.email != "") buildDetailImageIcon(Icons.mail_outline, aPersonCardObj.email, Utils.sendEmail),
+                      if (aPersonCardObj.phoneNumber != "") buildDetailImageIcon(Icons.phone, aPersonCardObj.phoneNumber, Utils.makePhoneCall),
+                      if (aPersonCardObj.phoneNumber != "") buildDetailImageIcon(Icons.sms, aPersonCardObj.phoneNumber, Utils.sendSms),
+                      if (aPersonCardObj.address != "") buildDetailImageIcon(Icons.home, aPersonCardObj.address, Utils.launchInMapByAddress),
+                      if (aPersonCardObj.internetSiteUrl != "") buildDetailImageIcon(Icons.alternate_email, aPersonCardObj.internetSiteUrl, Utils.launchInBrowser),
                     ],
                   ),
                 ],

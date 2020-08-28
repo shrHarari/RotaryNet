@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'dart:async';
 import 'package:rotary_net/services/menu_pages_service.dart';
 
@@ -7,30 +6,29 @@ class AboutScreen extends StatefulWidget {
   static const routeName = '/AboutScreen';
 
   @override
-  _AboutScreen createState() => _AboutScreen();
+  _AboutScreenState createState() => _AboutScreenState();
 }
 
-class _AboutScreen extends State<AboutScreen> {
-  final TextEditingController aboutTextController = TextEditingController();
-  String aboutText ="";
+class _AboutScreenState extends State<AboutScreen> {
+  String aboutContent ="";
 
   @override
   void initState() {
-    getAboutDisplayText().then((String aText)
+    getMenuAboutContent().then((String aAboutContent)
     {
       setState(() {
-        aboutText = aText;
+        aboutContent = aAboutContent;
       });
     });
 
     super.initState();
   }
 
-  Future<String> getAboutDisplayText() async {
+  Future<String> getMenuAboutContent() async {
     MenuPagesService menuPagesService = MenuPagesService();
-    dynamic aText = await menuPagesService.getAboutDisplayTextFromServer();
+    dynamic aContent = await menuPagesService.getMenuAboutContentFromServer();
 
-    return aText.toString();
+    return aContent.toString();
   }
 
   @override
@@ -62,7 +60,7 @@ class _AboutScreen extends State<AboutScreen> {
                             alignment: Alignment.centerRight,
                             child: IconButton(
                               icon: Icon(
-                                Icons.close, color: Colors.white, size: 30.0,),
+                                Icons.close, color: Colors.white, size: 26.0,),
                               onPressed: () async {
                                 Navigator.of(context).pop();
                               },
@@ -77,7 +75,7 @@ class _AboutScreen extends State<AboutScreen> {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(40.0, 50.0, 40.0, 50.0),
                 child: Text(
-                  aboutText,
+                  aboutContent,
                   textDirection: TextDirection.rtl,
                   style: TextStyle(
                       fontFamily: 'Heebo-Light',

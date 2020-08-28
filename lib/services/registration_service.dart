@@ -30,7 +30,7 @@ class RegistrationService {
       //***** for debug *****
 
       /// StatusUrl: 'http://159.89.225.231:7775/api/registration/isregistered/requestId={requestId}'
-      String requestStatusUrl = '${Constants.rotaryUserRegistrationUrl}=${aUserObj.email}';
+      String requestStatusUrl = '${Constants.rotaryUserRegistrationUrl}=${aUserObj.emailId}';
       Response response = await get(requestStatusUrl);
 
       if (response.statusCode <= 300) {
@@ -188,7 +188,7 @@ class RegistrationService {
       // When the Server side will be ready >>> remove that calling
       if (GlobalsService.isDebugMode) {
 
-        if((currentUserObj.email == aUserObj.email) && (currentUserObj.password == aUserObj.password))
+        if((currentUserObj.emailId == aUserObj.emailId) && (currentUserObj.password == aUserObj.password))
         {
           // Return full UserObject (with User Name)
           currentUserObj.setRequestId('10'); // ===>>> if Login Check OK

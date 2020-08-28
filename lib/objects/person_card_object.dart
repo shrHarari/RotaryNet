@@ -1,6 +1,7 @@
 
 class PersonCardObject {
-  String email;
+  String emailId;
+  final String email;
   final String firstName;
   final String lastName;
   final String firstNameEng;
@@ -15,6 +16,7 @@ class PersonCardObject {
   String address;
 
   PersonCardObject({
+    this.emailId,
     this.email,
     this.firstName,
     this.lastName,
@@ -32,12 +34,13 @@ class PersonCardObject {
 
   // Set PersonCard Email
   //=====================================
-  Future <void> setEmail(String aEmail) async {
-    email = aEmail;
+  Future <void> setEmail(String aEmailId) async {
+    emailId = aEmailId;
   }
 
   factory PersonCardObject.fromJson(Map<String, dynamic> parsedJson){
     return PersonCardObject(
+        emailId: parsedJson['emailId'],
         email: parsedJson['email'],
         firstName : parsedJson['firstName'],
         lastName : parsedJson['lastName'],
@@ -57,6 +60,7 @@ class PersonCardObject {
   @override
   String toString() {
     return '{'
+        ' ${this.emailId},'
         ' ${this.email},'
         ' ${this.firstName},'
         ' ${this.lastName},'
@@ -74,6 +78,7 @@ class PersonCardObject {
   }
 
   Map toJson() => {
+    'emailId': emailId,
     'email': email,
     'firstName': firstName,
     'lastName': lastName,

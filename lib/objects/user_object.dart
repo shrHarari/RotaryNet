@@ -2,7 +2,7 @@ import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class UserObject {
   String requestId;
-  final String email;
+  final String emailId;
   final String firstName;
   final String lastName;
   final String password;
@@ -10,7 +10,7 @@ class UserObject {
 
   UserObject({
     this.requestId,
-    this.email,
+    this.emailId,
     this.firstName,
     this.lastName,
     this.password,
@@ -32,7 +32,7 @@ class UserObject {
   String toString() {
     return '{'
         ' ${this.requestId},'
-        ' ${this.email},'
+        ' ${this.emailId},'
         ' ${this.firstName},'
         ' ${this.lastName},'
         ' ${this.password},'
@@ -42,7 +42,7 @@ class UserObject {
 
   Map toJson() => {
     'requestId': requestId,
-    'email': email,
+    'emailId': emailId,
     'firstName': firstName,
     'lastName': lastName,
     'password': password,

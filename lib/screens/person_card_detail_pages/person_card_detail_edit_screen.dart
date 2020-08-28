@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
 import 'package:rotary_net/services/person_card_service.dart';
 import 'package:rotary_net/shared/decoration_style.dart';
 import 'package:rotary_net/shared/loading.dart';
-import 'package:rotary_net/widgets/side_menu_widget.dart';
+import 'package:rotary_net/widgets/application_menu_widget.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class PersonCardDetailEditScreen extends StatefulWidget {
@@ -25,7 +24,7 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormState>();
 
-  /// Fields Param
+  //#region Declare Variables
   TextEditingController eMailController;
   TextEditingController firstNameController;
   TextEditingController lastNameController;
@@ -40,6 +39,7 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
   TextEditingController internetSiteUrlController;
   TextEditingController addressController;
 
+  String emailId;
   String newEmail;
   String newFirstName;
   String newLastName;
@@ -59,6 +59,7 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
   bool isPhoneNumberEnteredOK = false;
   String phoneNumberHintText = 'Phone Number';
   String updateStatus;
+  //#endregion
 
   @override
   void initState() {
@@ -71,7 +72,9 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
     _scaffoldKey.currentState.openDrawer();
   }
 
+  //#region Set PersonCard Variables
   Future<void> setPersonCardVariables() async {
+    emailId = widget.argDataObject.passPersonCardObj.emailId;
     eMailController = TextEditingController(text: widget.argDataObject.passPersonCardObj.email);
     firstNameController = TextEditingController(text: widget.argDataObject.passPersonCardObj.firstName);
     lastNameController = TextEditingController(text: widget.argDataObject.passPersonCardObj.lastName);
@@ -86,7 +89,9 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
     internetSiteUrlController = TextEditingController(text: widget.argDataObject.passPersonCardObj.internetSiteUrl);
     addressController = TextEditingController(text: widget.argDataObject.passPersonCardObj.address);
   }
+  //#endregion
 
+  //#region Value Functions
   void setEmailValueFunc(String aEmail){
     newEmail = aEmail;
   }
@@ -136,10 +141,12 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
   void setAddressValueFunc(String aAddress){
     newAddress = aAddress;
   }
+  //#endregion
 
+  //#region Check Validation
   Future<bool> checkValidation() async {
     bool validationVal = true;
-    isPhoneNumberEnteredOK = true;
+    isPhoneNumberEnteredOK = true;        // *** until PhoneNumber will be handled
 
     if (formKey.currentState.validate()){
       if (isPhoneNumberEnteredOK) {
@@ -159,7 +166,9 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
     print('Validation Val: $validationVal');
     return validationVal;
   }
+  //#endregion
 
+  //#region Update PersonCard
   Future updatePersonCard() async {
 //    bool returnVal = false;
     bool validationVal = await checkValidation();
@@ -182,7 +191,7 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
 
       PersonCardObject newPersonCardObj =
       personCardService.createPersonCardAsObject(
-          _email,
+          emailId, _email,
           _firstName, _lastName, _firstNameEng, _lastNameEng,
           _phoneNumber, _phoneNumberDialCode, _phoneNumberParse, _phoneNumberCleanLongFormat,
           _pictureUrl, _cardDescription, _internetSiteUrl, _address);
@@ -202,6 +211,7 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
     }
 //    return returnVal;
   }
+  //#endregion
 
   @override
   Widget build(BuildContext context) {
@@ -213,7 +223,7 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
       drawer: Container(
         width: 250,
         child: Drawer(
-          child: SideMenuDrawer(userObj: widget.argDataObject.passUserObj),
+          child: ApplicationMenuDrawer(argUserObj: widget.argDataObject.passUserObj),
         ),
       ),
 
@@ -371,7 +381,7 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
               flex: 12,
               child:
               Container(
-                child: buildTextFormFieldEnabled(aController, textInputName, setValFunc, aMultiLine),
+                child: buildTextFormField(aController, textInputName, setValFunc, aMultiLine),
               ),
             ),
           ]
@@ -400,7 +410,7 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
               Container(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 5.0),
-                  child: buildTextFormFieldEnabled(aController1, textInputName1, setValFunc1, aMultiLine),
+                  child: buildTextFormField(aController1, textInputName1, setValFunc1, aMultiLine),
                 ),
               ),
             ),
@@ -411,7 +421,7 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
               Container(
                 child: Padding(
                   padding: const EdgeInsets.only(right: 5.0),
-                  child: buildTextFormFieldEnabled(aController2, textInputName2, setValFunc2, aMultiLine),
+                  child: buildTextFormField(aController2, textInputName2, setValFunc2, aMultiLine),
                 ),
               ),
             ),
@@ -426,7 +436,7 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           RaisedButton.icon(
-            onPressed: (){ aFunc(); },
+            onPressed: () {aFunc(); },
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(5.0))
             ),
@@ -444,20 +454,6 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
             splashColor: Colors.red,
             color: Colors.blue[400],
           ),
-//          FlatButton.icon(
-//            color: Colors.blue[10],
-//              icon: Icon(
-//                aIcon,
-//                size: 20,
-//              ),
-//              label: Text(
-//                buttonText,
-//                style: TextStyle(
-//                    color: Colors.blue[700],
-//                    fontSize: 16.0),
-//              ),
-//            onPressed: () {aFunc();},
-//        ),
         ]
     );
   }
@@ -485,29 +481,27 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
     );
   }
 
-  TextFormField buildTextFormFieldEnabled(TextEditingController aController, String textInputName, Function setValFunc, bool aMultiLine) {
+  TextFormField buildTextFormField(
+      TextEditingController aController,
+      String textInputName,
+      Function setValFunc,
+      bool aMultiLine,
+      {bool aEnabled = true}) {
     return TextFormField(
       keyboardType: aMultiLine ? TextInputType.multiline : null,
       maxLines: aMultiLine ? null : 1,
       textAlign: TextAlign.right,
       controller: aController,
       style: TextStyle(fontSize: 16.0),
-      decoration: myTextInputDecoration.copyWith(hintText: textInputName),
+      decoration: aEnabled ?
+      TextInputDecoration.copyWith(hintText: textInputName) :
+      DisabledTextInputDecoration.copyWith(hintText: textInputName), // Disabled Field
       validator: (val) => val.isEmpty ? 'Enter $textInputName' : null,
       onChanged: (val){
         setState(() {
           setValFunc(val);
         });
       },
-    );
-  }
-
-  TextFormField buildTextInputDisabled(TextEditingController aController, String textInputName) {
-    return TextFormField(
-      controller: aController,
-      style: TextStyle(fontSize: 16.0),
-      decoration: myDisabledTextInputDecoration.copyWith(hintText: textInputName), // Disabled Field
-      enabled: false,
     );
   }
 }

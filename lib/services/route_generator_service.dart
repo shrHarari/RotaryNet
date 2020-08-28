@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
-import 'file:///C:/FLUTTER_OCTIA/rotary_net/lib/z_old_screens/registration_screen.dart';
 import 'package:rotary_net/screens/rotary_main_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/register_screen.dart';
-import 'package:rotary_net/shared/error_message.dart';
+import 'package:rotary_net/shared/error_message_screen.dart';
 import 'package:rotary_net/wrapper/wrapper.dart';
 
 class RouteGenerator {
@@ -28,7 +27,7 @@ class RouteGenerator {
           return MaterialPageRoute(builder: (_) => RotaryMainScreen(argDataObject: args)
           );
         } else {
-          return MaterialPageRoute(builder: (_) => ErrorMessage(
+          return MaterialPageRoute(builder: (_) => ErrorMessageScreen(
               errTitle: 'Rotary Message',
               errMsg: 'Unable to read Person Card data')
           );
@@ -36,7 +35,7 @@ class RouteGenerator {
         break;
 
       default:
-        return MaterialPageRoute(builder: (_) => ErrorMessage(
+        return MaterialPageRoute(builder: (_) => ErrorMessageScreen(
             errTitle: 'Registration Message',
             errMsg: 'Unable to read data')
         );

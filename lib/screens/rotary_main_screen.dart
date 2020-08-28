@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
+import 'package:rotary_net/objects/user_object.dart';
 import 'package:rotary_net/screens/debug_setting_screen.dart';
-import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page.dart';
-import 'package:rotary_net/widgets/side_menu_widget.dart';
+import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_screen.dart';
+import 'package:rotary_net/widgets/application_menu_widget.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class RotaryMainScreen extends StatefulWidget {
@@ -19,6 +20,7 @@ class RotaryMainScreen extends StatefulWidget {
 class _RotaryMainScreenState extends State<RotaryMainScreen> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  UserObject displayUserObj;
 
   String messageTitle = '';
   String messageBody = '';
@@ -30,6 +32,7 @@ class _RotaryMainScreenState extends State<RotaryMainScreen> {
   @override
   void initState() {
     super.initState();
+    displayUserObj = widget.argDataObject.passUserObj;
 
     /// Lock Screen orientation
     SystemChrome.setPreferredOrientations([
@@ -50,10 +53,6 @@ class _RotaryMainScreenState extends State<RotaryMainScreen> {
     super.dispose();
   }
 
-  Future<void> openMenu() async {
-    // Open Menu from Left side
-    _scaffoldKey.currentState.openDrawer();
-  }
 
   Future<void> openDebugSettings() async {
     // Navigate to DebugSettings Screen
@@ -100,6 +99,17 @@ class _RotaryMainScreenState extends State<RotaryMainScreen> {
     }
   }
 
+  Future<void> openMenu() async {
+    // Open Menu from Left side
+    _scaffoldKey.currentState.openDrawer();
+  }
+
+  Future<void> returnDataFromDrawer(UserObject aUserObj) async {
+    setState(() {
+      displayUserObj = aUserObj;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -109,7 +119,7 @@ class _RotaryMainScreenState extends State<RotaryMainScreen> {
         drawer: Container(
           width: 250,
           child: Drawer(
-            child: SideMenuDrawer(userObj: widget.argDataObject.passUserObj),
+            child: ApplicationMenuDrawer(argUserObj: displayUserObj, argReturnDataFunc: returnDataFromDrawer,),
           ),
         ),
 

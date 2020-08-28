@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class ErrorMessage extends StatelessWidget {
+class ErrorMessageScreen extends StatelessWidget {
   final String errTitle;
   final String errMsg;
 
-  ErrorMessage({this.errTitle, this.errMsg});
+  ErrorMessageScreen({this.errTitle, this.errMsg});
 
   @override
   Widget build(BuildContext context) {
