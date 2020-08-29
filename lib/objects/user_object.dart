@@ -6,6 +6,7 @@ class UserObject {
   final String firstName;
   final String lastName;
   final String password;
+  Constants.UserTypeEnum userType;
   bool stayConnected;
 
   UserObject({
@@ -14,6 +15,7 @@ class UserObject {
     this.firstName,
     this.lastName,
     this.password,
+    this.userType,
     this.stayConnected});
 
   // Set User RequestId
@@ -28,16 +30,24 @@ class UserObject {
     stayConnected = aStayConnected;
   }
 
+  // Set UserType
+  //=====================================
+  Future <void> setUserType(Constants.UserTypeEnum aUserType) async {
+    userType = aUserType;
+  }
+
   @override
   String toString() {
-    return '{'
-        ' ${this.requestId},'
-        ' ${this.emailId},'
-        ' ${this.firstName},'
-        ' ${this.lastName},'
-        ' ${this.password},'
-        ' ${this.stayConnected},'
-        ' }';
+    return
+     '{'
+      ' ${this.requestId},'
+      ' ${this.emailId},'
+      ' ${this.firstName},'
+      ' ${this.lastName},'
+      ' ${this.password},'
+      ' ${this.userType},'
+      ' ${this.stayConnected},'
+    ' }';
   }
 
   Map toJson() => {
@@ -46,6 +56,7 @@ class UserObject {
     'firstName': firstName,
     'lastName': lastName,
     'password': password,
+    'userType': userType,
     'isStayConnected': stayConnected,
   };
 }

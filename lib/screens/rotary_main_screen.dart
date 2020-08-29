@@ -112,18 +112,26 @@ class _RotaryMainScreenState extends State<RotaryMainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        key: _scaffoldKey,
-        backgroundColor: Colors.blue[50],
+    return Container(
+      decoration: BoxDecoration(
+          image: DecorationImage(
+              image: AssetImage("assets/background/main_screen.jpg"),
+              fit: BoxFit.cover
+          )
+      ),
+      child: Scaffold(
+          key: _scaffoldKey,
+          backgroundColor: Colors.transparent,
 
-        drawer: Container(
-          width: 250,
-          child: Drawer(
-            child: ApplicationMenuDrawer(argUserObj: displayUserObj, argReturnDataFunc: returnDataFromDrawer,),
+          drawer: Container(
+            width: 250,
+            child: Drawer(
+              child: ApplicationMenuDrawer(argUserObj: displayUserObj, argReturnDataFunc: returnDataFromDrawer,),
+            ),
           ),
-        ),
 
-        body: buildMainScaffoldBody()
+          body: buildMainScaffoldBody()
+      ),
     );
   }
 

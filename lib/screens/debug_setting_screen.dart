@@ -25,6 +25,7 @@ class _DebugSettings extends State<DebugSettings> {
   bool isNoRequestStatus = false;
   bool newIsDebugMode;
   bool isFirst = true;
+  Constants.UserTypeEnum userType;
 
   final UserService userService = UserService();
   String newLoginStatus = '';
@@ -32,6 +33,7 @@ class _DebugSettings extends State<DebugSettings> {
   @override
   void initState() {
     setCurrentLoginState();
+    setCurrentUserType();
     super.initState();
   }
 
@@ -39,11 +41,30 @@ class _DebugSettings extends State<DebugSettings> {
     if (widget.argDataObject.passLoginObj == null) isNoRequestStatus = true;
   }
 
+  void setCurrentUserType() async {
+    if (widget.argDataObject.passUserObj.userType == null)
+      userType = Constants.UserTypeEnum.SystemAdmin;
+    else
+      userType = widget.argDataObject.passUserObj.userType;
+
+    print('userType: $userType');
+  }
+
   Future updateLoginPhase(String aLoginStatus) async {
     Constants.LoginStatusEnum loginStatus;
     loginStatus = EnumToString.fromString(Constants.LoginStatusEnum.values, aLoginStatus);
     await LoginService.writeLoginObjectDataToSharedPreferences(loginStatus);
     exitFromApp();
+  }
+
+  Future updateUserType(Constants.UserTypeEnum aUserType) async {
+    await widget.argDataObject.passUserObj.setUserType(aUserType);
+    await userService.writeUserTypeToSharedPreferences(aUserType);
+  }
+
+  void updateDebugModeFunc(bool aIsDebug) {
+    GlobalsService.setDebugMode(aIsDebug);
+    GlobalsService.writeDebugModeToSP(aIsDebug);
   }
 
   Future startAllOver() async {
@@ -67,10 +88,6 @@ class _DebugSettings extends State<DebugSettings> {
     exit(0);
   }
 
-  void debugModeFunc(bool aIsDebug) {
-    GlobalsService.setDebugMode(aIsDebug);
-    GlobalsService.writeDebugModeToSP(aIsDebug);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -200,13 +217,114 @@ class _DebugSettings extends State<DebugSettings> {
                       child: Switch(
                         value: newIsDebugMode,
                         onChanged: (bool newValue) {
-                          debugModeFunc(newValue);
+                          updateDebugModeFunc(newValue);
                           setState(() {
                             newIsDebugMode = newValue;
                           });
                         },
                       ),
                     ),
+                  ],
+                ),
+                SizedBox(height: 20.0,),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        'User Type:',
+                        style: TextStyle(
+                            color: Colors.blue[800],
+                            fontSize: 16.0),
+                      ),
+                    ),
+
+                    Expanded(
+                      flex: 8,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <LabeledRadio>[
+                          LabeledRadio(
+                            label: 'System Admin',
+                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            value: Constants.UserTypeEnum.SystemAdmin,
+                            groupValue: userType,
+                            onChanged: (Constants.UserTypeEnum newValue) {
+                              setState(() {
+                                userType = newValue;
+                              });
+                              updateUserType(userType);
+                            },
+                          ),
+                          LabeledRadio(
+                            label: 'Rotary Member',
+                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            value: Constants.UserTypeEnum.RotaryMember,
+                            groupValue: userType,
+                            onChanged: (Constants.UserTypeEnum newValue) {
+                              setState(() {
+                                userType = newValue;
+                              });
+                              updateUserType(userType);
+                            },
+                          ),
+                          LabeledRadio(
+                            label: 'Guest',
+                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            value: Constants.UserTypeEnum.Guest,
+                            groupValue: userType,
+                            onChanged: (Constants.UserTypeEnum newValue) {
+                              setState(() {
+                                userType = newValue;
+                              });
+                              updateUserType(userType);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+//                    Expanded(
+//                      flex: 8,
+//                      child: Column(
+//                        children: <Widget>[
+//                          RadioListTile(
+//                            groupValue: userType,
+//                            title: Text('System Admin'),
+//                            value: Constants.UserTypeEnum.SystemAdmin,
+//                            onChanged: (val) {
+//                              setState(() {
+//                                userType = val;
+//                              });
+//                              updateUserType(userType);
+//                            },
+//                          ),
+//
+//                          RadioListTile(
+//                            groupValue: userType,
+//                            title: Text('Rotary Member'),
+//                            value: Constants.UserTypeEnum.RotaryMember,
+//                            onChanged: (val) {
+//                              setState(() {
+//                                userType = val;
+//                              });
+//                              updateUserType(userType);
+//                            },
+//                          ),
+//
+//                          RadioListTile(
+//                            groupValue: userType,
+//                            title: Text('Guest'),
+//                            value: Constants.UserTypeEnum.Guest,
+//                            onChanged: (val) {
+//                              setState(() {
+//                                userType = val;
+//                              });
+//                              updateUserType(userType);
+//                            },
+//                          ),
+//                        ],
+//                      ),
+//                    ),
                   ],
                 ),
               ],
@@ -218,3 +336,49 @@ class _DebugSettings extends State<DebugSettings> {
   }
 }
 
+class LabeledRadio extends StatelessWidget {
+  const LabeledRadio({
+    this.label,
+    this.padding,
+    this.groupValue,
+    this.value,
+    this.onChanged,
+  });
+
+  final String label;
+  final EdgeInsets padding;
+  final Constants.UserTypeEnum groupValue;
+  final Constants.UserTypeEnum value;
+  final Function onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        if (value != groupValue)
+          onChanged(value);
+      },
+      child: Padding(
+        padding: padding,
+        child: Row(
+          children: <Widget>[
+            Radio<Constants.UserTypeEnum>(
+              groupValue: groupValue,
+              value: value,
+              onChanged: (Constants.UserTypeEnum newValue) {
+                onChanged(newValue);
+              },
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            Text(
+              label,
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16.0),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

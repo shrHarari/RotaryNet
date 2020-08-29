@@ -18,8 +18,8 @@ class LoginStateMessageScreen extends StatefulWidget {
 
 class _LoginStateMessageScreen extends State<LoginStateMessageScreen> {
 
-  String appBarTitle = 'Rotary / Request';
-  String iconBarTitle = 'Exit';
+  String appBarTitle = 'רוטרי / אישור בקשה';
+  String iconBarTitle = 'יציאה';
   String sharedPreferencesData = '';
   String messageTitle = '';
   String messageBody = '';
@@ -37,21 +37,18 @@ class _LoginStateMessageScreen extends State<LoginStateMessageScreen> {
     if (widget.argDataObject.passUserObj.emailId == null)
     {
       setState(() {
-        sharedPreferencesData = 'Unable to read SharedPreferences';
+        sharedPreferencesData = 'שגיאה ברישום נתונים';
         loading = false;
       });
     } else {
       setState(() {
-        messageTitle = 'Dear ${widget.argDataObject.passUserObj.firstName} ${widget.argDataObject.passUserObj.lastName},';
-        messageBody = 'Your Request is being Handle.\n\n'
-            'We are doing our best to confirm\n'
-            'your registration.\n\n'
-            'Please wait up to 24 hours,\n'
-            'and we will send you a confirmation mail';
+        messageTitle = 'שלום ${widget.argDataObject.passUserObj.firstName} ${widget.argDataObject.passUserObj.lastName},';
+        messageBody = 'מנהלי המערכת מטפלים בבקשתך.\n\n'
+            'אנא המתן ואנו נשלח אליך מייל לאישור בקשתך\n';
 
         sharedPreferencesData = 'User Data To Display: \n'
             'User Request Id: ${widget.argDataObject.passUserObj.requestId}\n'
-            'User Email: ${widget.argDataObject.passUserObj.emailId}\n'
+            'User EmailId: ${widget.argDataObject.passUserObj.emailId}\n'
             'User Name: ${widget.argDataObject.passUserObj.firstName} ${widget.argDataObject.passUserObj.lastName}\n'
             'User Password: ${widget.argDataObject.passUserObj.password}\n'
             'Login Status: ${EnumToString.parse(widget.argDataObject.passLoginObj.loginStatus)}';
@@ -81,7 +78,7 @@ class _LoginStateMessageScreen extends State<LoginStateMessageScreen> {
     Scaffold(
         backgroundColor: Colors.blue[50],
         appBar: AppBar(
-          backgroundColor: Colors.blue[500],
+          backgroundColor: Colors.lightBlue[500],
           elevation: 5.0,
           title: Text(appBarTitle),
           actions: <Widget>[
@@ -108,75 +105,78 @@ class _LoginStateMessageScreen extends State<LoginStateMessageScreen> {
   Widget buildMainScaffoldBody() {
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
-      child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(height: 30.0),
-            GestureDetector(
-              child: Container(
-                color: Colors.blue[50],
-                child: Text('Login Request',
-                  style: TextStyle(
-                      color: Colors.blue[900],
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold),
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 60),
+                  child: Center(
+                    child: Container(
+                      color: Colors.blue[50],
+                      child: Text(messageTitle,
+                        style: TextStyle(
+                            color: Colors.blue[900],
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ),
+                onDoubleTap: () {
+                  setState(() {
+                    isShowDataForDebug = !isShowDataForDebug;
+                  });
+                },
+              ),
+
+              Padding(
+                padding: const EdgeInsets.only(top: 60, left: 30.0, right: 30.0),
+                child: Center(
+                  child: Container(
+                    color: Colors.blue[50],
+                    child: Text(messageBody,
+                      style: TextStyle(
+                          color: Colors.blue[900],
+                          fontSize: 18.0),
+                    ),
+                  ),
                 ),
               ),
-              onDoubleTap: () {
-                setState(() {
-                  isShowDataForDebug = !isShowDataForDebug;
-                });
-              },
-            ),
 
-            SizedBox(height: 30.0,),
-            Container(
-              color: Colors.blue[50],
-              child: Text(messageTitle,
-                style: TextStyle(
-                    color: Colors.blue[900],
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-
-            SizedBox(height: 20.0,),
-            Container(
-              color: Colors.blue[50],
-              child: Center(
-                child: Text(messageBody,
-                  style: TextStyle(
-                      color: Colors.blue[900],
-                      fontSize: 18.0),
+              ///--------------------- Circle Button ---------------------
+              Padding(
+                padding: const EdgeInsets.only(top: 60),
+                child: CircleButton(
+                    buttonText: 'OK',
+                    backgroundButtonSize: 140.0,
+                    foregroundButtonSize: 120.0,
+                    backgroundColor: Colors.blue[700],
+                    foregroundColor: Colors.white,
+                    onTap: exitFromApp
                 ),
               ),
-            ),
 
-            ///--------------------- Circle Button ---------------------
-            SizedBox(height: 100.0,),
-            CircleButton(
-                buttonText: 'OK',
-                backgroundButtonSize: 140.0,
-                foregroundButtonSize: 120.0,
-                backgroundColor: Colors.blue[700],
-                foregroundColor: Colors.white,
-                onTap: exitFromApp
-            ),
-
-            SizedBox(height: 30.0,),
-            Visibility(
-              visible: isShowDataForDebug,
-              child: Container(
-                color: Colors.white,
-                child: Text(sharedPreferencesData,
-                  style: TextStyle(
-                      color: Colors.blue[900],
-                      fontSize: 14.0),
+              Visibility(
+                visible: isShowDataForDebug,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 30),
+                  child: Container(
+                    color: Colors.white,
+                    child: Text(
+                      sharedPreferencesData,
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                          color: Colors.blue[900],
+                          fontSize: 14.0),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ]
+            ]
+        ),
       ),
     );
   }

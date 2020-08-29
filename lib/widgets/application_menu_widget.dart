@@ -54,98 +54,130 @@ class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
+//    final height = MediaQuery.of(context).size.height;
     return Drawer(
       elevation: 10.0,
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          Container(
-            height: height * .28,
-            child: DrawerHeader(
-              child:
-              Column(
-                children: <Widget>[
-                  SizedBox(height: 10.0,),
-                  MaterialButton(
-                    onPressed: () {},
-                    color: Colors.blue,
-                    textColor: Colors.white,
-                    child: Icon(
-                      Icons.person_outline,
-                      size: 30,
-                    ),
-                    padding: EdgeInsets.all(16),
-                    shape: CircleBorder(),
-                  ),
-
-                  buildUserWelcomeTitle(),  // שלום אורח
-                  buildPersonalAreaTitle(context, widget.argUserObj), // לאיזור האישי
-                ],
+      child:
+        Column(
+          children: <Widget>[
+          Expanded(
+            flex: 2,
+            child: Container(
+//              height: height * .28,
+              child: DrawerHeader(
+                child:
+                Column(
+                  children: <Widget>[
+                    buildPersonalAreaIcon(),
+                    buildUserWelcomeTitle(),  // שלום אורח
+                    buildPersonalAreaTitle(context, widget.argUserObj), // לאיזור האישי
+                  ],
+                ),
               ),
             ),
           ),
 
-          ListTile(
-            leading: Icon(Icons.dvr),
-            title: Text('אודות'),
-            onTap: () => {
-              Navigator.of(context).pop(),
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => AboutScreen(),
+          Expanded(
+            flex: 5,
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: <Widget>[
+                ListTile(
+                  leading: Icon(Icons.dvr),
+                  title: Text('אודות'),
+                  onTap: () => {
+                    Navigator.of(context).pop(),
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => AboutScreen(),
+                      ),
+                    )
+                  },
                 ),
-              )
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.verified_user),
-            title: Text('מדיניות הפרטיות'),
-            onTap: () => {
-              Navigator.of(context).pop(),
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => PrivacyPolicyScreen(),
+                ListTile(
+                  leading: Icon(Icons.verified_user),
+                  title: Text('מדיניות הפרטיות'),
+                  onTap: () => {
+                    Navigator.of(context).pop(),
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => PrivacyPolicyScreen(),
+                      ),
+                    )
+                  },
                 ),
-              )
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.receipt),
-            title: Text('תנאי שימוש'),
-            onTap: () => {Navigator.of(context).pop()},
-          ),
-          ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('הגדרות'),
-            onTap: () => {Navigator.of(context).pop()},
-          ),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.exit_to_app),
-            title: Text('יציאה'),
-            onTap: () => {
-              exitFromApp()
-            },
+                ListTile(
+                  leading: Icon(Icons.receipt),
+                  title: Text('תנאי שימוש'),
+                  onTap: () => {Navigator.of(context).pop()},
+                ),
+                ListTile(
+                  leading: Icon(Icons.settings),
+                  title: Text('הגדרות'),
+                  onTap: () => {Navigator.of(context).pop()},
+                ),
+                Divider(),
+                ListTile(
+                  leading: Icon(Icons.exit_to_app),
+                  title: Text('יציאה'),
+                  onTap: () => {
+                    exitFromApp()
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
+  Widget buildPersonalAreaIcon ()
+  {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10.0),
+      child: MaterialButton(
+        onPressed: () {},
+        color: Colors.lightBlue,
+        textColor: Colors.white,
+        child: Icon(
+          Icons.person_outline,
+          size: 30,
+        ),
+        padding: EdgeInsets.all(16),
+        shape: CircleBorder(),
+      ),
+    );
+  }
+
   Widget buildUserWelcomeTitle ()
   {
-    String userTitle = 'שלום אורח';
-
+    String userTitle = 'אורח';
     if (widget.argUserObj.firstName.toString() != '') {
-      userTitle = 'שלום ${widget.argUserObj.firstName} ${widget.argUserObj.lastName}';
+      userTitle = '${widget.argUserObj.firstName} ${widget.argUserObj.lastName}';
     }
 
     return Padding(
-      padding: const EdgeInsets.only(top: 10.0),
-      child: Text(
-          userTitle,
-          style: TextStyle(color: Colors.black, fontSize: 16)
+      padding: const EdgeInsets.only(top: 20.0),
+      child: RichText(
+        text: new TextSpan(
+            text: 'שלום ',
+            style: TextStyle(
+                color: Colors.black,
+                fontSize: 16,
+            ),
+//            style: DefaultTextStyle.of(context).style,
+            children: <TextSpan>[
+            TextSpan(
+              text: userTitle,
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold
+              )
+            ),
+          ],
+        ),
       ),
     );
   }

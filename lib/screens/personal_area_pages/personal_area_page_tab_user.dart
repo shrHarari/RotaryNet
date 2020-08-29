@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/user_object.dart';
 import 'package:rotary_net/services/user_service.dart';
 import 'package:rotary_net/shared/decoration_style.dart';
+import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class BuildPersonalAreaPageTabUser extends StatefulWidget {
   final UserObject argUser;
@@ -24,16 +26,12 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
   }
 
   //#region Declare Variables
+  bool newStayConnected;
+
   TextEditingController eMailIdController;
   TextEditingController firstNameController;
   TextEditingController lastNameController;
   TextEditingController passwordController;
-
-  String newEmailId;
-  String newFirstName;
-  String newLastName;
-  String newPassword;
-  bool newStayConnected;
 
   String error = '';
   bool loading = false;
@@ -47,22 +45,6 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
     lastNameController = TextEditingController(text: aUserObj.lastName);
     passwordController = TextEditingController(text: aUserObj.password);
     newStayConnected = aUserObj.stayConnected;
-  }
-  //#endregion
-
-  //#region Value Functions
-  void setEmailValueFunc(String aEmailId){
-    newEmailId = aEmailId;
-  }
-  void setFirstNameValueFunc(String aFirstName){
-    newFirstName = aFirstName;
-  }
-  void setLastNameValueFunc(String aLastName){
-    newLastName = aLastName;
-  }
-
-  void setPasswordValueFunc(String aPassword){
-    newPassword = aPassword;
   }
   //#endregion
 
@@ -87,7 +69,7 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
       String _password = (passwordController.text != null) ? (passwordController.text) : '';
 
       UserObject newUserObj = userService.createUserAsObject(
-          '', _email, _firstName, _lastName, _password, newStayConnected);
+          '', _email, _firstName, _lastName, _password, widget.argUser.userType, newStayConnected);
 
       await userService.writeUserObjectDataToSharedPreferences(newUserObj);
       Navigator.pop(context, newUserObj);
@@ -118,13 +100,14 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
                         child: Column(
                           children: <Widget>[
                             /// ------------------- Input Text Fields ----------------------
-                            buildEnabledTextInputWithImageIcon(eMailIdController, 'Email ID', setEmailValueFunc, Icons.mail_outline, false, aEnabled: false),
+                            buildEnabledTextInputWithImageIcon(eMailIdController, 'Email ID', Icons.mail_outline, false, aEnabled: false),
                             buildEnabledDoubleTextInputWithImageIcon(
-                                firstNameController, 'First Name', setFirstNameValueFunc,
-                                lastNameController, 'Last Name', setLastNameValueFunc,
+                                firstNameController, 'First Name',
+                                lastNameController, 'Last Name',
                                 Icons.person, false),
-                            buildEnabledTextInputWithImageIcon(passwordController, 'Password', setPasswordValueFunc, Icons.mail_outline, false, isPassword: true),
+                            buildEnabledTextInputWithImageIcon(passwordController, 'Password', Icons.lock, false, isPassword: true),
                             buildStayConnectedCheckBox(),
+                            buildUserTypeRadioButton(),
                           ],
                         ),
                       ),
@@ -171,13 +154,13 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
     );
   }
 
-  Widget buildEnabledTextInputWithImageIcon(TextEditingController aController, String textInputName, Function setValFunc, IconData aIcon, bool aMultiLine, {bool aEnabled = true, bool isPassword = false}) {
+  Widget buildEnabledTextInputWithImageIcon(TextEditingController aController, String textInputName, IconData aIcon, bool aMultiLine, {bool aEnabled = true, bool isPassword = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0),
       child: Row(
           textDirection: TextDirection.rtl,
           mainAxisAlignment: MainAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Expanded(
               flex: 3,
               child: Container(
@@ -189,7 +172,7 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
               flex: 12,
               child:
               Container(
-                child: buildTextFormField(aController, textInputName, setValFunc, aMultiLine, aEnabled: aEnabled, isPassword: isPassword),
+                child: buildTextFormField(aController, textInputName, aMultiLine, aEnabled: aEnabled, isPassword: isPassword),
               ),
             ),
           ]
@@ -198,15 +181,15 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
   }
 
   Widget buildEnabledDoubleTextInputWithImageIcon(
-      TextEditingController aController1, String textInputName1, Function setValFunc1,
-      TextEditingController aController2, String textInputName2, Function setValFunc2,
+      TextEditingController aController1, String textInputName1,
+      TextEditingController aController2, String textInputName2,
       IconData aIcon, bool aMultiLine) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0),
       child: Row(
           textDirection: TextDirection.rtl,
           mainAxisAlignment: MainAxisAlignment.end,
-          children: [
+          children: <Widget>[
             Expanded(
               flex: 3,
               child: buildImageIconForTextField(aIcon),
@@ -218,7 +201,7 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
               Container(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 5.0),
-                  child: buildTextFormField(aController1, textInputName1, setValFunc1, aMultiLine),
+                  child: buildTextFormField(aController1, textInputName1, aMultiLine),
                 ),
               ),
             ),
@@ -229,7 +212,7 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
               Container(
                 child: Padding(
                   padding: const EdgeInsets.only(right: 5.0),
-                  child: buildTextFormField(aController2, textInputName2, setValFunc2, aMultiLine),
+                  child: buildTextFormField(aController2, textInputName2, aMultiLine),
                 ),
               ),
             ),
@@ -261,7 +244,6 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
   TextFormField buildTextFormField(
       TextEditingController aController,
       String textInputName,
-      Function setValFunc,
       bool aMultiLine,
       {bool aEnabled = true, bool isPassword = false}) {
     return TextFormField(
@@ -276,11 +258,6 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
           TextInputDecoration.copyWith(hintText: textInputName) :
           DisabledTextInputDecoration.copyWith(hintText: textInputName), // Disabled Field
       validator: (val) => val.isEmpty ? 'Enter $textInputName' : null,
-      onChanged: (val){
-        setState(() {
-          setValFunc(val);
-        });
-      },
     );
   }
 
@@ -296,7 +273,7 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
         child: Row(
           textDirection: TextDirection.rtl,
           mainAxisAlignment: MainAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Padding(
               padding: const EdgeInsets.only(left: 8.0),
               child: Container(
@@ -316,10 +293,64 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
             ),
             Text(
               'הישאר מחובר',
+              textDirection: TextDirection.rtl,
               style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget buildUserTypeRadioButton() {
+    String userTypeTitle;
+    switch (widget.argUser.userType) {
+      case Constants.UserTypeEnum.SystemAdmin:
+        userTypeTitle = "מנהל מערכת";
+        break;
+      case Constants.UserTypeEnum.RotaryMember:
+        userTypeTitle = "חבר מועדון רוטרי";
+        break;
+      case Constants.UserTypeEnum.Guest:
+        userTypeTitle = "אורח";
+        break;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 30.0),
+      child: Row(
+        textDirection: TextDirection.rtl,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black, width: 1.0),
+                  color: Color(0xfff3f3f4)
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(1.0),
+                child: Icon(Icons.check, size: 15.0, color: Colors.black,),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text(
+              'סוג משתמש:',
+              textDirection: TextDirection.rtl,
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+            ),
+          ),
+
+          Text(
+            userTypeTitle,
+            textDirection: TextDirection.rtl,
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+          ),
+        ],
       ),
     );
   }
@@ -341,7 +372,6 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
         color:Colors.white,
       ),
       textColor: Colors.white,
-      splashColor: Colors.red,
       color: Colors.blue[400],
     );
   }

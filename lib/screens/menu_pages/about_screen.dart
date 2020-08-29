@@ -37,40 +37,10 @@ class _AboutScreenState extends State<AboutScreen> {
         backgroundColor: Colors.white,
         body: Column(
           children: <Widget>[
-            Container(
-              height: 120,
-              color: Colors.lightBlue[400],
-              child: SafeArea(
-                  child: Stack(
-                      children: <Widget>[
-                        Align(
-                          alignment: Alignment.center,
-                          child: Text(
-                            'אודות',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20.0),
-                          ),
-                        ),
 
-                        /// Menu Icon
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(10, 0, 10.0, 10.0),
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: IconButton(
-                              icon: Icon(
-                                Icons.close, color: Colors.white, size: 26.0,),
-                              onPressed: () async {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ),
-                        ),
-                      ]
-                  )
-              ),
-            ),
+            /// --------------- Screen Header Area ---------------------
+            buildAboutScreenHeader(),
+
             Container(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(40.0, 50.0, 40.0, 50.0),
@@ -88,6 +58,44 @@ class _AboutScreenState extends State<AboutScreen> {
             )
           ],
         ),
+    );
+  }
+
+  Widget buildAboutScreenHeader() {
+  return
+    Container(
+      height: 120,
+      color: Colors.lightBlue[400],
+      child: SafeArea(
+        child: Stack(
+          children: <Widget>[
+            Align(
+              alignment: Alignment.center,
+              child: Text(
+                'מדיניות הפרטיות',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20.0),
+              ),
+            ),
+
+            /// Menu Icon
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 0, 10.0, 10.0),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.close, color: Colors.white, size: 26.0,),
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
+            ),
+          ]
+        )
+      ),
     );
   }
 }

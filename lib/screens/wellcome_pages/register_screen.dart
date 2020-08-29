@@ -41,6 +41,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String newFirstName;
   String newLastName;
   String newPassword;
+  Constants.UserTypeEnum newUserType;
   bool newStayConnected;
 
   bool registrationConfirmationCheck;
@@ -61,6 +62,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     firstNameController = TextEditingController(text: '');
     lastNameController = TextEditingController(text: '');
     passwordController = TextEditingController(text: '');
+    newUserType = newUserObj.userType;
     newStayConnected = false;
     registrationConfirmationCheck = true;
   }
@@ -100,6 +102,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           newFirstName.trim(),
           newLastName.trim(),
           newPassword.trim(),
+          newUserType,
           newStayConnected);
 
       newLoginObject = LoginService.createLoginAsObject(Constants.LoginStatusEnum.NoRequest);

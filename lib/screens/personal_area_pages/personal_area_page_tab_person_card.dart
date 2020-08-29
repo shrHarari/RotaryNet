@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
 import 'package:rotary_net/services/person_card_service.dart';
@@ -24,6 +27,11 @@ class _BuildPersonalAreaPageTabPersonCardState extends State<BuildPersonalAreaPa
   }
 
   //#region Declare Variables
+  String emailId;
+  String pictureFileName;
+  AssetImage personCardImage;
+  File picFile;
+
   TextEditingController eMailController;
   TextEditingController firstNameController;
   TextEditingController lastNameController;
@@ -38,21 +46,6 @@ class _BuildPersonalAreaPageTabPersonCardState extends State<BuildPersonalAreaPa
   TextEditingController internetSiteUrlController;
   TextEditingController addressController;
 
-  String emailId;
-  String newEmail;
-  String newFirstName;
-  String newLastName;
-  String newFirstNameEng;
-  String newLastNameEng;
-  String newPhoneNumber;
-  String newPhoneNumberDialCode;
-  String newPhoneNumberParse;
-  String newPhoneNumberCleanLongFormat;
-  String newPictureUrl;
-  String newCardDescription;
-  String newInternetSiteUrl;
-  String newAddress;
-
   String error = '';
   bool loading = false;
   bool isPhoneNumberEnteredOK = false;
@@ -63,6 +56,9 @@ class _BuildPersonalAreaPageTabPersonCardState extends State<BuildPersonalAreaPa
   //#region Set PersonCard Variables
   Future<void> setPersonCardVariables(PersonCardObject aPersonCard) async {
     emailId = aPersonCard.emailId;
+    pictureFileName = aPersonCard.pictureUrl;
+    personCardImage = AssetImage('assets/images/$pictureFileName');
+
     eMailController = TextEditingController(text: aPersonCard.email);
     firstNameController = TextEditingController(text: aPersonCard.firstName);
     lastNameController = TextEditingController(text: aPersonCard.lastName);
@@ -76,58 +72,6 @@ class _BuildPersonalAreaPageTabPersonCardState extends State<BuildPersonalAreaPa
     cardDescriptionController = TextEditingController(text: aPersonCard.cardDescription);
     internetSiteUrlController = TextEditingController(text: aPersonCard.internetSiteUrl);
     addressController = TextEditingController(text: aPersonCard.address);
-  }
-  //#endregion
-
-  //#region Value Functions
-  void setEmailValueFunc(String aEmail){
-    newEmail = aEmail;
-  }
-  void setFirstNameValueFunc(String aFirstName){
-    newFirstName = aFirstName;
-  }
-  void setLastNameValueFunc(String aLastName){
-    newLastName = aLastName;
-  }
-
-  void setFirstNameEngValueFunc(String aFirstNameEng){
-    newFirstNameEng = aFirstNameEng;
-  }
-
-  void setLastNameEngValueFunc(String aLastNameEng){
-    newLastNameEng = aLastNameEng;
-  }
-
-  void setPhoneNumberValueFunc(String aPhoneNumber){
-    newPhoneNumber = aPhoneNumber;
-  }
-
-  void setPhoneNumberDialCodeValueFunc(String aPhoneNumberDialCode){
-    newPhoneNumberDialCode = aPhoneNumberDialCode;
-  }
-
-  void setPhoneNumberParseValueFunc(String aPhoneNumberParse){
-    newPhoneNumberParse = aPhoneNumberParse;
-  }
-
-  void setPhoneNumberCleanLongFormatValueFunc(String aPhoneNumberCleanLongFormat){
-    newPhoneNumberCleanLongFormat = aPhoneNumberCleanLongFormat;
-  }
-
-  void setPictureUrlValueFunc(String aPictureUrl){
-    newPictureUrl = aPictureUrl;
-  }
-
-  void setCardDescriptionValueFunc(String aCardDescription){
-    newCardDescription = aCardDescription;
-  }
-
-  void setInternetSiteUrlValueFunc(String aInternetSiteUrl){
-    newInternetSiteUrl = aInternetSiteUrl;
-  }
-
-  void setAddressValueFunc(String aAddress){
-    newAddress = aAddress;
   }
   //#endregion
 
@@ -180,7 +124,7 @@ class _BuildPersonalAreaPageTabPersonCardState extends State<BuildPersonalAreaPa
           emailId, _email,
           _firstName, _lastName, _firstNameEng, _lastNameEng,
           _phoneNumber, _phoneNumberDialCode, _phoneNumberParse, _phoneNumberCleanLongFormat,
-          _pictureUrl, _cardDescription, _internetSiteUrl, _address);
+          pictureFileName, _cardDescription, _internetSiteUrl, _address);
 
       String updateVal = await personCardService.updatePersonCardObjectDataToDataBase(newPersonCardObj);
 
@@ -197,6 +141,33 @@ class _BuildPersonalAreaPageTabPersonCardState extends State<BuildPersonalAreaPa
     }
   }
   //#endregion
+
+  Future <void> pickImageFile() async {
+//    File _pictureFile = await FilePicker.getFile(type: FileType.image, allowCompression: true);
+//    setState(() {
+//      picFile = _pictureFile;
+//      pictureFileName = _pictureFile.path;
+//      pictureUrlController.text = pictureFileName;
+//    });
+
+    ImagePicker imagePicker = ImagePicker();
+    PickedFile _compressedImage = await imagePicker.getImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+        maxHeight: 800
+    );
+    File _pictureFile = File(_compressedImage.path);
+    // print('+++++++++++++++++++++++ _pictureFile: ${_pictureFile.path}');
+    // print('_pictureFile: ${await _pictureFile.length()}');
+
+    setState(() {
+      picFile = _pictureFile;
+      pictureFileName = _pictureFile.path;
+      pictureUrlController.text = pictureFileName;
+    });
+
+   // await _pictureFile.delete();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -220,20 +191,21 @@ class _BuildPersonalAreaPageTabPersonCardState extends State<BuildPersonalAreaPa
                         child: Column(
                           children: <Widget>[
                             /// ------------------- Input Text Fields ----------------------
-                            buildEnabledTextInputWithImageIcon(eMailController, 'Email', setEmailValueFunc, Icons.mail_outline, false),
+                            buildPersonCardImage(personCardImage),
                             buildEnabledDoubleTextInputWithImageIcon(
-                                firstNameController, 'First Name', setFirstNameValueFunc,
-                                lastNameController, 'Last Name', setLastNameValueFunc,
+                                firstNameController, 'First Name',
+                                lastNameController, 'Last Name',
                                 Icons.person, false),
                             buildEnabledDoubleTextInputWithImageIcon(
-                                firstNameEngController, 'First Name Eng', setFirstNameEngValueFunc,
-                                lastNameEngController, 'Last NameEng', setLastNameEngValueFunc,
+                                firstNameEngController, 'First Name Eng',
+                                lastNameEngController, 'Last NameEng',
                                 Icons.person_outline, false),
-                            buildEnabledTextInputWithImageIcon(addressController, 'Address', setAddressValueFunc, Icons.home, false),
-                            buildEnabledTextInputWithImageIcon(phoneNumberController, 'Phone Number', setPhoneNumberValueFunc, Icons.phone, false),
-                            buildEnabledTextInputWithImageIcon(pictureUrlController, 'Picture Url', setPictureUrlValueFunc, Icons.camera_alt, false),
-                            buildEnabledTextInputWithImageIcon(cardDescriptionController, 'Card Description', setCardDescriptionValueFunc, Icons.description, true),
-                            buildEnabledTextInputWithImageIcon(internetSiteUrlController, 'Internet Site Url', setInternetSiteUrlValueFunc, Icons.alternate_email, false),
+                            buildEnabledTextInputWithImageIcon(eMailController, 'Email', Icons.mail_outline, false),
+                            buildEnabledTextInputWithImageIcon(addressController, 'Address', Icons.home, false),
+                            buildEnabledTextInputWithImageIcon(phoneNumberController, 'Phone Number', Icons.phone, false),
+//                            buildEnabledTextInputWithImageIcon(pictureUrlController, 'Picture Url', Icons.camera_alt, false),
+                            buildEnabledTextInputWithImageIcon(cardDescriptionController, 'Card Description', Icons.description, true),
+                            buildEnabledTextInputWithImageIcon(internetSiteUrlController, 'Internet Site Url', Icons.alternate_email, false),
                           ],
                         ),
                       ),
@@ -278,13 +250,28 @@ class _BuildPersonalAreaPageTabPersonCardState extends State<BuildPersonalAreaPa
     );
   }
 
-  Widget buildEnabledTextInputWithImageIcon(TextEditingController aController, String textInputName, Function setValFunc, IconData aIcon, bool aMultiLine) {
+  Widget buildPersonCardImage(AssetImage aPictureAssetImage) {
+
+    return InkWell(
+      onTap: () async{await pickImageFile();},
+      child: Padding(
+          padding: const EdgeInsets.only(bottom: 20.0),
+          child: CircleAvatar(
+            radius: 30.0,
+            backgroundColor: Colors.blue[900],
+            backgroundImage: picFile == null ? aPictureAssetImage : FileImage(picFile),
+          )
+      ),
+    );
+  }
+
+  Widget buildEnabledTextInputWithImageIcon(TextEditingController aController, String textInputName, IconData aIcon, bool aMultiLine) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0),
       child: Row(
           textDirection: TextDirection.rtl,
           mainAxisAlignment: MainAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Expanded(
               flex: 3,
               child: Container(
@@ -296,7 +283,7 @@ class _BuildPersonalAreaPageTabPersonCardState extends State<BuildPersonalAreaPa
               flex: 12,
               child:
               Container(
-                child: buildTextFormField(aController, textInputName, setValFunc, aMultiLine),
+                child: buildTextFormField(aController, textInputName, aMultiLine),
               ),
             ),
           ]
@@ -305,15 +292,15 @@ class _BuildPersonalAreaPageTabPersonCardState extends State<BuildPersonalAreaPa
   }
 
   Widget buildEnabledDoubleTextInputWithImageIcon(
-      TextEditingController aController1, String textInputName1, Function setValFunc1,
-      TextEditingController aController2, String textInputName2, Function setValFunc2,
+      TextEditingController aController1, String textInputName1,
+      TextEditingController aController2, String textInputName2,
       IconData aIcon, bool aMultiLine) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0),
       child: Row(
           textDirection: TextDirection.rtl,
           mainAxisAlignment: MainAxisAlignment.end,
-          children: [
+          children: <Widget>[
             Expanded(
               flex: 3,
               child: buildImageIconForTextField(aIcon),
@@ -325,7 +312,7 @@ class _BuildPersonalAreaPageTabPersonCardState extends State<BuildPersonalAreaPa
               Container(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 5.0),
-                  child: buildTextFormField(aController1, textInputName1, setValFunc1, aMultiLine),
+                  child: buildTextFormField(aController1, textInputName1, aMultiLine),
                 ),
               ),
             ),
@@ -336,7 +323,7 @@ class _BuildPersonalAreaPageTabPersonCardState extends State<BuildPersonalAreaPa
               Container(
                 child: Padding(
                   padding: const EdgeInsets.only(right: 5.0),
-                  child: buildTextFormField(aController2, textInputName2, setValFunc2, aMultiLine),
+                  child: buildTextFormField(aController2, textInputName2, aMultiLine),
                 ),
               ),
             ),
@@ -368,7 +355,6 @@ class _BuildPersonalAreaPageTabPersonCardState extends State<BuildPersonalAreaPa
   TextFormField buildTextFormField(
       TextEditingController aController,
       String textInputName,
-      Function setValFunc,
       bool aMultiLine,
       {bool aEnabled = true}) {
     return TextFormField(
@@ -381,11 +367,6 @@ class _BuildPersonalAreaPageTabPersonCardState extends State<BuildPersonalAreaPa
       TextInputDecoration.copyWith(hintText: textInputName) :
       DisabledTextInputDecoration.copyWith(hintText: textInputName), // Disabled Field
       validator: (val) => val.isEmpty ? 'Enter $textInputName' : null,
-      onChanged: (val){
-        setState(() {
-          setValFunc(val);
-        });
-      },
     );
   }
 

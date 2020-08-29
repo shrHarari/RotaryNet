@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:rotary_net/objects/user_object.dart';
 import 'package:rotary_net/services/logger_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
@@ -15,6 +16,7 @@ class UserService {
       String aFirstName,
       String aLastName,
       String aPassword,
+      Constants.UserTypeEnum aUserType,
       bool aStayConnected) {
 
     if (aEmailId == null)
@@ -24,6 +26,7 @@ class UserService {
           firstName: '',
           lastName: '',
           password: '',
+          userType: Constants.UserTypeEnum.SystemAdmin,
           stayConnected: false);
     else
       return UserObject(
@@ -32,6 +35,7 @@ class UserService {
           firstName: aFirstName,
           lastName: aLastName,
           password: aPassword,
+          userType: aUserType,
           stayConnected: aStayConnected);
   }
   //#endregion
@@ -44,6 +48,7 @@ class UserService {
     String _firstName;
     String _lastName;
     String _password;
+    Constants.UserTypeEnum _userType;
     bool _stayConnected = false;
 
     try{
@@ -54,6 +59,7 @@ class UserService {
       _firstName = prefs.getString(Constants.rotaryUserFirstName);
       _lastName = prefs.getString(Constants.rotaryUserLastName);
       _password = prefs.getString(Constants.rotaryUserPassword);
+      _userType = EnumToString.fromString(Constants.UserTypeEnum.values, prefs.getString(Constants.rotaryUserType));
       _stayConnected = prefs.getBool(Constants.rotaryUserStayConnected);
 
       return createUserAsObject(
@@ -62,6 +68,7 @@ class UserService {
           _firstName,
           _lastName,
           _password,
+          _userType,
           _stayConnected);
     }
     catch  (e) {
@@ -86,6 +93,7 @@ class UserService {
       await prefs.setString(Constants.rotaryUserFirstName, aUserObj.firstName);
       await prefs.setString(Constants.rotaryUserLastName, aUserObj.lastName);
       await prefs.setString(Constants.rotaryUserPassword, aUserObj.password);
+      await prefs.setString(Constants.rotaryUserType, EnumToString.parse(aUserObj.userType));
       await prefs.setBool(Constants.rotaryUserStayConnected, aUserObj.stayConnected);
     }
     catch  (e) {
@@ -94,6 +102,25 @@ class UserService {
         'writeUserObjectDataToSharedPreferences',
         name: 'UserService',
         error: 'Write User Object Data To SharedPreferences >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+  //#endregion
+
+  //#region Write User Type To Shared Preferences [WriteToSP]
+  //=============================================================================
+  Future writeUserTypeToSharedPreferences(Constants.UserTypeEnum aUserType) async {
+    try{
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString(Constants.rotaryUserType, EnumToString.parse(aUserType));
+    }
+    catch  (e) {
+      await LoggerService.log('<UserService> Write User Type To SharedPreferences >>> ERROR: ${e.toString()}');
+      developer.log(
+        'writeUserTypeToSharedPreferences',
+        name: 'UserService',
+        error: 'Write User Type To SharedPreferences >>> ERROR: ${e.toString()}',
       );
       return null;
     }
@@ -110,6 +137,7 @@ class UserService {
       await prefs.remove(Constants.rotaryUserFirstName);
       await prefs.remove(Constants.rotaryUserLastName);
       await prefs.remove(Constants.rotaryUserPassword);
+      await prefs.remove(Constants.rotaryUserType);
       await prefs.remove(Constants.rotaryUserStayConnected);
     }
     catch (e){

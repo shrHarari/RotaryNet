@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
@@ -24,7 +27,18 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormState>();
 
+  @override
+  void initState() {
+    setPersonCardVariables(widget.argDataObject.passPersonCardObj);
+    super.initState();
+  }
+
   //#region Declare Variables
+  String emailId;
+  String pictureFileName;
+  AssetImage personCardImage;
+  File picFile;
+
   TextEditingController eMailController;
   TextEditingController firstNameController;
   TextEditingController lastNameController;
@@ -39,21 +53,6 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
   TextEditingController internetSiteUrlController;
   TextEditingController addressController;
 
-  String emailId;
-  String newEmail;
-  String newFirstName;
-  String newLastName;
-  String newFirstNameEng;
-  String newLastNameEng;
-  String newPhoneNumber;
-  String newPhoneNumberDialCode;
-  String newPhoneNumberParse;
-  String newPhoneNumberCleanLongFormat;
-  String newPictureUrl;
-  String newCardDescription;
-  String newInternetSiteUrl;
-  String newAddress;
-
   String error = '';
   bool loading = false;
   bool isPhoneNumberEnteredOK = false;
@@ -61,85 +60,25 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
   String updateStatus;
   //#endregion
 
-  @override
-  void initState() {
-    setPersonCardVariables();
-    super.initState();
-  }
-
-  Future<void> openMenu() async {
-    // Open Menu from Left side
-    _scaffoldKey.currentState.openDrawer();
-  }
-
   //#region Set PersonCard Variables
-  Future<void> setPersonCardVariables() async {
-    emailId = widget.argDataObject.passPersonCardObj.emailId;
-    eMailController = TextEditingController(text: widget.argDataObject.passPersonCardObj.email);
-    firstNameController = TextEditingController(text: widget.argDataObject.passPersonCardObj.firstName);
-    lastNameController = TextEditingController(text: widget.argDataObject.passPersonCardObj.lastName);
-    firstNameEngController = TextEditingController(text: widget.argDataObject.passPersonCardObj.firstNameEng);
-    lastNameEngController = TextEditingController(text: widget.argDataObject.passPersonCardObj.lastNameEng);
-    phoneNumberController = TextEditingController(text: widget.argDataObject.passPersonCardObj.phoneNumber);
-    phoneNumberDialCodeController = TextEditingController(text: widget.argDataObject.passPersonCardObj.phoneNumberDialCode);
-    phoneNumberParseController = TextEditingController(text: widget.argDataObject.passPersonCardObj.phoneNumberParse);
-    phoneNumberCleanLongFormatController = TextEditingController(text: widget.argDataObject.passPersonCardObj.phoneNumberCleanLongFormat);
-    pictureUrlController = TextEditingController(text: widget.argDataObject.passPersonCardObj.pictureUrl);
-    cardDescriptionController = TextEditingController(text: widget.argDataObject.passPersonCardObj.cardDescription);
-    internetSiteUrlController = TextEditingController(text: widget.argDataObject.passPersonCardObj.internetSiteUrl);
-    addressController = TextEditingController(text: widget.argDataObject.passPersonCardObj.address);
-  }
-  //#endregion
+  Future<void> setPersonCardVariables(PersonCardObject aPersonCard) async {
+    emailId = aPersonCard.emailId;
+    pictureFileName = aPersonCard.pictureUrl;
+    personCardImage = AssetImage('assets/images/$pictureFileName');
 
-  //#region Value Functions
-  void setEmailValueFunc(String aEmail){
-    newEmail = aEmail;
-  }
-  void setFirstNameValueFunc(String aFirstName){
-    newFirstName = aFirstName;
-  }
-  void setLastNameValueFunc(String aLastName){
-    newLastName = aLastName;
-  }
-
-  void setFirstNameEngValueFunc(String aFirstNameEng){
-    newFirstNameEng = aFirstNameEng;
-  }
-
-  void setLastNameEngValueFunc(String aLastNameEng){
-    newLastNameEng = aLastNameEng;
-  }
-
-  void setPhoneNumberValueFunc(String aPhoneNumber){
-    newPhoneNumber = aPhoneNumber;
-  }
-
-  void setPhoneNumberDialCodeValueFunc(String aPhoneNumberDialCode){
-    newPhoneNumberDialCode = aPhoneNumberDialCode;
-  }
-
-  void setPhoneNumberParseValueFunc(String aPhoneNumberParse){
-    newPhoneNumberParse = aPhoneNumberParse;
-  }
-
-  void setPhoneNumberCleanLongFormatValueFunc(String aPhoneNumberCleanLongFormat){
-    newPhoneNumberCleanLongFormat = aPhoneNumberCleanLongFormat;
-  }
-
-  void setPictureUrlValueFunc(String aPictureUrl){
-    newPictureUrl = aPictureUrl;
-  }
-
-  void setCardDescriptionValueFunc(String aLastName){
-    newLastName = aLastName;
-  }
-
-  void setInternetSiteUrlValueFunc(String aCardDescription){
-    newCardDescription = aCardDescription;
-  }
-
-  void setAddressValueFunc(String aAddress){
-    newAddress = aAddress;
+    eMailController = TextEditingController(text: aPersonCard.email);
+    firstNameController = TextEditingController(text: aPersonCard.firstName);
+    lastNameController = TextEditingController(text: aPersonCard.lastName);
+    firstNameEngController = TextEditingController(text: aPersonCard.firstNameEng);
+    lastNameEngController = TextEditingController(text: aPersonCard.lastNameEng);
+    phoneNumberController = TextEditingController(text: aPersonCard.phoneNumber);
+    phoneNumberDialCodeController = TextEditingController(text: aPersonCard.phoneNumberDialCode);
+    phoneNumberParseController = TextEditingController(text: aPersonCard.phoneNumberParse);
+    phoneNumberCleanLongFormatController = TextEditingController(text: aPersonCard.phoneNumberCleanLongFormat);
+    pictureUrlController = TextEditingController(text: aPersonCard.pictureUrl);
+    cardDescriptionController = TextEditingController(text: aPersonCard.cardDescription);
+    internetSiteUrlController = TextEditingController(text: aPersonCard.internetSiteUrl);
+    addressController = TextEditingController(text: aPersonCard.address);
   }
   //#endregion
 
@@ -170,7 +109,7 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
 
   //#region Update PersonCard
   Future updatePersonCard() async {
-//    bool returnVal = false;
+
     bool validationVal = await checkValidation();
 
     if (validationVal){
@@ -189,12 +128,14 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
       String _internetSiteUrl = (internetSiteUrlController.text != null) ? (internetSiteUrlController.text) : '';
       String _address = (addressController.text != null) ? (addressController.text) : '';
 
+      print ('firstNameController.text: ${firstNameController.text}');
+
       PersonCardObject newPersonCardObj =
       personCardService.createPersonCardAsObject(
           emailId, _email,
           _firstName, _lastName, _firstNameEng, _lastNameEng,
           _phoneNumber, _phoneNumberDialCode, _phoneNumberParse, _phoneNumberCleanLongFormat,
-          _pictureUrl, _cardDescription, _internetSiteUrl, _address);
+          pictureFileName, _cardDescription, _internetSiteUrl, _address);
 
       String updateVal = await personCardService.updatePersonCardObjectDataToDataBase(newPersonCardObj);
 
@@ -212,6 +153,38 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
 //    return returnVal;
   }
   //#endregion
+
+  Future<void> openMenu() async {
+    // Open Menu from Left side
+    _scaffoldKey.currentState.openDrawer();
+  }
+
+  Future <void> pickImageFile() async {
+//    File _pictureFile = await FilePicker.getFile(type: FileType.image);
+//    setState(() {
+//      picFile = _pictureFile;
+//      pictureFileName = _pictureFile.path;
+//      pictureUrlController.text = pictureFileName;
+//    });
+
+    ImagePicker imagePicker = ImagePicker();
+    PickedFile _compressedImage = await imagePicker.getImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+        maxHeight: 800
+    );
+    File _pictureFile = File(_compressedImage.path);
+//    print('+++++++++++++++++++++++ _pictureFile: ${_pictureFile.path}');
+//    print('_pictureFile: ${await _pictureFile.length()}');
+
+    setState(() {
+      picFile = _pictureFile;
+      pictureFileName = _pictureFile.path;
+      pictureUrlController.text = pictureFileName;
+    });
+
+//    await _pictureFile.delete();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -238,7 +211,7 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
+          children: <Widget>[
             /// --------------- Title Area ---------------------
             Container(
               height: 180,
@@ -336,20 +309,21 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
           child: Column(
             children: <Widget>[
               /// ------------------- Input Text Fields ----------------------
-              buildEnabledTextInputWithImageIcon(eMailController, 'Email', setEmailValueFunc, Icons.mail_outline, false),
+              buildPersonCardImage(personCardImage),
               buildEnabledDoubleTextInputWithImageIcon(
-                  firstNameController, 'First Name', setFirstNameValueFunc,
-                  lastNameController, 'Last Name', setLastNameValueFunc,
+                  firstNameController, 'First Name',
+                  lastNameController, 'Last Name',
                   Icons.person, false),
               buildEnabledDoubleTextInputWithImageIcon(
-                  firstNameEngController, 'First Name Eng', setFirstNameEngValueFunc,
-                  lastNameEngController, 'Last NameEng', setLastNameEngValueFunc,
+                  firstNameEngController, 'First Name Eng',
+                  lastNameEngController, 'Last NameEng',
                   Icons.person_outline, false),
-              buildEnabledTextInputWithImageIcon(addressController, 'Address', setAddressValueFunc, Icons.home, false),
-              buildEnabledTextInputWithImageIcon(phoneNumberController, 'Phone Number', setPhoneNumberValueFunc, Icons.phone, false),
-              buildEnabledTextInputWithImageIcon(pictureUrlController, 'Picture Url', setPictureUrlValueFunc, Icons.camera_alt, false),
-              buildEnabledTextInputWithImageIcon(cardDescriptionController, 'Card Description', setCardDescriptionValueFunc, Icons.description, true),
-              buildEnabledTextInputWithImageIcon(internetSiteUrlController, 'Internet Site Url', setInternetSiteUrlValueFunc, Icons.alternate_email, false),
+              buildEnabledTextInputWithImageIcon(eMailController, 'Email', Icons.mail_outline, false),
+              buildEnabledTextInputWithImageIcon(addressController, 'Address', Icons.home, false),
+              buildEnabledTextInputWithImageIcon(phoneNumberController, 'Phone Number', Icons.phone, false),
+//              buildEnabledTextInputWithImageIcon(pictureUrlController, 'Picture Url', Icons.camera_alt, false),
+              buildEnabledTextInputWithImageIcon(cardDescriptionController, 'Card Description', Icons.description, true),
+              buildEnabledTextInputWithImageIcon(internetSiteUrlController, 'Internet Site Url', Icons.alternate_email, false),
               buildUpdateImageButton('עדכון', updatePersonCard, Icons.update),
               /// ---------------------- Display Error -----------------------
               Text(
@@ -365,7 +339,22 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
     );
   }
 
-  Widget buildEnabledTextInputWithImageIcon(TextEditingController aController, String textInputName, Function setValFunc, IconData aIcon, bool aMultiLine) {
+  Widget buildPersonCardImage(AssetImage aPictureAssetImage) {
+
+    return InkWell(
+      onTap: () async{await pickImageFile();},
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 20.0),
+        child: CircleAvatar(
+          radius: 30.0,
+          backgroundColor: Colors.blue[900],
+          backgroundImage: picFile == null ? aPictureAssetImage : FileImage(picFile),
+        )
+      ),
+    );
+  }
+
+  Widget buildEnabledTextInputWithImageIcon(TextEditingController aController, String textInputName, IconData aIcon, bool aMultiLine) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0),
       child: Row(
@@ -381,7 +370,7 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
               flex: 12,
               child:
               Container(
-                child: buildTextFormField(aController, textInputName, setValFunc, aMultiLine),
+                child: buildTextFormField(aController, textInputName, aMultiLine),
               ),
             ),
           ]
@@ -390,15 +379,15 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
   }
 
   Widget buildEnabledDoubleTextInputWithImageIcon(
-      TextEditingController aController1, String textInputName1, Function setValFunc1,
-      TextEditingController aController2, String textInputName2, Function setValFunc2,
+      TextEditingController aController1, String textInputName1,
+      TextEditingController aController2, String textInputName2,
       IconData aIcon, bool aMultiLine) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0),
       child: Row(
           textDirection: TextDirection.rtl,
           mainAxisAlignment: MainAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Expanded(
               flex: 3,
               child: buildImageIconForTextField(aIcon),
@@ -410,7 +399,7 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
               Container(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 5.0),
-                  child: buildTextFormField(aController1, textInputName1, setValFunc1, aMultiLine),
+                  child: buildTextFormField(aController1, textInputName1, aMultiLine),
                 ),
               ),
             ),
@@ -421,7 +410,7 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
               Container(
                 child: Padding(
                   padding: const EdgeInsets.only(right: 5.0),
-                  child: buildTextFormField(aController2, textInputName2, setValFunc2, aMultiLine),
+                  child: buildTextFormField(aController2, textInputName2, aMultiLine),
                 ),
               ),
             ),
@@ -434,7 +423,7 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
     return Row(
         textDirection: TextDirection.rtl,
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+        children: <Widget>[
           RaisedButton.icon(
             onPressed: () {aFunc(); },
             shape: RoundedRectangleBorder(
@@ -484,7 +473,6 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
   TextFormField buildTextFormField(
       TextEditingController aController,
       String textInputName,
-      Function setValFunc,
       bool aMultiLine,
       {bool aEnabled = true}) {
     return TextFormField(
@@ -494,14 +482,9 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
       controller: aController,
       style: TextStyle(fontSize: 16.0),
       decoration: aEnabled ?
-      TextInputDecoration.copyWith(hintText: textInputName) :
-      DisabledTextInputDecoration.copyWith(hintText: textInputName), // Disabled Field
+        TextInputDecoration.copyWith(hintText: textInputName) :
+        DisabledTextInputDecoration.copyWith(hintText: textInputName), // Disabled Field
       validator: (val) => val.isEmpty ? 'Enter $textInputName' : null,
-      onChanged: (val){
-        setState(() {
-          setValFunc(val);
-        });
-      },
     );
   }
 }

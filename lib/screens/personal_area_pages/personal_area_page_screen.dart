@@ -5,8 +5,10 @@ import 'package:rotary_net/screens/personal_area_pages/personal_area_page_header
 import 'package:rotary_net/screens/personal_area_pages/personal_area_page_tab_person_card.dart';
 import 'package:rotary_net/screens/personal_area_pages/personal_area_page_tab_user.dart';
 import 'package:rotary_net/services/person_card_service.dart';
+import 'package:rotary_net/shared/error_message_screen.dart';
 import 'package:rotary_net/shared/loading.dart';
 import 'package:rotary_net/widgets/application_menu_widget.dart';
+import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class PersonalAreaScreen extends StatefulWidget {
   static const routeName = '/PersonalAreaScreen';
@@ -27,15 +29,22 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   bool loading = false;
+  bool displayPersonCard = false;
 
   @override
   void initState() {
     personCardForBuild = getPersonalCardFromServer(widget.argUserObject.emailId);
+
+    if(widget.argUserObject.userType == Constants.UserTypeEnum.Guest)
+      displayPersonCard = false;
+    else
+      displayPersonCard = true;
+
     super.initState();
   }
 
-  Future<PersonCardObject> getPersonalCardFromServer(String aEmail) async {
-    dynamic personCardsObj = await personCardService.getPersonalCardByEmailFromServer(aEmail);
+  Future<PersonCardObject> getPersonalCardFromServer(String aEmailId) async {
+    dynamic personCardsObj = await personCardService.getPersonalCardByEmailFromServer(aEmailId);
     return personCardsObj;
   }
 
@@ -88,8 +97,8 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
                 (snapshot.hasData) ?
                 Expanded(
                   child: DefaultTabController(
-                      length: 2,
-                      initialIndex: 1,
+                      length: displayPersonCard ? 2 : 1,
+                      initialIndex: displayPersonCard ? 1 : 0,
                       child: Scaffold(
                         appBar: PreferredSize(
                           preferredSize: Size.fromHeight(25),
@@ -104,7 +113,7 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
                                   unselectedLabelStyle: TextStyle(fontSize: 14.0),                      //For Un-selected Tabs
                                   tabs: <Widget>[
                                     Tab(text :"כרטיס ביקור"),
-                                    Tab(text :"פרטי משתמש"),
+                                    if (displayPersonCard) Tab(text :"פרטי משתמש"),
                                   ],
                                   indicator: ShapeDecoration(
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(topRight: radius, topLeft: radius)),
@@ -117,9 +126,10 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
                         ),
                         body: TabBarView(
                           children: [
-                            /// --------------- TAB: User ---------------------
-                            BuildPersonalAreaPageTabPersonCard(argPersonCard: currentPersonCard),
                             /// --------------- TAB: PersonCard ---------------------
+                            if (displayPersonCard) BuildPersonalAreaPageTabPersonCard(argPersonCard: currentPersonCard),
+
+                            /// --------------- TAB: User ---------------------
                             BuildPersonalAreaPageTabUser(argUser: widget.argUserObject),
 //                            StretchExample(),
                           ],
@@ -144,23 +154,3 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
   }
 }
 
-class DisplayNoDataErrorText extends StatelessWidget {
-  const DisplayNoDataErrorText({Key key, this.errorText}) : super(key: key);
-  final String errorText;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            errorText,
-            style: Theme.of(context).textTheme.headline,
-          ),
-        ],
-      ),
-    );
-  }
-}

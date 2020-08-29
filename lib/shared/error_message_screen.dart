@@ -35,3 +35,24 @@ class ErrorMessageScreen extends StatelessWidget {
     );
   }
 }
+
+class DisplayNoDataErrorText extends StatelessWidget {
+  const DisplayNoDataErrorText({Key key, this.errorText}) : super(key: key);
+  final String errorText;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            errorText,
+            style: Theme.of(context).textTheme.headline,
+          ),
+        ],
+      ),
+    );
+  }
+}

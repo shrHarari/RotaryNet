@@ -36,6 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   String newEmail;
   String newPassword;
+  Constants.UserTypeEnum newUserType;
   bool newStayConnected;
 
   bool loginConfirmationCheck;
@@ -54,6 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     eMailController = TextEditingController(text: '');
     passwordController = TextEditingController(text: '');
+    newUserType = newUserObj.userType;
     newStayConnected = false;
     loginConfirmationCheck = true;
   }
@@ -87,6 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
           '',
           '',
           newPassword.trim(),
+          newUserType,
           newStayConnected);
 
       /// Send User Login Request ===>>> Check if Login Parameters are OK
