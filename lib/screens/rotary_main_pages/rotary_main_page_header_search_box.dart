@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-class PersonCardSearchResultPageHeaderTextBox implements SliverPersistentHeaderDelegate {
+class RotaryMainPageHeaderSearchBox implements SliverPersistentHeaderDelegate {
   final double minExtent;
   final double maxExtent;
   TextEditingController searchController;
-  Function funcRenderSearch;
+  Function funcExecuteSearch;
 
-  PersonCardSearchResultPageHeaderTextBox({
+  RotaryMainPageHeaderSearchBox({
     this.minExtent,
     @required this.maxExtent,
     this.searchController,
-    this.funcRenderSearch,
+    this.funcExecuteSearch,
   });
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
 
     return Container(
-      color: Colors.lightBlue[400],
+      // color: Colors.lightBlue[400],
+      color: Colors.transparent,
       child: Column(
         children: <Widget>[
           /// ----------- Header - Second line - Search Box Area -----------------
@@ -46,7 +47,7 @@ class PersonCardSearchResultPageHeaderTextBox implements SliverPersistentHeaderD
                           color: Colors.blue,
                           icon: Icon(Icons.search),
                           onPressed: () async {
-                            funcRenderSearch(searchController.text);
+                            funcExecuteSearch(searchController.text);
                           },
                         ),
                         border: new OutlineInputBorder(

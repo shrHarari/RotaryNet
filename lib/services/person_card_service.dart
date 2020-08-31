@@ -66,66 +66,66 @@ class PersonCardService {
     }
   //#endregion
 
-  //#region Read PersonCard Object Data From DataBase [ReadFromDB]
+  //#region Read PersonCard Object Data From DataBase [ReadFromDB OLD]
   //=============================================================================
-  Future<PersonCardObject> readPersonCardObjectDataFromDataBase() async {
-    String _emailId;
-    String _email;
-    String _firstName;
-    String _lastName;
-    String _firstNameEng;
-    String _lastNameEng;
-    String _phoneNumber;
-    String _phoneNumberDialCode;
-    String _phoneNumberParse;
-    String _phoneNumberCleanLongFormat;
-    String _pictureUrl;
-    String _cardDescription;
-    String _internetSiteUrl;
-    String _address;
-
-    try{
-      _emailId = 'shr.harari@gmail.com';
-      _email = 'shr.harari@gmail.com';
-      _firstName = 'שחר';
-      _lastName = 'הררי';
-      _firstNameEng = 'Shahar';
-      _lastNameEng = 'Harari';
-      _phoneNumber = '+972525464640';
-      _phoneNumberDialCode = '972';
-      _phoneNumberParse = '525464640';
-      _phoneNumberCleanLongFormat = '972525464640';
-      _pictureUrl = '';
-      _cardDescription = 'תיאור מפורט של כרטיס הביקור';
-      _internetSiteUrl = '';
-      _address = 'הנשיאים 6, הוד-השרון';
-
-      return createPersonCardAsObject(
-          _emailId,
-          _email,
-          _firstName,
-          _lastName,
-          _firstNameEng,
-          _lastNameEng,
-          _phoneNumber,
-          _phoneNumberDialCode,
-          _phoneNumberParse,
-          _phoneNumberCleanLongFormat,
-          _pictureUrl,
-          _cardDescription,
-          _internetSiteUrl,
-          _address);
-    }
-    catch  (e) {
-      await LoggerService.log('<PersonCardService> Read PersonCard Object Data From DataBase >>> ERROR: ${e.toString()}');
-      developer.log(
-        'readPersonCardObjectDataFromDataBase',
-        name: 'PersonCardService',
-        error: 'Read PersonCard Object Data From DataBase >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
+  // Future<PersonCardObject> readPersonCardObjectDataFromDataBase() async {
+  //   String _emailId;
+  //   String _email;
+  //   String _firstName;
+  //   String _lastName;
+  //   String _firstNameEng;
+  //   String _lastNameEng;
+  //   String _phoneNumber;
+  //   String _phoneNumberDialCode;
+  //   String _phoneNumberParse;
+  //   String _phoneNumberCleanLongFormat;
+  //   String _pictureUrl;
+  //   String _cardDescription;
+  //   String _internetSiteUrl;
+  //   String _address;
+  //
+  //   try{
+  //     _emailId = 'shr.harari@gmail.com';
+  //     _email = 'shr.harari@gmail.com';
+  //     _firstName = 'שחר';
+  //     _lastName = 'הררי';
+  //     _firstNameEng = 'Shahar';
+  //     _lastNameEng = 'Harari';
+  //     _phoneNumber = '+972525464640';
+  //     _phoneNumberDialCode = '972';
+  //     _phoneNumberParse = '525464640';
+  //     _phoneNumberCleanLongFormat = '972525464640';
+  //     _pictureUrl = '';
+  //     _cardDescription = 'תיאור מפורט של כרטיס הביקור';
+  //     _internetSiteUrl = '';
+  //     _address = 'הנשיאים 6, הוד-השרון';
+  //
+  //     return createPersonCardAsObject(
+  //         _emailId,
+  //         _email,
+  //         _firstName,
+  //         _lastName,
+  //         _firstNameEng,
+  //         _lastNameEng,
+  //         _phoneNumber,
+  //         _phoneNumberDialCode,
+  //         _phoneNumberParse,
+  //         _phoneNumberCleanLongFormat,
+  //         _pictureUrl,
+  //         _cardDescription,
+  //         _internetSiteUrl,
+  //         _address);
+  //   }
+  //   catch  (e) {
+  //     await LoggerService.log('<PersonCardService> Read PersonCard Object Data From DataBase >>> ERROR: ${e.toString()}');
+  //     developer.log(
+  //       'readPersonCardObjectDataFromDataBase',
+  //       name: 'PersonCardService',
+  //       error: 'Read PersonCard Object Data From DataBase >>> ERROR: ${e.toString()}',
+  //     );
+  //     return null;
+  //   }
+  // }
   //#endregion
 
   //#region Update PersonCard Object Data To DataBase [WriteToDB]
@@ -410,7 +410,7 @@ class PersonCardService {
       }
     }
     catch (e) {
-      await LoggerService.log('<RegistrationService> Get PersonCard List From Server >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<PersonCardService> Get PersonCard List From Server >>> ERROR: ${e.toString()}');
       developer.log(
         'getPersonCardListFromServer',
         name: 'PersonCardService',

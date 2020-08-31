@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
@@ -10,17 +9,17 @@ import 'package:rotary_net/shared/loading.dart';
 import 'package:rotary_net/widgets/application_menu_widget.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 
-class PersonCardDetailEditScreen extends StatefulWidget {
+class PersonCardDetailEditPageScreen extends StatefulWidget {
   static const routeName = '/PersonCardDetailEditScreen';
   final ArgDataPersonCardObject argDataObject;
 
-  PersonCardDetailEditScreen({Key key, @required this.argDataObject}) : super(key: key);
+  PersonCardDetailEditPageScreen({Key key, @required this.argDataObject}) : super(key: key);
 
   @override
-  _PersonCardDetailEditScreenState createState() => _PersonCardDetailEditScreenState();
+  _PersonCardDetailEditPageScreenState createState() => _PersonCardDetailEditPageScreenState();
 }
 
-class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen> {
+class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPageScreen> {
 
   final PersonCardService personCardService = PersonCardService();
 
@@ -64,7 +63,7 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
   Future<void> setPersonCardVariables(PersonCardObject aPersonCard) async {
     emailId = aPersonCard.emailId;
     pictureFileName = aPersonCard.pictureUrl;
-    personCardImage = AssetImage('assets/images/$pictureFileName');
+    personCardImage = AssetImage('assets/images/person_cards/$pictureFileName');
 
     eMailController = TextEditingController(text: aPersonCard.email);
     firstNameController = TextEditingController(text: aPersonCard.firstName);
@@ -262,7 +261,7 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
 
                     /// --------------- Application Menu ---------------------
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         /// Menu Icon
                         Padding(
@@ -272,7 +271,7 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
                             onPressed: () async {await openMenu();},
                           ),
                         ),
-                        Spacer(flex: 8),
+
                         /// Debug Icon --->>> Remove before Production
                         Padding(
                           padding: const EdgeInsets.only(left: 0.0, top: 10.0, right: 10.0, bottom: 0.0),
@@ -289,11 +288,7 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
             ),
 
             Expanded(
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 30.0, horizontal: 40.0),
-                width: double.infinity,
-                child: buildPersonCardDetailDisplay(),
-              ),
+              child: buildPersonCardDetailDisplay(),
             ),
           ]
       ),
@@ -304,6 +299,8 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Container(
+        padding: EdgeInsets.symmetric(vertical: 30.0, horizontal: 40.0),
+        width: double.infinity,
         child: Form(
           key: formKey,
           child: Column(
@@ -340,7 +337,6 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
   }
 
   Widget buildPersonCardImage(AssetImage aPictureAssetImage) {
-
     return InkWell(
       onTap: () async{await pickImageFile();},
       child: Padding(
@@ -420,30 +416,26 @@ class _PersonCardDetailEditScreenState extends State<PersonCardDetailEditScreen>
   }
 
   Widget buildUpdateImageButton(String buttonText, Function aFunc, IconData aIcon) {
-    return Row(
-        textDirection: TextDirection.rtl,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          RaisedButton.icon(
-            onPressed: () {aFunc(); },
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(5.0))
-            ),
-            label: Text(
-              buttonText,
-              style: TextStyle(
-                  color: Colors.white,fontSize: 16.0
-              ),
-            ),
-            icon: Icon(
-              aIcon,
-              color:Colors.white,
-            ),
-            textColor: Colors.white,
-            splashColor: Colors.red,
-            color: Colors.blue[400],
+    return Padding(
+      padding: const EdgeInsets.only(top: 10.0),
+      child: RaisedButton.icon(
+        onPressed: () {aFunc(); },
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5.0))
+        ),
+        label: Text(
+          buttonText,
+          style: TextStyle(
+              color: Colors.white,fontSize: 16.0
           ),
-        ]
+        ),
+        icon: Icon(
+          aIcon,
+          color:Colors.white,
+        ),
+        textColor: Colors.white,
+        color: Colors.blue[400],
+      ),
     );
   }
 

@@ -1,4 +1,5 @@
 
+import 'package:rotary_net/objects/event_object.dart';
 import 'package:rotary_net/objects/login_object.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
 import 'package:rotary_net/objects/user_object.dart';
@@ -20,5 +21,16 @@ class ArgDataPersonCardObject {
   ArgDataPersonCardObject(
       this.passUserObj,
       this.passPersonCardObj,
+      this.passLoginObj);
+}
+
+class ArgDataEventObject {
+  UserObject passUserObj;
+  EventObject passEventObj;
+  LoginObject passLoginObj;
+
+  ArgDataEventObject(
+      this.passUserObj,
+      this.passEventObj,
       this.passLoginObj);
 }

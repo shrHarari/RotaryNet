@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
-import 'package:rotary_net/screens/person_card_detail_pages/person_card_detail_edit_screen.dart';
+import 'package:rotary_net/screens/person_card_detail_pages/person_card_detail_edit_page_screen.dart';
 import 'package:rotary_net/services/person_card_service.dart';
 import 'package:rotary_net/shared/bubbles_box_decoration.dart';
 import 'package:rotary_net/shared/loading.dart';
@@ -10,17 +10,17 @@ import 'package:rotary_net/widgets/application_menu_widget.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 import 'package:rotary_net/utils/utils_class.dart';
 
-class PersonCardDetailScreen extends StatefulWidget {
+class PersonCardDetailPageScreen extends StatefulWidget {
   static const routeName = '/PersonCardDetailScreen';
   final ArgDataPersonCardObject argDataObject;
 
-  PersonCardDetailScreen({Key key, @required this.argDataObject}) : super(key: key);
+  PersonCardDetailPageScreen({Key key, @required this.argDataObject}) : super(key: key);
 
   @override
-  _PersonCardDetailScreenState createState() => _PersonCardDetailScreenState();
+  _PersonCardDetailPageScreenState createState() => _PersonCardDetailPageScreenState();
 }
 
-class _PersonCardDetailScreenState extends State<PersonCardDetailScreen> {
+class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen> {
 
   final PersonCardService personCardService = PersonCardService();
   PersonCardObject displayPersonCardObject;
@@ -53,7 +53,7 @@ class _PersonCardDetailScreenState extends State<PersonCardDetailScreen> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PersonCardDetailEditScreen(argDataObject: argDataPersonCardObject),
+        builder: (context) => PersonCardDetailEditPageScreen(argDataObject: argDataPersonCardObject),
       ),
     );
 
@@ -139,7 +139,7 @@ class _PersonCardDetailScreenState extends State<PersonCardDetailScreen> {
 
                   /// --------------- Application Menu ---------------------
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         /// Menu Icon
                         Padding(
@@ -149,7 +149,7 @@ class _PersonCardDetailScreenState extends State<PersonCardDetailScreen> {
                             onPressed: () async {await openMenu();},
                           ),
                         ),
-                        Spacer(flex: 8),
+
                         /// Debug Icon --->>> Remove before Production
                         Padding(
                           padding: const EdgeInsets.only(left: 0.0, top: 10.0, right: 10.0, bottom: 0.0),
@@ -179,7 +179,7 @@ class _PersonCardDetailScreenState extends State<PersonCardDetailScreen> {
 
   /// ====================== Person Card All Fields ==========================
   Widget buildPersonCardDetailDisplay(PersonCardObject aPersonCardObj) {
-    personCardImage = AssetImage('assets/images/${aPersonCardObj.pictureUrl}');
+    personCardImage = AssetImage('assets/images/person_cards/${aPersonCardObj.pictureUrl}');
 
     return Column(
       children: <Widget>[
@@ -280,7 +280,6 @@ class _PersonCardDetailScreenState extends State<PersonCardDetailScreen> {
               elevation: 0.0,
               onPressed: () {aFunc(aTitle);},
               color: Colors.blue[10],
-              textColor: Colors.white,
               child:
               IconTheme(
                 data: IconThemeData(

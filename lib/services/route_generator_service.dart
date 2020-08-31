@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
-import 'package:rotary_net/screens/rotary_main_screen.dart';
+import 'package:rotary_net/screens/rotary_main_pages/rotary_main_page_screen.dart';
+import 'file:///C:/FLUTTER_OCTIA/rotary_net/lib/z_old_screens/rotary_main_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/register_screen.dart';
 import 'package:rotary_net/shared/error_message_screen.dart';
 import 'package:rotary_net/wrapper/wrapper.dart';
@@ -22,9 +23,21 @@ class RouteGenerator {
       case RegisterScreen.routeName:
         return MaterialPageRoute(builder: (_) => RegisterScreen());
 
-      case RotaryMainScreen.routeName:
+      // case RotaryMainScreen.routeName:
+      //   if (args is ArgDataUserObject) {
+      //     return MaterialPageRoute(builder: (_) => RotaryMainScreen(argDataObject: args)
+      //     );
+      //   } else {
+      //     return MaterialPageRoute(builder: (_) => ErrorMessageScreen(
+      //         errTitle: 'Rotary Message',
+      //         errMsg: 'Unable to read Person Card data')
+      //     );
+      //   }
+      //   break;
+
+      case RotaryMainPageScreen.routeName:
         if (args is ArgDataUserObject) {
-          return MaterialPageRoute(builder: (_) => RotaryMainScreen(argDataObject: args)
+          return MaterialPageRoute(builder: (_) => RotaryMainPageScreen(argDataObject: args)
           );
         } else {
           return MaterialPageRoute(builder: (_) => ErrorMessageScreen(

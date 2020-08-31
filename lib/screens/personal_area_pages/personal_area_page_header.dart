@@ -56,7 +56,7 @@ class BuildPersonalAreaPageHeader extends StatelessWidget {
             ),
             /// --------------- Application Menu ---------------------
             Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 /// Menu Icon --->>> Open Drawer Menu
                 Padding(
@@ -66,13 +66,12 @@ class BuildPersonalAreaPageHeader extends StatelessWidget {
                     onPressed: onPressed,   // ===>>> onPressed: () async {await openMenu();},
                   ),
                 ),
-                Spacer(flex: 8),
+
                 /// Back Icon --->>> Back to previous screen
                 Padding(
                   padding: const EdgeInsets.only(left: 0.0, top: 10.0, right: 10.0, bottom: 0.0),
                   child: IconButton(
                     icon:  Icon(Icons.close, color: Colors.white, size: 26.0,),
-//                    icon: Icon(Icons.arrow_forward, color: Colors.white),
                     onPressed: () {Navigator.pop(context);},
                   ),
                 ),

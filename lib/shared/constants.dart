@@ -22,6 +22,7 @@ const String rotaryUserRegistrationUrl = 'http://159.89.225.231:7775/api/registr
 const String rotaryUserLoginUrl = 'http://159.89.225.231:7775/api/login/';
 const String rotaryGetPersonCardListUrl = 'http://159.89.225.231:7775/api/registration/';
 const String rotaryPersonCardWriteToDataBaseRequestUrl = 'http://159.89.225.231:7775/api/registration/';
+const String rotaryEventWriteToDataBaseRequestUrl = 'http://159.89.225.231:7775/api/registration/';
 //#endregion
 
 //#region User Data: SharedPreferences [Key Name]
@@ -45,9 +46,13 @@ const String rotaryLoginStatus = 'Rotary Login Status';
 enum LoginStatusEnum{NoRequest, Waiting, Accepted, Rejected, NoStatus}
 //#endregion
 
-
 //#region UserType [Key Name]+[Enum]
 // ==============================================================
 const String rotaryUserType = 'Rotary User Type';
 enum UserTypeEnum{SystemAdmin, RotaryMember, Guest}
+//#endregion
+
+//#region SearchType [Enum]
+// ==============================================================
+enum SearchTypeEnum{PersonCard, Event}
 //#endregion

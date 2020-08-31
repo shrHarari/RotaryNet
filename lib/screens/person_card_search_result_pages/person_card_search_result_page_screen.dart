@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
-import 'package:rotary_net/screens/person_card_detail_pages/person_card_detail_screen.dart';
+import 'package:rotary_net/screens/person_card_detail_pages/person_card_detail_page_screen.dart';
 import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_card_tile.dart';
-import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_header_textbox.dart';
+import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_header_search_box.dart';
 import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_header_title.dart';
 import 'package:rotary_net/services/person_card_service.dart';
 import 'package:rotary_net/shared/loading.dart';
@@ -66,7 +66,7 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PersonCardDetailScreen(argDataObject: argDataPersonCardObject),
+        builder: (context) => PersonCardDetailPageScreen(argDataObject: argDataPersonCardObject),
       ),
     );
   }
@@ -104,7 +104,7 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
                     SliverPersistentHeader(
                       pinned: true,
                       floating: true,
-                      delegate: PersonCardSearchResultPageHeaderTextBox(
+                      delegate: PersonCardSearchResultPageHeaderSearchBox(
                           minExtent: 90.0,
                           maxExtent: 90.0,
                           searchController: searchController,
@@ -149,7 +149,7 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
                 /// --------------- Application Menu ---------------------
                 SafeArea(
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       /// Menu Icon --->>> Open Drawer Menu
                       Padding(
@@ -159,7 +159,7 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
                           onPressed: () async {await openMenu();},
                         ),
                       ),
-                      Spacer(flex: 8),
+
                       /// Back Icon --->>> Back to previous screen
                       Padding(
                         padding: const EdgeInsets.only(left: 0.0, top: 10.0, right: 10.0, bottom: 0.0),

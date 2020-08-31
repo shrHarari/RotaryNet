@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
 import 'package:rotary_net/objects/user_object.dart';
-import 'package:rotary_net/screens/rotary_main_screen.dart';
+import 'package:rotary_net/screens/rotary_main_pages/rotary_main_page_screen.dart';
+import 'file:///C:/FLUTTER_OCTIA/rotary_net/lib/z_old_screens/rotary_main_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/login_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/login_state_message_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/register_screen.dart';
@@ -96,7 +97,7 @@ class _WrapperState extends State<Wrapper> {
                   if ((argDataObject.passUserObj.stayConnected == null) || (!argDataObject.passUserObj.stayConnected))
                     return LoginScreen(argDataObject: argDataObject);
                   else
-                    return RotaryMainScreen(argDataObject: argDataObject);
+                    return RotaryMainPageScreen(argDataObject: argDataObject);
                   break;
                 case Constants.LoginStatusEnum.NoStatus:
                   return ErrorMessageScreen(

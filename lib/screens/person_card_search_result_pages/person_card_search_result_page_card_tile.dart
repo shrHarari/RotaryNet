@@ -10,7 +10,7 @@ class BuildPersonCardTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    AssetImage personCardImage = AssetImage('assets/images/${aPersonCardObj.pictureUrl}');
+    AssetImage personCardImage = AssetImage('assets/images/person_cards/${aPersonCardObj.pictureUrl}');
 
     return Padding(
       padding: const EdgeInsets.only(left: 15.0, top: 5.0, right: 15.0, bottom: 5.0),

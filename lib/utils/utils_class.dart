@@ -1,5 +1,6 @@
 import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:add_2_calendar/add_2_calendar.dart';
 
 class Utils {
 
@@ -13,7 +14,7 @@ class Utils {
       }
     }
     catch (ex) {
-      print ('$ex.toString()');
+      print ('${ex.toString()}');
     }
   }
 
@@ -27,7 +28,7 @@ class Utils {
       }
     }
     catch (ex) {
-      print ('$ex.toString()');
+      print ('${ex.toString()}');
     }
   }
 
@@ -43,7 +44,7 @@ class Utils {
       launch(_emailLaunchUri.toString());
     }
     catch (ex) {
-      print ('Could not send an Email To: $ex.toString()');
+      print ('Could not send an Email To: ${ex.toString()}');
     }
   }
 
@@ -61,7 +62,7 @@ class Utils {
       }
     }
     catch (ex){
-      print ('$ex.toString()');
+      print ('${ex.toString()}');
     }
   }
 
@@ -75,7 +76,7 @@ class Utils {
       }
     }
     catch (ex){
-      print ('$ex.toString()');
+      print ('${ex.toString()}');
     }
   }
 
@@ -103,7 +104,42 @@ class Utils {
       }
     }
     catch (ex){
-      print ('$ex.toString()');
+      print ('${ex.toString()}');
+    }
+  }
+
+  static Future<void> openCalendar(String aDateTime) async {
+    try {
+      // final String _dateTimeCommand = "content://com.android.calendar/time/$aDateTime";
+      // final String _dateTimeCommand = "content://com.android.calendar/time/2015-05-28T09:00:00-07:00";
+      final String _dateTimeCommand = "content://com.android.calendar/time/";
+      if (await canLaunch(_dateTimeCommand)) {
+        await launch(_dateTimeCommand);
+      } else {
+        throw 'Could not open Calendar: $aDateTime';
+      }
+    }
+    catch (ex) {
+      print ('${ex.toString()}');
+    }
+  }
+
+  static Future<void> addEventToCalendar(String aTitle, String aDescription, String aLocation, DateTime aStartDateTime, DateTime aEndDateTime) async {
+    try {
+
+      final Event event = Event(
+        title: aTitle,
+        description: aDescription,
+        location: aLocation,
+        startDate: aStartDateTime,
+        endDate: aEndDateTime,
+        //   endDate: DateTime.now().add(Duration(days: 1)),
+      );
+
+      Add2Calendar.addEvent2Cal(event);
+    }
+    catch (ex) {
+      print ('${ex.toString()}');
     }
   }
 }

@@ -5,7 +5,7 @@ import 'package:rotary_net/objects/arg_data_objects.dart';
 import 'package:rotary_net/objects/login_object.dart';
 import 'package:rotary_net/objects/user_object.dart';
 import 'package:rotary_net/screens/debug_setting_screen.dart';
-import 'package:rotary_net/screens/rotary_main_screen.dart';
+import 'file:///C:/FLUTTER_OCTIA/rotary_net/lib/z_old_screens/rotary_main_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/register_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/wellcome_decoration_style.dart';
 import 'package:rotary_net/services/registration_service.dart';

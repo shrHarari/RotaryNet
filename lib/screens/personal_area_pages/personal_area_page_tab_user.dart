@@ -93,7 +93,6 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
                 children: <Widget>[
                   Expanded(
                     child: Container(
-//                      color: Colors.red,
                       padding: EdgeInsets.only(left: 30, top: 30.0, right: 30.0, bottom: 0.0),
                       child: Form(
                         key: formKey,
@@ -120,7 +119,6 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
             Expanded(
               flex: 2,
               child: Container(
-//                color: Colors.green,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
@@ -134,7 +132,6 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
             Expanded(
               flex: 1,
               child: Container(
-//                color: Colors.yellow,
                 child: Column(
                   children: <Widget>[
                     Text(
