@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:rotary_net/objects/person_card_object.dart';
 
-class BuildPersonCardTile extends StatelessWidget {
-  const BuildPersonCardTile({Key key, this.argPersonCardObj, this.argFuncOpenPersonCardDetail, this.argIndexOfPersonCardObj})
+import 'package:rotary_net/objects/user_object.dart';
+
+class BuildUserListTile extends StatelessWidget {
+  const BuildUserListTile({Key key, this.argUserObj, this.argFuncOpenUserDetail, this.argIndexOfUserObj})
       : super(key: key);
-  final PersonCardObject argPersonCardObj;
-  final Function argFuncOpenPersonCardDetail;
-  final int argIndexOfPersonCardObj;
+  final UserObject argUserObj;
+  final Function argFuncOpenUserDetail;
+  final int argIndexOfUserObj;
 
   @override
   Widget build(BuildContext context) {
 
-    AssetImage personCardImage = AssetImage('assets/images/person_cards/${argPersonCardObj.pictureUrl}');
+    // AssetImage userImage = AssetImage('assets/images/person_cards/${argUserObj.pictureUrl}');
 
     return Padding(
       padding: const EdgeInsets.only(left: 15.0, top: 5.0, right: 15.0, bottom: 5.0),
@@ -34,11 +35,11 @@ class BuildPersonCardTile extends StatelessWidget {
             child: Row(
               textDirection: TextDirection.rtl,
               children: <Widget>[
-                CircleAvatar(
-                  radius: 30.0,
-                  backgroundColor: Colors.blue[900],
-                  backgroundImage: personCardImage,
-                ),
+                // CircleAvatar(
+                //   radius: 30.0,
+                //   backgroundColor: Colors.blue[900],
+                //   backgroundImage: userImage,
+                // ),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.only(right: 20.0),
@@ -49,13 +50,9 @@ class BuildPersonCardTile extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 8.0),
                           child: Text(
-                            argPersonCardObj.firstName + " " + argPersonCardObj.lastName,
+                            argUserObj.firstName + " " + argUserObj.lastName,
                             style: TextStyle(color: Colors.grey[900], fontSize: 20.0, fontWeight: FontWeight.bold),
                           ),
-                        ),
-                        Text(
-                          argPersonCardObj.address,
-                          style: TextStyle(color: Colors.grey[900], fontSize: 12.0, fontWeight: FontWeight.w400),
                         ),
                       ],
                     ),
@@ -67,7 +64,7 @@ class BuildPersonCardTile extends StatelessWidget {
         ),
         onTap: ()
         {
-          argFuncOpenPersonCardDetail(argPersonCardObj, argIndexOfPersonCardObj);
+          argFuncOpenUserDetail(argUserObj, argIndexOfUserObj);
         },
       ),
     );

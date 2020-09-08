@@ -64,6 +64,11 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
     };
   }
 
+  closeAndReturnUpdatedPersonCardObject() async {
+    /// Return  displayEventObject
+    Navigator.pop(context, displayPersonCardObject);
+  }
+
   @override
   Widget build(BuildContext context) {
     return loading ? Loading() :
@@ -155,7 +160,9 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
                           padding: const EdgeInsets.only(left: 0.0, top: 10.0, right: 10.0, bottom: 0.0),
                           child: IconButton(
                             icon: Icon(Icons.arrow_forward, color: Colors.white),
-                            onPressed: () {Navigator.pop(context);},
+                            onPressed: () {
+                              closeAndReturnUpdatedPersonCardObject();
+                              },
                           ),
                         ),
                       ],

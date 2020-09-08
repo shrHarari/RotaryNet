@@ -155,7 +155,7 @@ class EventService {
       // When the Server side will be ready >>> remove that calling
       if (GlobalsService.isDebugMode) {
         String jsonResponseForDebug = createJsonForEventsList();
-       print('jsonResponseForDebug: $jsonResponseForDebug');
+       // print('jsonResponseForDebug: $jsonResponseForDebug');
 
         var eventsListForDebug = jsonDecode(jsonResponseForDebug) as List;    // List of PersonCard to display;
         List<EventObject> eventObjListForDebug = eventsListForDebug.map((eventJsonDebug) => EventObject.fromJson(eventJsonDebug)).toList();

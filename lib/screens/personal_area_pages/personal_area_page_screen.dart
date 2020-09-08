@@ -89,7 +89,7 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
 
                 (snapshot.hasError) ?
                   Container(
-                    child: DisplayNoDataErrorText(
+                    child: DisplayErrorText(
                       errorText: 'כרטיס ביקור חסר',
                     ),
                   ) :

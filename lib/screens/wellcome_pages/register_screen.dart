@@ -97,7 +97,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       });
 
       newUserObj = userService.createUserAsObject(
-          '',
+          // '',
           newEmail.trim(),
           newFirstName.trim(),
           newLastName.trim(),
@@ -118,7 +118,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       } else {
         registrationConfirmationCheck = true;
         /// Update UserObject.RequestId >>> {_userRequestID}
-        newUserObj.setRequestId(_userRequestID);
+        // newUserObj.setRequestId(_userRequestID);
         /// Update LoginObject.loginStatus >>> LoginStatusEnum.Waiting
         newLoginObject.setLoginStatus(Constants.LoginStatusEnum.Waiting);
 

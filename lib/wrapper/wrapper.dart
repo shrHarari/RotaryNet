@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
 import 'package:rotary_net/objects/user_object.dart';
 import 'package:rotary_net/screens/rotary_main_pages/rotary_main_page_screen.dart';
-import 'file:///C:/FLUTTER_OCTIA/rotary_net/lib/z_old_screens/rotary_main_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/login_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/login_state_message_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/register_screen.dart';
@@ -30,6 +29,8 @@ class _WrapperState extends State<Wrapper> {
   final RegistrationService registrationService = RegistrationService();
   ArgDataUserObject argDataObject;
   bool loading = true;
+
+  LoginObject currentLoginObj;
 
   @override
   void initState() {
@@ -80,55 +81,65 @@ class _WrapperState extends State<Wrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return loading ? Loading() : Scaffold(
-      body: FutureBuilder<LoginObject>(
-          future: loginObjForBuild,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              LoginObject currentLoginObj = snapshot.data;
+    return FutureBuilder<LoginObject>(
+        future: loginObjForBuild,
+        builder: (context, snapshot) {
+          if (snapshot.hasData)
+            currentLoginObj = snapshot.data;
 
-              switch (currentLoginObj.loginStatus) {
-                case Constants.LoginStatusEnum.NoRequest:
-                  return RegisterScreen(argDataObject: argDataObject);
-                case Constants.LoginStatusEnum.Waiting:
-                  return LoginStateMessageScreen(argDataObject: argDataObject);
-                  break;
-                case Constants.LoginStatusEnum.Accepted:
-                  if ((argDataObject.passUserObj.stayConnected == null) || (!argDataObject.passUserObj.stayConnected))
-                    return LoginScreen(argDataObject: argDataObject);
-                  else
-                    return RotaryMainPageScreen(argDataObject: argDataObject);
-                  break;
-                case Constants.LoginStatusEnum.NoStatus:
-                  return ErrorMessageScreen(
-                      errTitle: 'Registration Message',
-                      errMsg: 'NoStatus Phase'
-                  );
-                  break;
-                case Constants.LoginStatusEnum.Rejected:
-                  return ErrorMessageScreen(
-                      errTitle: 'Registration Message',
-                      errMsg: 'Rejected Phase'
-                  );
-                  break;
-                default:
-                  return ErrorMessageScreen(
-                      errTitle: 'Registration Message',
-                      errMsg: 'Default Phase'
-                  );
-                  break;
-              }
-            } else {
-              if (snapshot.hasError) {
-                print('Wrapper / Snapshot Error Message: ${snapshot.error}');
-                return Text("${snapshot.error}", style: Theme.of(context).textTheme.headline);
-              } else {
-                print('Wrapper / Error Message: Unable to read User data');
-                return Loading();
-              }
-            }
-          }
-      ),
-    );
+          return Scaffold(
+            body:
+            (snapshot.connectionState == ConnectionState.waiting)
+            ? Loading()
+            : (snapshot.hasError)
+
+              ? DisplayErrorTextAndRetryButton(
+                  errorText: 'שגיאה בשליפת אירועים',
+                  buttonText: 'אנא פנה למנהל המערכת',
+                  onPressed: () {},)
+
+              : (snapshot.hasData)
+                ? Container(
+                      child: getPageByLoginStatus(currentLoginObj, argDataObject),
+                  )
+
+                : Center(child: Text('אין תוצאות')),
+          );
+        }
+      );
+    }
+
+  Widget getPageByLoginStatus(LoginObject aLoginObj, ArgDataUserObject aDataObject) {
+    switch (aLoginObj.loginStatus) {
+      case Constants.LoginStatusEnum.NoRequest:
+        return RegisterScreen(argDataObject: aDataObject);
+      case Constants.LoginStatusEnum.Waiting:
+        return LoginStateMessageScreen(argDataObject: aDataObject);
+        break;
+      case Constants.LoginStatusEnum.Accepted:
+        if ((aDataObject.passUserObj.stayConnected == null) || (!aDataObject.passUserObj.stayConnected))
+          return LoginScreen(argDataObject: aDataObject);
+        else
+          return RotaryMainPageScreen(argDataObject: aDataObject);
+        break;
+      case Constants.LoginStatusEnum.NoStatus:
+        return RotaryErrorMessageScreen(
+            errTitle: 'Registration Message',
+            errMsg: 'NoStatus Phase'
+        );
+        break;
+      case Constants.LoginStatusEnum.Rejected:
+        return RotaryErrorMessageScreen(
+            errTitle: 'Registration Message',
+            errMsg: 'Rejected Phase'
+        );
+        break;
+      default:
+        return RotaryErrorMessageScreen(
+            errTitle: 'Registration Message',
+            errMsg: 'Default Phase'
+        );
+        break;
+    }
   }
 }

@@ -47,7 +47,7 @@ class _LoginStateMessageScreen extends State<LoginStateMessageScreen> {
             'אנא המתן ואנו נשלח אליך מייל לאישור בקשתך\n';
 
         sharedPreferencesData = 'User Data To Display: \n'
-            'User Request Id: ${widget.argDataObject.passUserObj.requestId}\n'
+            // 'User Request Id: ${widget.argDataObject.passUserObj.requestId}\n'
             'User EmailId: ${widget.argDataObject.passUserObj.emailId}\n'
             'User Name: ${widget.argDataObject.passUserObj.firstName} ${widget.argDataObject.passUserObj.lastName}\n'
             'User Password: ${widget.argDataObject.passUserObj.password}\n'

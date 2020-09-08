@@ -1,6 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:enum_to_string/enum_to_string.dart';
+import 'package:http/http.dart';
+import 'package:rotary_net/database/init_database_data.dart';
 import 'package:rotary_net/objects/user_object.dart';
+import 'package:rotary_net/services/globals_service.dart';
 import 'package:rotary_net/services/logger_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,7 +15,7 @@ class UserService {
   //#region Create User As Object
   //=============================================================================
   UserObject createUserAsObject(
-      String aRequestId,
+      // String aRequestId,
       String aEmailId,
       String aFirstName,
       String aLastName,
@@ -21,7 +25,7 @@ class UserService {
 
     if (aEmailId == null)
       return UserObject(
-          requestId: Constants.rotaryNoRequestIdInitValue,
+          // requestId: Constants.rotaryNoRequestIdInitValue,
           emailId: '',
           firstName: '',
           lastName: '',
@@ -30,7 +34,7 @@ class UserService {
           stayConnected: false);
     else
       return UserObject(
-          requestId: aRequestId,
+          // requestId: aRequestId,
           emailId: aEmailId,
           firstName: aFirstName,
           lastName: aLastName,
@@ -43,7 +47,7 @@ class UserService {
   //#region Read User Object Data From Shared Preferences [ReadFromSP]
   //=============================================================================
   Future<UserObject> readUserObjectDataFromSharedPreferences() async {
-    String _requestId;
+    // String _requestId;
     String _emailId;
     String _firstName;
     String _lastName;
@@ -54,7 +58,7 @@ class UserService {
     try{
       SharedPreferences prefs = await SharedPreferences.getInstance();
 
-      _requestId = prefs.getString(Constants.rotaryUserRequestId);
+      // _requestId = prefs.getString(Constants.rotaryUserRequestId);
       _emailId = prefs.getString(Constants.rotaryUserEmailId);
       _firstName = prefs.getString(Constants.rotaryUserFirstName);
       _lastName = prefs.getString(Constants.rotaryUserLastName);
@@ -63,7 +67,7 @@ class UserService {
       _stayConnected = prefs.getBool(Constants.rotaryUserStayConnected);
 
       return createUserAsObject(
-          _requestId,
+          // _requestId,
           _emailId,
           _firstName,
           _lastName,
@@ -88,7 +92,7 @@ class UserService {
   Future writeUserObjectDataToSharedPreferences(UserObject aUserObj) async {
     try{
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString(Constants.rotaryUserRequestId, aUserObj.requestId);
+      // await prefs.setString(Constants.rotaryUserRequestId, aUserObj.requestId);
       await prefs.setString(Constants.rotaryUserEmailId, aUserObj.emailId);
       await prefs.setString(Constants.rotaryUserFirstName, aUserObj.firstName);
       await prefs.setString(Constants.rotaryUserLastName, aUserObj.lastName);
@@ -121,6 +125,60 @@ class UserService {
         'writeUserTypeToSharedPreferences',
         name: 'UserService',
         error: 'Write User Type To SharedPreferences >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+  //#endregion
+
+  //#region Get User List From Server [GET]
+  // =========================================================
+  Future getUsersListFromServer(String aValueToSearch) async {
+    try {
+
+      //***** for debug *****
+      // When the Server side will be ready >>> remove that calling
+      if (GlobalsService.isDebugMode) {
+        String jsonResponseForDebug = InitDataBaseData.createJsonRowsForUsers();
+//        print('jsonResponseForDebug: $jsonResponseForDebug');
+
+        var usersListForDebug = jsonDecode(jsonResponseForDebug) as List;    // List of Users to display;
+        List<UserObject> userObjListForDebug = usersListForDebug.map((userJsonDebug) => UserObject.fromJson(userJsonDebug)).toList();
+//        print('personCardObjListForDebug.length: ${personCardObjListForDebug.length}');
+
+        userObjListForDebug.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
+        return userObjListForDebug;
+      }
+      //***** for debug *****
+
+      /// UserListUrl: 'http://.......'
+      Response response = await get(Constants.rotaryGetUserListUrl);
+
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+        await LoggerService.log('<UserService> Get User List From Server >>> OK\nHeader: $contentType \nUserListFromJSON: $jsonResponse');
+
+        var userList = jsonDecode(jsonResponse) as List;    // List of PersonCard to display;
+        List<UserObject> userObjList = userList.map((userJson) => UserObject.fromJson(userJson)).toList();
+
+        userObjList.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
+
+        return userObjList;
+
+      } else {
+        await LoggerService.log('<UserService> Get User List From Server >>> Failed: ${response.statusCode}');
+        print('<UserService> Get User List From Server >>> Failed: ${response.statusCode}');
+        return null;
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<UserService> Get User List From Server >>> ERROR: ${e.toString()}');
+      developer.log(
+        'getUserListFromServer',
+        name: 'UserService',
+        error: 'UserCards List >>> ERROR: ${e.toString()}',
       );
       return null;
     }

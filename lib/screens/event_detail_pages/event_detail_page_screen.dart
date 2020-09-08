@@ -25,6 +25,7 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
 
   final EventService eventService = EventService();
   EventObject displayEventObject;
+  Widget hebrewEventTimeLabel;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormState>();
@@ -40,6 +41,7 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
   @override
   void initState() {
     displayEventObject = widget.argDataObject.passEventObj;
+    hebrewEventTimeLabel = widget.argHebrewEventTimeLabel;
     eventImage = AssetImage('assets/images/events/${displayEventObject.eventPictureUrl}');
     super.initState();
   }
@@ -53,19 +55,25 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
     ArgDataEventObject argDataEventObject;
     argDataEventObject = ArgDataEventObject(widget.argDataObject.passUserObj, aEventObj, widget.argDataObject.passLoginObj);
 
-    final resultDataObj = await Navigator.push(
+    final resultDataMap = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EventDetailEditPageScreen(argDataObject: argDataEventObject, argHebrewEventTimeLabel: widget.argHebrewEventTimeLabel,),
+        builder: (context) => EventDetailEditPageScreen(argDataObject: argDataEventObject, argHebrewEventTimeLabel: hebrewEventTimeLabel),
       ),
     );
 
-    if (resultDataObj != null) {
+    if (resultDataMap != null) {
       setState(() {
-        displayEventObject = resultDataObj["EventObject"];
-        picFile = resultDataObj["PickedPictureFile"];
+        displayEventObject = resultDataMap["EventObject"];
+        picFile = resultDataMap["PickedPictureFile"];
+        hebrewEventTimeLabel = resultDataMap["HebrewEventTimeLabel"];
       });
     };
+  }
+
+  closeAndReturnUpdatedEventObject() async {
+    /// Return  displayEventObject
+    Navigator.pop(context, displayEventObject);
   }
 
   @override
@@ -155,7 +163,9 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
                           padding: const EdgeInsets.only(left: 0.0, top: 10.0, right: 10.0, bottom: 0.0),
                           child: IconButton(
                             icon: Icon(Icons.arrow_forward, color: Colors.white),
-                            onPressed: () {Navigator.pop(context);},
+                            onPressed: () {
+                              closeAndReturnUpdatedEventObject();
+                              },
                           ),
                         ),
                       ],
@@ -309,16 +319,15 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
                     aEventObj.eventStartDateTime, aEventObj.eventEndDateTime);
               },
               color: Colors.blue[10],
-              child:
-              IconTheme(
-                data: IconThemeData(
-                  color: Colors.blue[500],
+              child: IconTheme(
+                  data: IconThemeData(
+                    color: Colors.blue[500],
+                  ),
+                  child: Icon(
+                    aIcon,
+                    size: 30,
+                  ),
                 ),
-                child: Icon(
-                  aIcon,
-                  size: 30,
-                ),
-              ),
               padding: EdgeInsets.all(10),
               shape: CircleBorder(side: BorderSide(color: Colors.blue)),
             ),
@@ -326,7 +335,7 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
             Expanded(
               child: Container(
                 alignment: Alignment.centerRight,
-                child: widget.argHebrewEventTimeLabel,
+                child: hebrewEventTimeLabel,
               ),
             ),
           ]

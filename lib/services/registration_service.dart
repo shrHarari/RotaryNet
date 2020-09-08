@@ -191,11 +191,12 @@ class RegistrationService {
         if((currentUserObj.emailId == aUserObj.emailId) && (currentUserObj.password == aUserObj.password))
         {
           // Return full UserObject (with User Name)
-          currentUserObj.setRequestId('10'); // ===>>> if Login Check OK
+          // currentUserObj.setRequestId('10'); // ===>>> if Login Check OK
         } else {
           // Return Empty UserObject (without User Name)
-          currentUserObj = aUserObj;
-          currentUserObj.setRequestId('-9');  // ===>>> if Login Check Failed
+          currentUserObj = null;
+          // currentUserObj = aUserObj;
+          // currentUserObj.setRequestId('-9');  // ===>>> if Login Check Failed
           ;
         }
         return currentUserObj;
@@ -217,14 +218,14 @@ class RegistrationService {
         {
           await LoggerService.log('<RegistrationService> User Login Confirm At SERVER >>> OK\nHeader: $contentType \nUserRequestID: $checkResult');
           // Return full UserObject (with User Name)
-          currentUserObj.setRequestId(checkResult); // ===>>> if Login Check OK
+          // currentUserObj.setRequestId(checkResult); // ===>>> if Login Check OK
           return currentUserObj;
         } else {
           await LoggerService.log('<RegistrationService> User Login Confirm At SERVER >>> Failed: Unable to get UserRequestID: $checkResult');
           print('<RegistrationService> User Login Confirm At SERVER >>> Failed: Unable to get UserRequestID: $checkResult');
           // Return Empty UserObject (without User Name)
           currentUserObj = aUserObj;
-          currentUserObj.setRequestId('-9');  // ===>>> if Login Check Failed
+          // currentUserObj.setRequestId('-9');  // ===>>> if Login Check Failed
           return currentUserObj;
         }
       } else {

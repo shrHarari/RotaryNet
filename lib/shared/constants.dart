@@ -21,6 +21,7 @@ const Map<String, String> rotaryUrlHeader = {"Content-type": "application/json"}
 const String rotaryUserRegistrationUrl = 'http://159.89.225.231:7775/api/registration/';
 const String rotaryUserLoginUrl = 'http://159.89.225.231:7775/api/login/';
 const String rotaryGetPersonCardListUrl = 'http://159.89.225.231:7775/api/registration/';
+const String rotaryGetUserListUrl = 'http://159.89.225.231:7775/api/registration/';
 const String rotaryPersonCardWriteToDataBaseRequestUrl = 'http://159.89.225.231:7775/api/registration/';
 const String rotaryEventWriteToDataBaseRequestUrl = 'http://159.89.225.231:7775/api/registration/';
 //#endregion

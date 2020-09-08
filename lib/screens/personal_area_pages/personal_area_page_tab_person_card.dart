@@ -57,7 +57,7 @@ class _BuildPersonalAreaPageTabPersonCardState extends State<BuildPersonalAreaPa
   Future<void> setPersonCardVariables(PersonCardObject aPersonCard) async {
     emailId = aPersonCard.emailId;
     pictureFileName = aPersonCard.pictureUrl;
-    personCardImage = AssetImage('assets/images/$pictureFileName');
+    personCardImage = AssetImage('assets/images/person_cards/$pictureFileName');
 
     eMailController = TextEditingController(text: aPersonCard.email);
     firstNameController = TextEditingController(text: aPersonCard.firstName);
@@ -95,7 +95,6 @@ class _BuildPersonalAreaPageTabPersonCardState extends State<BuildPersonalAreaPa
         });
       }
     }
-    print('Validation Val: $validationVal');
     return validationVal;
   }
   //#endregion
@@ -130,7 +129,6 @@ class _BuildPersonalAreaPageTabPersonCardState extends State<BuildPersonalAreaPa
 
       if (int.parse(updateVal) > 0) {
         updateStatus = 'נתוני הכרטיס עודכנו';
-        print('Update Status: $updateStatus');
 
         Navigator.pop(context);
       } else {

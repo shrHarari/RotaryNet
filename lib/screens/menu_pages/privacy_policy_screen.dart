@@ -56,7 +56,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
 
                 (snapshot.hasError) ?
                 Container(
-                  child: DisplayNoDataErrorText(
+                  child: DisplayErrorText(
                     errorText: 'דף מדיניות הפרטיות חסר',
                   ),
                 ) :

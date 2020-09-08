@@ -61,11 +61,12 @@ class BubblesBoxDecoration extends StatelessWidget {
             ),
           ),
           Positioned(
+            top: 0,
             right: 0,
             child: CustomPaint(
               painter: BubblesBoxDecorationPin(aBubbleColor: bubbleColor),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -98,21 +99,18 @@ class BubblesBoxDecorationPin extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     var paint = Paint();
     paint.color = aBubbleColor;
-//    paint.color = Colors.black;
 
     var path = Path();
+
     path.moveTo(0, 0);
     path.lineTo(-15, 0);
     path.lineTo(0, -15);
 
-//    path.moveTo(0, 0);
-//    path.lineTo(0, 15);
-//    path.lineTo(15, 0);
     canvas.drawPath(path, paint);
   }
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
-    return null;
+    return true;
   }
 }

@@ -101,7 +101,6 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
         });
       }
     }
-    print('Validation Val: $validationVal');
     return validationVal;
   }
   //#endregion
@@ -140,7 +139,6 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
 
       if (int.parse(updateVal) > 0) {
           updateStatus = 'נתוני הכרטיס עודכנו';
-          print('Update Status: $updateStatus');
 
           Navigator.pop(context, newPersonCardObj);
       } else {
@@ -173,8 +171,6 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
         maxHeight: 800
     );
     File _pictureFile = File(_compressedImage.path);
-//    print('+++++++++++++++++++++++ _pictureFile: ${_pictureFile.path}');
-//    print('_pictureFile: ${await _pictureFile.length()}');
 
     setState(() {
       picFile = _pictureFile;
@@ -205,11 +201,8 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
 
   Widget buildMainScaffoldBody() {
     return Container(
-      width: double.infinity,
+      // width: double.infinity,
       child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             /// --------------- Title Area ---------------------
             Container(
@@ -222,7 +215,7 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
+                      children: <Widget>[
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -295,6 +288,7 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
     );
   }
 
+  /// ====================== Event All Fields ==========================
   Widget buildPersonCardDetailDisplay() {
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
@@ -415,30 +409,6 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
     );
   }
 
-  Widget buildUpdateImageButton(String buttonText, Function aFunc, IconData aIcon) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10.0),
-      child: RaisedButton.icon(
-        onPressed: () {aFunc(); },
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5.0))
-        ),
-        label: Text(
-          buttonText,
-          style: TextStyle(
-              color: Colors.white,fontSize: 16.0
-          ),
-        ),
-        icon: Icon(
-          aIcon,
-          color:Colors.white,
-        ),
-        textColor: Colors.white,
-        color: Colors.blue[400],
-      ),
-    );
-  }
-
   MaterialButton buildImageIconForTextField(IconData aIcon) {
     return MaterialButton(
       elevation: 0.0,
@@ -477,6 +447,30 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
         TextInputDecoration.copyWith(hintText: textInputName) :
         DisabledTextInputDecoration.copyWith(hintText: textInputName), // Disabled Field
       validator: (val) => val.isEmpty ? 'Enter $textInputName' : null,
+    );
+  }
+
+  Widget buildUpdateImageButton(String buttonText, Function aFunc, IconData aIcon) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10.0),
+      child: RaisedButton.icon(
+        onPressed: () {aFunc(); },
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5.0))
+        ),
+        label: Text(
+          buttonText,
+          style: TextStyle(
+              color: Colors.white,fontSize: 16.0
+          ),
+        ),
+        icon: Icon(
+          aIcon,
+          color:Colors.white,
+        ),
+        textColor: Colors.white,
+        color: Colors.blue[400],
+      ),
     );
   }
 }

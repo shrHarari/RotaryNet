@@ -1,40 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
+import 'package:rotary_net/objects/user_object.dart';
 import 'package:rotary_net/screens/person_card_detail_pages/person_card_detail_page_screen.dart';
 import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_card_tile.dart';
 import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_header_search_box.dart';
 import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_header_title.dart';
+import 'package:rotary_net/screens/user_pages/user_page_header_search_box.dart';
+import 'package:rotary_net/screens/user_pages/user_page_header_title.dart';
+import 'package:rotary_net/screens/user_pages/user_page_list_tile.dart';
 import 'package:rotary_net/services/person_card_service.dart';
+import 'package:rotary_net/services/user_service.dart';
 import 'package:rotary_net/shared/error_message_screen.dart';
 import 'package:rotary_net/shared/loading.dart';
 import 'package:rotary_net/widgets/application_menu_widget.dart';
 
-class PersonCardSearchResultPage extends StatefulWidget {
-  static const routeName = '/PersonCardSearchResultPage';
+class UserPageScreen extends StatefulWidget {
+  static const routeName = '/UserPageScreen';
   final ArgDataUserObject argDataObject;
   final String searchText;
 
-  PersonCardSearchResultPage({Key key, @required this.argDataObject, @required this.searchText}) : super(key: key);
+  UserPageScreen({Key key, @required this.argDataObject, @required this.searchText}) : super(key: key);
 
   @override
-  _PersonCardSearchResultPageState createState() => _PersonCardSearchResultPageState();
+  _UserPageScreenState createState() => _UserPageScreenState();
 }
 
-class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage> {
+class _UserPageScreenState extends State<UserPageScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   TextEditingController searchController = TextEditingController();
 
-  final PersonCardService personCardService = PersonCardService();
-  Future<List<PersonCardObject>> personCardsListForBuild;
-  List<PersonCardObject> currentPersonCardsList;
+  final UserService userService = UserService();
+  Future<List<UserObject>> usersListForBuild;
+  List<UserObject> currentUsersList;
 
   @override
   void initState() {
     super.initState();
 
     searchController = TextEditingController(text: widget.searchText);
-    personCardsListForBuild = getPersonCardsListFromServer(widget.searchText);
+    usersListForBuild = getUsersListFromServer(widget.searchText);
   }
 
   void renderSearch(String aSearchText){
@@ -43,16 +48,16 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
 
     setState(() {
       searchController = TextEditingController(text: aSearchText);
-      personCardsListForBuild = getPersonCardsListFromServer(aSearchText);
+      usersListForBuild = getUsersListFromServer(aSearchText);
     });
   }
 
-  Future<List<PersonCardObject>> getPersonCardsListFromServer(String aSearchText) async {
+  Future<List<UserObject>> getUsersListFromServer(String aSearchText) async {
 
 //    await Future<void>.delayed(Duration(seconds: 1));
 
-    dynamic personCardsList = await personCardService.getPersonCardsListSearchFromServer(widget.searchText);
-    return personCardsList;
+    dynamic usersList = await userService.getUsersListFromServer(widget.searchText);
+    return usersList;
   }
 
   Future<void> openMenu() async {
@@ -60,31 +65,32 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
     _scaffoldKey.currentState.openDrawer();
   }
 
-  openPersonCardDetailScreen(PersonCardObject aPersonCardObj, int indexOfPersonCardObj) async {
-    ArgDataPersonCardObject argDataPersonCardObject;
-    argDataPersonCardObject = ArgDataPersonCardObject(widget.argDataObject.passUserObj, aPersonCardObj, widget.argDataObject.passLoginObj);
+  openUserDetailScreen(UserObject aUserObj, int indexOfUserObj) async {
+    ArgDataUserObject argDataUserObject;
+    argDataUserObject = ArgDataUserObject(widget.argDataObject.passUserObj, widget.argDataObject.passLoginObj);
 
-    final resultDataObj = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PersonCardDetailPageScreen(argDataObject: argDataPersonCardObject),
-      ),
-    );
+///>>>>When will be implemented
+    // final resultDataObj = await Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => UserDetailPageScreen(argDataObject: argDataUserObject),
+    //   ),
+    // );
 
-    /// When return from Page >>> Update PersonCardObject in the List[pos: indexOfPersonCardObj]
-    if (resultDataObj != null) {
-      setState(() {
-        currentPersonCardsList[indexOfPersonCardObj] = resultDataObj;
-      });
-    };
+    /// When return from Page >>> Update UserObject in the List[pos: indexOfUserObj]
+    // if (resultDataObj != null) {
+    //   setState(() {
+    //     currentUsersList[indexOfUserObj] = resultDataObj;
+    //   });
+    // };
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<PersonCardObject>>(
-      future: personCardsListForBuild,
+    return FutureBuilder<List<UserObject>>(
+      future: usersListForBuild,
       builder: (context, snapshot) {
-        if (snapshot.hasData) currentPersonCardsList = snapshot.data;
+        if (snapshot.hasData) currentUsersList = snapshot.data;
 
         return Scaffold(
           key: _scaffoldKey,
@@ -104,7 +110,7 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
                     SliverPersistentHeader(
                       pinned: false,
                       floating: false,
-                      delegate: PersonCardSearchResultPageHeaderTitle(
+                      delegate: UserPageHeaderTitle(
                         minExtent: 140.0,
                         maxExtent: 140.0,
                       ),
@@ -112,7 +118,7 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
                     SliverPersistentHeader(
                       pinned: true,
                       floating: true,
-                      delegate: PersonCardSearchResultPageHeaderSearchBox(
+                      delegate: UserPageHeaderSearchBox(
                           minExtent: 90.0,
                           maxExtent: 90.0,
                           searchController: searchController,
@@ -126,32 +132,32 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
                     ) :
 
                     (snapshot.hasError) ?
-                      SliverFillRemaining(
-                        child: DisplayErrorTextAndRetryButton(
-                            errorText: 'שגיאה בשליפת כרטיסי הביקור',
-                            buttonText: 'נסה שוב',
-                            onPressed: () {renderSearch(searchController.text);},
-                        ),
-                      ) :
-
-                      (snapshot.hasData) ?
-                        SliverFixedExtentList(
-                            itemExtent: 130.0,
-                            delegate: SliverChildBuilderDelegate(
-                                (context, index) {
-                                  return BuildPersonCardTile(
-                                      argPersonCardObj: currentPersonCardsList[index],
-                                      argFuncOpenPersonCardDetail: openPersonCardDetailScreen,
-                                      argIndexOfPersonCardObj: index,
-                                  );
-                                },
-                            childCount: currentPersonCardsList.length,
-                          ),
-                        ) :
-                      //========================================
-                      SliverFillRemaining(
-                        child: Center(child: Text('אין תוצאות')),
+                    SliverFillRemaining(
+                      child: DisplayErrorTextAndRetryButton(
+                        errorText: 'שגיאה בשליפת כרטיסי הביקור',
+                        buttonText: 'נסה שוב',
+                        onPressed: () {renderSearch(searchController.text);},
                       ),
+                    ) :
+
+                    (snapshot.hasData) ?
+                    SliverFixedExtentList(
+                      itemExtent: 130.0,
+                      delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                          return BuildUserListTile(
+                            argUserObj: currentUsersList[index],
+                            argFuncOpenUserDetail: openUserDetailScreen,
+                            argIndexOfUserObj: index,
+                          );
+                        },
+                        childCount: currentUsersList.length,
+                      ),
+                    ) :
+                    //========================================
+                    SliverFillRemaining(
+                      child: Center(child: Text('אין תוצאות')),
+                    ),
                   ],
                 ),
 

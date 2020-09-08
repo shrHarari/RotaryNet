@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
 import 'package:rotary_net/objects/event_object.dart';
 import 'package:rotary_net/screens/event_detail_pages/event_detail_page_screen.dart';
+import 'package:rotary_net/screens/event_detail_pages/event_detail_page_widgets.dart';
 import 'package:rotary_net/screens/event_search_result_pages/event_search_result_page_event_tile.dart';
 import 'package:rotary_net/screens/event_search_result_pages/event_search_result_page_header_search_box.dart';
 import 'package:rotary_net/screens/event_search_result_pages/event_search_result_page_header_title.dart';
 import 'package:rotary_net/services/event_service.dart';
+import 'package:rotary_net/shared/error_message_screen.dart';
 import 'package:rotary_net/shared/loading.dart';
 import 'package:rotary_net/widgets/application_menu_widget.dart';
-import 'package:intl/date_symbol_data_local.dart' as SymbolData;
-import 'package:intl/intl.dart' as Intl;
 
 class EventSearchResultPage extends StatefulWidget {
   static const routeName = '/PersonCardSearchResultPage';
@@ -61,87 +61,29 @@ class _EventSearchResultPageState extends State<EventSearchResultPage> {
     _scaffoldKey.currentState.openDrawer();
   }
 
-  Future <Widget> buildEventTimeLabel(EventObject aEventObj) async {
-    // String eventDay = Intl.DateFormat('EEEE, d MMM, yyyy').format(aEventObj.eventStartDateTime); // prints Tuesday, 10 Dec, 2019
-    // String eventStartTime = Intl.DateFormat('hh:mm').format(aEventObj.eventStartDateTime); // prints 10:02 AM
-    // String eventEndTime = Intl.DateFormat('hh:mm').format(aEventObj.eventEndDateTime); // prints 10:02 AM
-
-    await SymbolData.initializeDateFormatting("he", null);
-    var formatterDateTime = Intl.DateFormat.yMMMMEEEEd('he');
-    String hebrewDateTime = formatterDateTime.format(aEventObj.eventStartDateTime);
-    print(hebrewDateTime);
-
-    var formatterStartTime = Intl.DateFormat.Hm('he');
-    String hebrewStartDateTime = formatterStartTime.format(aEventObj.eventStartDateTime);
-    print(hebrewStartDateTime);
-
-    var formatterEndTime = Intl.DateFormat.Hm('he');
-    String hebrewEndDateTime = formatterEndTime.format(aEventObj.eventEndDateTime);
-    print(hebrewEndDateTime);
-
-    return RichText(
-      textDirection: TextDirection.rtl,
-      text: TextSpan(
-        children: [
-          TextSpan(
-            text: 'האירוע יערך ב',
-            style: TextStyle(
-                color: Colors.blue[700],
-                fontSize: 14.0),
-          ),
-          TextSpan(
-            text: hebrewDateTime,
-            style: TextStyle(
-              color: Colors.blue[700],
-              fontSize: 14.0,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          TextSpan(
-            text: '\nבין השעות: ',
-            style: TextStyle(
-                color: Colors.blue[700],
-                fontSize: 14.0),
-          ),
-          TextSpan(
-            text: '$hebrewStartDateTime - $hebrewEndDateTime',
-            style: TextStyle(
-              color: Colors.blue[700],
-              fontSize: 14.0,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  openEventDetailScreen(EventObject aEventObj) async {
-    Widget hebrewEventTimeLabel = await buildEventTimeLabel(aEventObj);
-    print(hebrewEventTimeLabel);
+  openEventDetailScreen(EventObject aEventObj, int indexOfEventObj) async {
+    Widget hebrewEventTimeLabel = await EventDetailWidgets.buildEventDateTimeLabel(aEventObj.eventStartDateTime, aEventObj.eventEndDateTime);
 
     ArgDataEventObject argDataEventObject;
     argDataEventObject = ArgDataEventObject(widget.argDataObject.passUserObj, aEventObj, widget.argDataObject.passLoginObj);
 
-    Navigator.push(
+    final resultDataObj = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EventDetailPageScreen(argDataObject: argDataEventObject, argHebrewEventTimeLabel: hebrewEventTimeLabel),
+        builder: (context) => EventDetailPageScreen(
+            argDataObject: argDataEventObject,
+            argHebrewEventTimeLabel: hebrewEventTimeLabel,
+        ),
       ),
     );
-  }
 
-  // openEventDetailScreen(EventObject aEventObj) {
-  //   ArgDataEventObject argDataEventObject;
-  //   argDataEventObject = ArgDataEventObject(widget.argDataObject.passUserObj, aEventObj, widget.argDataObject.passLoginObj);
-  //
-  //   Navigator.push(
-  //     context,
-  //     MaterialPageRoute(
-  //       builder: (context) => EventDetailPageScreen(argDataObject: argDataEventObject),
-  //     ),
-  //   );
-  // }
+    /// When return from Page >>> Update EventObject in the List[pos: indexOfEventObj]
+    if (resultDataObj != null) {
+      setState(() {
+        currentEventsList[indexOfEventObj] = resultDataObj;
+      });
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -203,9 +145,10 @@ class _EventSearchResultPageState extends State<EventSearchResultPage> {
                       itemExtent: 200.0,
                       delegate: SliverChildBuilderDelegate(
                             (context, index) {
-                          return BuildEventTile(
-                            aEventObj: currentEventsList[index],
-                            aFuncOpenEventDetail: openEventDetailScreen,
+                          return BuildEventTileRectangle(
+                            argEventObj: currentEventsList[index],
+                            argFuncOpenEventDetail: openEventDetailScreen,
+                            argIndexOfEventObj: index,
                           );
                         },
                         childCount: currentEventsList.length,
@@ -248,39 +191,6 @@ class _EventSearchResultPageState extends State<EventSearchResultPage> {
           ),
         );
       },
-    );
-  }
-}
-
-class DisplayErrorTextAndRetryButton extends StatelessWidget {
-  const DisplayErrorTextAndRetryButton({Key key, this.errorText, this.buttonText, this.onPressed})
-      : super(key: key);
-  final String errorText;
-  final String buttonText;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            errorText,
-            style: Theme.of(context).textTheme.headline,
-          ),
-          RaisedButton(
-            color: Theme.of(context).primaryColor,
-            child: Text(buttonText,
-                style: Theme.of(context)
-                    .textTheme
-                    .headline
-                    .copyWith(color: Colors.white)),
-            onPressed: onPressed,
-          ),
-        ],
-      ),
     );
   }
 }

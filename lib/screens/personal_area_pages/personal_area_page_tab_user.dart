@@ -68,8 +68,11 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
       String _lastName = (lastNameController.text != null) ? (lastNameController.text) : '';
       String _password = (passwordController.text != null) ? (passwordController.text) : '';
 
+      // UserObject newUserObj = userService.createUserAsObject(
+      //     '', _email, _firstName, _lastName, _password, widget.argUser.userType, newStayConnected);
+
       UserObject newUserObj = userService.createUserAsObject(
-          '', _email, _firstName, _lastName, _password, widget.argUser.userType, newStayConnected);
+          _email, _firstName, _lastName, _password, widget.argUser.userType, newStayConnected);
 
       await userService.writeUserObjectDataToSharedPreferences(newUserObj);
       Navigator.pop(context, newUserObj);

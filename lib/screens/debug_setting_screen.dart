@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:enum_to_string/enum_to_string.dart';
+import 'package:rotary_net/database/init_rotary_database.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
 import 'package:rotary_net/services/globals_service.dart';
 import 'package:rotary_net/services/login_service.dart';
@@ -46,8 +47,6 @@ class _DebugSettings extends State<DebugSettings> {
       userType = Constants.UserTypeEnum.SystemAdmin;
     else
       userType = widget.argDataObject.passUserObj.userType;
-
-    print('userType: $userType');
   }
 
   Future updateLoginPhase(String aLoginStatus) async {
@@ -283,49 +282,21 @@ class _DebugSettings extends State<DebugSettings> {
                         ],
                       ),
                     ),
-//                    Expanded(
-//                      flex: 8,
-//                      child: Column(
-//                        children: <Widget>[
-//                          RadioListTile(
-//                            groupValue: userType,
-//                            title: Text('System Admin'),
-//                            value: Constants.UserTypeEnum.SystemAdmin,
-//                            onChanged: (val) {
-//                              setState(() {
-//                                userType = val;
-//                              });
-//                              updateUserType(userType);
-//                            },
-//                          ),
-//
-//                          RadioListTile(
-//                            groupValue: userType,
-//                            title: Text('Rotary Member'),
-//                            value: Constants.UserTypeEnum.RotaryMember,
-//                            onChanged: (val) {
-//                              setState(() {
-//                                userType = val;
-//                              });
-//                              updateUserType(userType);
-//                            },
-//                          ),
-//
-//                          RadioListTile(
-//                            groupValue: userType,
-//                            title: Text('Guest'),
-//                            value: Constants.UserTypeEnum.Guest,
-//                            onChanged: (val) {
-//                              setState(() {
-//                                userType = val;
-//                              });
-//                              updateUserType(userType);
-//                            },
-//                          ),
-//                        ],
-//                      ),
-//                    ),
                   ],
+                ),
+                SizedBox(height: 20.0,),
+
+                RaisedButton(
+                    elevation: 0.0,
+                    disabledElevation: 0.0,
+                    color: Colors.red,
+                    child: Text(
+                      'Delete Database',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onPressed: () async {
+                      await InitRotaryDataBase.rotaryDB.deleteRotaryDatabase();
+                    }
                 ),
               ],
             ),

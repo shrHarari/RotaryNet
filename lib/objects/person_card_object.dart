@@ -1,3 +1,4 @@
+import 'dart:convert';
 
 class PersonCardObject {
   String emailId;
@@ -78,6 +79,53 @@ class PersonCardObject {
   }
 
   Map toJson() => {
+    'emailId': emailId,
+    'email': email,
+    'firstName': firstName,
+    'lastName': lastName,
+    'firstNameEng': firstNameEng,
+    'lastNameEng': lastNameEng,
+    'phoneNumber': phoneNumber,
+    'phoneNumberDialCode': phoneNumberDialCode,
+    'phoneNumberParse': phoneNumberParse,
+    'phoneNumberCleanLongFormat': phoneNumberCleanLongFormat,
+    'pictureUrl': pictureUrl,
+    'cardDescription': cardDescription,
+    'internetSiteUrl': internetSiteUrl,
+    'address': address,
+  };
+
+  /// DataBase: Madel for Person Card
+  ///----------------------------------------------------
+  PersonCardObject personCardFromJson(String str) {
+    final jsonData = json.decode(str);
+    return PersonCardObject.fromMap(jsonData);
+  }
+
+  String personCardToJson(PersonCardObject aPersonCard) {
+    final dyn = aPersonCard.toMap();
+    return json.encode(dyn);
+  }
+
+  factory PersonCardObject.fromMap(Map<String, dynamic> jsonFromMap) =>
+      PersonCardObject(
+          emailId: jsonFromMap['emailId'],
+          email: jsonFromMap['email'],
+          firstName : jsonFromMap['firstName'],
+          lastName : jsonFromMap['lastName'],
+          firstNameEng : jsonFromMap['firstNameEng'],
+          lastNameEng : jsonFromMap['lastNameEng'],
+          phoneNumber : jsonFromMap['phoneNumber'],
+          phoneNumberDialCode : jsonFromMap['phoneNumberDialCode'],
+          phoneNumberParse : jsonFromMap['phoneNumberParse'],
+          phoneNumberCleanLongFormat : jsonFromMap['phoneNumberCleanLongFormat'],
+          pictureUrl : jsonFromMap['pictureUrl'],
+          cardDescription : jsonFromMap['cardDescription'],
+          internetSiteUrl : jsonFromMap['internetSiteUrl'],
+          address : jsonFromMap['address']
+  );
+
+  Map<String, dynamic> toMap() => {
     'emailId': emailId,
     'email': email,
     'firstName': firstName,
