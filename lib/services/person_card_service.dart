@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:rotary_net/database/init_database_data.dart';
+import 'package:rotary_net/database/rotary_database_provider.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
 import 'package:rotary_net/services/logger_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
@@ -177,6 +178,40 @@ class PersonCardService {
   }
   //#endregion
 
+  //#region Initialize PersonCards Table Data [INIT PersonCard BY JSON DATA]
+  // ========================================================================
+  Future initializePersonCardsTableData() async {
+    try {
+
+      //***** for debug *****
+      // When the Server side will be ready >>> remove that calling
+      if (GlobalsService.isDebugMode) {
+        String initializePersonCardsJsonForDebug = InitDataBaseData.createJsonRowsForPersonCards();
+        // print('initializeUsersJsonForDebug: initializeUsersJsonForDebug');
+
+        //// Using JSON
+        var initializePersonCardsListForDebug = jsonDecode(initializePersonCardsJsonForDebug) as List;    // List of Users to display;
+        List<PersonCardObject> personCardObjListForDebug = initializePersonCardsListForDebug.map((personJsonDebug) => PersonCardObject.fromJson(personJsonDebug)).toList();
+        print('personCardObjListForDebug.length: ${personCardObjListForDebug.length}');
+
+        personCardObjListForDebug.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
+        return personCardObjListForDebug;
+      }
+      //***** for debug *****
+
+    }
+    catch (e) {
+      await LoggerService.log('<PersonCardService> Get PersonCards List From Server >>> ERROR: ${e.toString()}');
+      developer.log(
+        'initializePersonCardsTableData',
+        name: 'PersonCardService',
+        error: 'PersonCards List >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+  //#endregion
+
   //#region Get PersonCard List From Server [GET]
   // =========================================================
   Future getPersonCardsListSearchFromServer(String aValueToSearch) async {
@@ -185,13 +220,9 @@ class PersonCardService {
       //***** for debug *****
       // When the Server side will be ready >>> remove that calling
       if (GlobalsService.isDebugMode) {
-        String jsonResponseForDebug = InitDataBaseData.createJsonRowsForPersonCards();
-        // String jsonResponseForDebug = createJsonForPersonCardsList();
-//        print('jsonResponseForDebug: $jsonResponseForDebug');
-
-        var personCardsListForDebug = jsonDecode(jsonResponseForDebug) as List;    // List of PersonCard to display;
-        List<PersonCardObject> personCardObjListForDebug = personCardsListForDebug.map((personCardJsonDebug) => PersonCardObject.fromJson(personCardJsonDebug)).toList();
-//        print('personCardObjListForDebug.length: ${personCardObjListForDebug.length}');
+        //// Using DB
+        List<PersonCardObject> personCardObjListForDebug = await RotaryDataBaseProvider.rotaryDB.getAllPersonCards();
+       print('personCardObjListForDebug.length: ${personCardObjListForDebug.length}');
 
         personCardObjListForDebug.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
         return personCardObjListForDebug;

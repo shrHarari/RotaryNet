@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
 import 'package:rotary_net/screens/person_card_detail_pages/person_card_detail_page_screen.dart';
-import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_card_tile.dart';
+import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_list_tile.dart';
 import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_header_search_box.dart';
 import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_header_title.dart';
 import 'package:rotary_net/services/person_card_service.dart';

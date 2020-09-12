@@ -2,12 +2,13 @@ import 'dart:io';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:enum_to_string/enum_to_string.dart';
-import 'package:rotary_net/database/init_rotary_database.dart';
+import 'package:rotary_net/database/rotary_database_provider.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
 import 'package:rotary_net/services/globals_service.dart';
 import 'package:rotary_net/services/login_service.dart';
 import 'package:rotary_net/services/user_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
+import 'package:rotary_net/shared/user_type_labled_radio.dart';
 
 class DebugSettings extends StatefulWidget {
   static const routeName = '/DebugSettings';
@@ -242,8 +243,8 @@ class _DebugSettings extends State<DebugSettings> {
                       flex: 8,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: <LabeledRadio>[
-                          LabeledRadio(
+                        children: <UserTypeLabeledRadio>[
+                          UserTypeLabeledRadio(
                             label: 'System Admin',
                             padding: const EdgeInsets.symmetric(horizontal: 10.0),
                             value: Constants.UserTypeEnum.SystemAdmin,
@@ -255,7 +256,7 @@ class _DebugSettings extends State<DebugSettings> {
                               updateUserType(userType);
                             },
                           ),
-                          LabeledRadio(
+                          UserTypeLabeledRadio(
                             label: 'Rotary Member',
                             padding: const EdgeInsets.symmetric(horizontal: 10.0),
                             value: Constants.UserTypeEnum.RotaryMember,
@@ -267,7 +268,7 @@ class _DebugSettings extends State<DebugSettings> {
                               updateUserType(userType);
                             },
                           ),
-                          LabeledRadio(
+                          UserTypeLabeledRadio(
                             label: 'Guest',
                             padding: const EdgeInsets.symmetric(horizontal: 10.0),
                             value: Constants.UserTypeEnum.Guest,
@@ -289,65 +290,35 @@ class _DebugSettings extends State<DebugSettings> {
                 RaisedButton(
                     elevation: 0.0,
                     disabledElevation: 0.0,
-                    color: Colors.red,
+                    color: Colors.blue,
                     child: Text(
-                      'Delete Database',
+                      'Initialize Rotary Database',
                       style: TextStyle(color: Colors.white),
                     ),
                     onPressed: () async {
-                      await InitRotaryDataBase.rotaryDB.deleteRotaryDatabase();
+                      await RotaryDataBaseProvider.rotaryDB.createRotaryDB();
+
+                      await RotaryDataBaseProvider.rotaryDB.insertAllStartedUsersToDb();
+                      await RotaryDataBaseProvider.rotaryDB.insertAllStartedPersonCardsToDb();
+                    }
+                ),
+                SizedBox(height: 20.0,),
+
+                RaisedButton(
+                    elevation: 0.0,
+                    disabledElevation: 0.0,
+                    color: Colors.red,
+                    child: Text(
+                      'Delete Rotary Database',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onPressed: () async {
+                      await RotaryDataBaseProvider.rotaryDB.deleteRotaryDatabase();
                     }
                 ),
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class LabeledRadio extends StatelessWidget {
-  const LabeledRadio({
-    this.label,
-    this.padding,
-    this.groupValue,
-    this.value,
-    this.onChanged,
-  });
-
-  final String label;
-  final EdgeInsets padding;
-  final Constants.UserTypeEnum groupValue;
-  final Constants.UserTypeEnum value;
-  final Function onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        if (value != groupValue)
-          onChanged(value);
-      },
-      child: Padding(
-        padding: padding,
-        child: Row(
-          children: <Widget>[
-            Radio<Constants.UserTypeEnum>(
-              groupValue: groupValue,
-              value: value,
-              onChanged: (Constants.UserTypeEnum newValue) {
-                onChanged(newValue);
-              },
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            Text(
-              label,
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16.0),
-            ),
-          ],
         ),
       ),
     );

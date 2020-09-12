@@ -1,8 +1,8 @@
 import 'dart:convert';
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class UserObject {
-  // String requestId;
   final String emailId;
   final String firstName;
   final String lastName;
@@ -11,19 +11,12 @@ class UserObject {
   bool stayConnected;
 
   UserObject({
-    // this.requestId,
     this.emailId,
     this.firstName,
     this.lastName,
     this.password,
     this.userType,
     this.stayConnected});
-
-  // Set User RequestId
-  //=====================================
-  // Future <void> setRequestId(String aRequestId) async {
-  //   requestId = aRequestId;
-  // }
 
   // Set StayConnected
   //=====================================
@@ -37,33 +30,22 @@ class UserObject {
     userType = aUserType;
   }
 
-  factory UserObject.fromJson(Map<String, dynamic> parsedJson){
-    return UserObject(
-        emailId: parsedJson['emailId'],
-        firstName : parsedJson['firstName'],
-        lastName : parsedJson['lastName'],
-        password : parsedJson['password'],
-        userType : parsedJson['userType'],
-        stayConnected : parsedJson['stayConnected']
-    );
-  }
-
+  /// Convert JsonStringStructure to String
   @override
   String toString() {
     return
-     '{'
-      // ' ${this.requestId},'
-      ' ${this.emailId},'
-      ' ${this.firstName},'
-      ' ${this.lastName},'
-      ' ${this.password},'
-      ' ${this.userType},'
-      ' ${this.stayConnected},'
-    ' }';
+      '{'
+        ' ${this.emailId},'
+        ' ${this.firstName},'
+        ' ${this.lastName},'
+        ' ${this.password},'
+        ' ${this.userType},'
+        ' ${this.stayConnected},'
+      '}';
   }
 
+  /// Used for jsonDecode Function
   Map toJson() => {
-    // 'requestId': requestId,
     'emailId': emailId,
     'firstName': firstName,
     'lastName': lastName,
@@ -72,8 +54,27 @@ class UserObject {
     'stayConnected': stayConnected,
   };
 
+  factory UserObject.fromJson(Map<String, dynamic> parsedJson){
+    /// Deserialize the parsedJson string to UserObject
+    // UserType: Convert [String] to [Enum]
+    Constants.UserTypeEnum _userType;
+    _userType = EnumToString.fromString(Constants.UserTypeEnum.values, parsedJson['userType']);
 
-  /// DataBase: Madel for Person Card
+    // StayConnected: Convert [int] to [bool]
+    bool _stayConnected;
+    parsedJson['stayConnected'] == 0 ? _stayConnected = false : _stayConnected = true;
+
+    return UserObject(
+        emailId: parsedJson['emailId'],
+        firstName : parsedJson['firstName'],
+        lastName : parsedJson['lastName'],
+        password : parsedJson['password'],
+        userType : _userType,
+        stayConnected : _stayConnected
+    );
+  }
+
+  /// DataBase: Madel for User
   ///----------------------------------------------------
   UserObject userFromJson(String str) {
     final jsonData = json.decode(str);
@@ -85,22 +86,36 @@ class UserObject {
     return json.encode(dyn);
   }
 
-  factory UserObject.fromMap(Map<String, dynamic> jsonFromMap) =>
-      UserObject(
+  factory UserObject.fromMap(Map<String, dynamic> jsonFromMap) {
+
+    // UserType: Convert [String] to [Enum]
+    Constants.UserTypeEnum _userType;
+    _userType = EnumToString.fromString(Constants.UserTypeEnum.values, jsonFromMap['userType']);
+
+    // StayConnected: Convert [int] to [bool]
+    bool _stayConnected;
+    jsonFromMap['stayConnected'] == 0 ? _stayConnected = false : _stayConnected = true;
+
+    return UserObject(
           emailId: jsonFromMap['emailId'],
           firstName : jsonFromMap['firstName'],
           lastName : jsonFromMap['lastName'],
           password : jsonFromMap['password'],
-          userType : jsonFromMap['userType'],
-          stayConnected : jsonFromMap['stayConnected'],
+          userType : _userType,
+          stayConnected : _stayConnected,
       );
+  }
 
-  Map<String, dynamic> toMap() => {
-    'emailId': emailId,
-    'firstName': firstName,
-    'lastName': lastName,
-    'password': password,
-    'userType': userType,
-    'stayConnected': stayConnected,
-  };
+  Map<String, dynamic> toMap() {
+    // UserType: Convert [Enum] to [String]
+    String _userType = EnumToString.parse(userType);
+    return {
+      'emailId': emailId,
+      'firstName': firstName,
+      'lastName': lastName,
+      'password': password,
+      'userType': _userType,
+      'stayConnected': stayConnected ? 1 : 0,
+    };
+  }
 }

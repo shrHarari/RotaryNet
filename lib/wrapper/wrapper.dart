@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:rotary_net/database/rotary_database_provider.dart';
 import 'package:rotary_net/objects/arg_data_objects.dart';
+import 'package:rotary_net/objects/person_card_object.dart';
 import 'package:rotary_net/objects/user_object.dart';
 import 'package:rotary_net/screens/rotary_main_pages/rotary_main_page_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/login_screen.dart';
@@ -35,8 +37,22 @@ class _WrapperState extends State<Wrapper> {
   @override
   void initState() {
     loginObjForBuild = setApplicationPhase();
+    // checkRotaryDataBase();
     super.initState();
   }
+
+  // Future<void> checkRotaryDataBase() async {
+  //   print('>>>>>>>>>> usersList: Start');
+  //   List<UserObject> usersList = await InitRotaryDataBase.rotaryDB.getAllUsers();
+  //   if (usersList.isNotEmpty)
+  //         print('>>>>>>>>>> usersList: ${usersList[0].emailId}');
+  //
+  //
+  //   print('>>>>>>>>>> personCardsList: Start');
+  //   List<PersonCardObject> personCardsList = await InitRotaryDataBase.rotaryDB.getAllPersonCards();
+  //   if (personCardsList.isNotEmpty)
+  //     print('>>>>>>>>>> personCardsList: ${personCardsList[0].emailId}');
+  // }
 
   Future initializeGlobalValues() async {
     await LoggerService.initializeLogging();

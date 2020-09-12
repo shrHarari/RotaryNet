@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:rotary_net/BLoCs/bloc_provider.dart';
+import 'package:rotary_net/BLoCs/rotary_users_list_bloc.dart';
 import 'package:rotary_net/services/route_generator_service.dart';
 
 void main() => runApp(RotaryNetApp());
@@ -8,10 +10,14 @@ class RotaryNetApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return MaterialApp(
-      title: 'RotaryNet',
-      initialRoute: '/',
-      onGenerateRoute: RouteGenerator.generateRoute,
+    return
+      BlocProvider<RotaryUsersListBloc>(
+        bloc: RotaryUsersListBloc(),
+        child: MaterialApp(
+          title: 'RotaryNet',
+          initialRoute: '/',
+          onGenerateRoute: RouteGenerator.generateRoute,
+      ),
     );
   }
 }

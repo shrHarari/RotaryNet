@@ -7,6 +7,7 @@ import 'package:rotary_net/screens/event_search_result_pages/event_search_result
 import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_screen.dart';
 import 'package:rotary_net/screens/rotary_main_pages/rotary_main_page_header_search_box.dart';
 import 'package:rotary_net/screens/rotary_main_pages/rotary_main_page_header_title.dart';
+import 'file:///C:/FLUTTER_OCTIA/rotary_net/lib/screens/rotary_users_pages/rotary_users_list_page_screen.dart';
 import 'package:rotary_net/shared/constants.dart';
 import 'package:rotary_net/widgets/application_menu_widget.dart';
 

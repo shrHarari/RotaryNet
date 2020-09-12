@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 
-class UserPageHeaderTitle implements SliverPersistentHeaderDelegate {
+class RotaryUsersListPageHeaderTitle implements SliverPersistentHeaderDelegate {
   final double minExtent;
   final double maxExtent;
 
-  UserPageHeaderTitle({
+  RotaryUsersListPageHeaderTitle({
     this.minExtent,
     @required this.maxExtent,
   });

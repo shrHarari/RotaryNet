@@ -4,6 +4,7 @@ import 'package:rotary_net/objects/user_object.dart';
 import 'package:rotary_net/screens/menu_pages/about_screen.dart';
 import 'package:rotary_net/screens/menu_pages/privacy_policy_screen.dart';
 import 'package:rotary_net/screens/personal_area_pages/personal_area_page_screen.dart';
+import 'package:rotary_net/screens/rotary_users_pages/rotary_users_list_page_screen.dart';
 import 'package:rotary_net/services/user_service.dart';
 
 class ApplicationMenuDrawer extends StatefulWidget {
@@ -115,6 +116,23 @@ class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
                   leading: Icon(Icons.settings),
                   title: Text('הגדרות'),
                   onTap: () => {Navigator.of(context).pop()},
+                ),
+                Divider(),
+                ListTile(
+                  leading: Icon(Icons.verified_user),
+                  title: Text('ניהול משתמשים'),
+                  onTap: () => {
+                    Navigator.of(context).pop(),
+
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                      // RotaryUsersPageScreen(argUserObject: widget.argUserObj)
+                      RotaryUsersListPageScreen(argUserObject: widget.argUserObj)
+                      ),
+                    ),
+                  },
                 ),
                 Divider(),
                 ListTile(

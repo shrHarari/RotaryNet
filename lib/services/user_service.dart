@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:http/http.dart';
 import 'package:rotary_net/database/init_database_data.dart';
+import 'package:rotary_net/database/rotary_database_provider.dart';
 import 'package:rotary_net/objects/user_object.dart';
 import 'package:rotary_net/services/globals_service.dart';
 import 'package:rotary_net/services/logger_service.dart';
@@ -131,22 +132,63 @@ class UserService {
   }
   //#endregion
 
-  //#region Get User List From Server [GET]
+  //#region Initialize Users Table Data [INIT USERS BY JSON DATA]
   // =========================================================
-  Future getUsersListFromServer(String aValueToSearch) async {
+  Future initializeUsersTableData() async {
     try {
 
       //***** for debug *****
       // When the Server side will be ready >>> remove that calling
       if (GlobalsService.isDebugMode) {
-        String jsonResponseForDebug = InitDataBaseData.createJsonRowsForUsers();
-//        print('jsonResponseForDebug: $jsonResponseForDebug');
+        String initializeUsersJsonForDebug = InitDataBaseData.createJsonRowsForUsers();
+        // print('initializeUsersJsonForDebug: initializeUsersJsonForDebug');
 
-        var usersListForDebug = jsonDecode(jsonResponseForDebug) as List;    // List of Users to display;
-        List<UserObject> userObjListForDebug = usersListForDebug.map((userJsonDebug) => UserObject.fromJson(userJsonDebug)).toList();
-//        print('personCardObjListForDebug.length: ${personCardObjListForDebug.length}');
+        //// Using JSON
+        var initializeUsersListForDebug = jsonDecode(initializeUsersJsonForDebug) as List;    // List of Users to display;
+        List<UserObject> userObjListForDebug = initializeUsersListForDebug.map((userJsonDebug) => UserObject.fromJson(userJsonDebug)).toList();
+        print('userObjListForDebug.length: ${userObjListForDebug.length}');
 
         userObjListForDebug.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
+        return userObjListForDebug;
+      }
+      //***** for debug *****
+
+    }
+    catch (e) {
+      await LoggerService.log('<UserService> Get User List From Server >>> ERROR: ${e.toString()}');
+      developer.log(
+        'getUserListFromServer',
+        name: 'UserService',
+        error: 'UserCards List >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+  //#endregion
+
+  //#region Get Users List By Search Query From Server [GET]
+  // =========================================================
+  Future getUsersListBySearchQueryFromServer(String aValueToSearch) async {
+    try {
+
+      //***** for debug *****
+      // When the Server side will be ready >>> remove that calling
+
+      // Because of RotaryUsersListBloc >>> Need to initialize GlobalService here too
+      bool debugMode = await GlobalsService.getDebugMode();
+      await GlobalsService.setDebugMode(debugMode);
+
+      if (GlobalsService.isDebugMode) {
+        //// Using DB
+        // List<UserObject> userObjListForDebug = await RotaryDataBaseProvider.rotaryDB.getAllUsers();
+        List<UserObject> userObjListForDebug = await RotaryDataBaseProvider.rotaryDB.getUsersListBySearchQuery(aValueToSearch);
+        if (userObjListForDebug == null) {
+          // print('>>>>>>>>>> userObjListForDebug: Empty');
+        } else {
+          // print('>>>>>>>>>> userObjListForDebug: ${userObjListForDebug[4].emailId}');
+          userObjListForDebug.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
+        }
+
         return userObjListForDebug;
       }
       //***** for debug *****
@@ -228,5 +270,81 @@ class UserService {
       return null;
     }
   }
+//#endregion
+
+
+//#region CRUD: Users
+
+  //#region Insert User To DataBase [WriteToDB]
+  //=============================================================================
+  Future insertUserToDataBase(UserObject aUserObj) async {
+    try{
+      //***** for debug *****
+      if (GlobalsService.isDebugMode) {
+        var dbResult = await RotaryDataBaseProvider.rotaryDB.insertUser(aUserObj);
+        return dbResult;
+        //***** for debug *****
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<UserService> Insert User To DataBase >>> ERROR: ${e.toString()}');
+      developer.log(
+        'insertUserToDataBase',
+        name: 'UserService',
+        error: 'Insert User To DataBase >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+  //#endregion
+
+  //#region Update User To DataBase [WriteToDB]
+  //=============================================================================
+  Future updateUserToDataBase(UserObject aUserObj) async {
+    try{
+      String jsonToPost = jsonEncode(aUserObj);
+
+      //***** for debug *****
+      if (GlobalsService.isDebugMode) {
+        var dbResult = await RotaryDataBaseProvider.rotaryDB.updateUser(aUserObj);
+        return dbResult;
+        //***** for debug *****
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<UserService> Update User To DataBase >>> ERROR: ${e.toString()}');
+      developer.log(
+        'updateUserToDataBase',
+        name: 'UserService',
+        error: 'Update User To DataBase >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+//#endregion
+
+  //#region Delete User To DataBase [WriteToDB]
+  //=============================================================================
+  Future deleteUserFromDataBase(UserObject aUserObj) async {
+    try{
+      //***** for debug *****
+      if (GlobalsService.isDebugMode) {
+        var dbResult = await RotaryDataBaseProvider.rotaryDB.deleteUser(aUserObj);
+        return dbResult;
+        //***** for debug *****
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<UserService> Insert User To DataBase >>> ERROR: ${e.toString()}');
+      developer.log(
+        'insertUserToDataBase',
+        name: 'UserService',
+        error: 'Insert User To DataBase >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+//#endregion
+
 //#endregion
 }

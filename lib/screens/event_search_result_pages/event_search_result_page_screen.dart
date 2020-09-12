@@ -3,7 +3,7 @@ import 'package:rotary_net/objects/arg_data_objects.dart';
 import 'package:rotary_net/objects/event_object.dart';
 import 'package:rotary_net/screens/event_detail_pages/event_detail_page_screen.dart';
 import 'package:rotary_net/screens/event_detail_pages/event_detail_page_widgets.dart';
-import 'package:rotary_net/screens/event_search_result_pages/event_search_result_page_event_tile.dart';
+import 'package:rotary_net/screens/event_search_result_pages/event_search_result_page_list_tile.dart';
 import 'package:rotary_net/screens/event_search_result_pages/event_search_result_page_header_search_box.dart';
 import 'package:rotary_net/screens/event_search_result_pages/event_search_result_page_header_title.dart';
 import 'package:rotary_net/services/event_service.dart';

@@ -22,7 +22,6 @@ class PersonCardDetailPageScreen extends StatefulWidget {
 
 class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen> {
 
-  final PersonCardService personCardService = PersonCardService();
   PersonCardObject displayPersonCardObject;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
