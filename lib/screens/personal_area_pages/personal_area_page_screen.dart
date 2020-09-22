@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rotary_net/objects/connected_user_global.dart';
 import 'package:rotary_net/objects/connected_user_object.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
 import 'package:rotary_net/screens/personal_area_pages/personal_area_page_header.dart';
@@ -12,15 +13,15 @@ import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class PersonalAreaScreen extends StatefulWidget {
   static const routeName = '/PersonalAreaScreen';
-  final ConnectedUserObject argConnectedUserObject;
 
-  PersonalAreaScreen({Key key, @required this.argConnectedUserObject}) : super(key: key);
+  PersonalAreaScreen({Key key}) : super(key: key);
 
   @override
   _PersonalAreaScreenState createState() => _PersonalAreaScreenState();
 }
 
 class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
+  ConnectedUserObject currentConnectedUserObj;
 
   final PersonCardService personCardService = PersonCardService();
   Future<PersonCardObject> personCardForBuild;
@@ -29,18 +30,32 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   bool loading = false;
-  bool displayPersonCard = false;
+  bool allowDisplayPersonCard = false;
 
   @override
   void initState() {
-    personCardForBuild = getPersonalCardFromServer(widget.argConnectedUserObject.userGuidId);
-
-    if(widget.argConnectedUserObject.userType == Constants.UserTypeEnum.Guest)
-      displayPersonCard = false;
-    else
-      displayPersonCard = true;
+    currentConnectedUserObj = ConnectedUserGlobal.currentConnectedUserObject;
+    personCardForBuild = getPersonalCardFromServer(currentConnectedUserObj.userGuidId);
+    allowDisplayPersonCard = getPersonCardPermission();
 
     super.initState();
+  }
+
+  bool getPersonCardPermission()  {
+    ConnectedUserObject _connectedUserObj = ConnectedUserGlobal.currentConnectedUserObject;
+    bool _allowDisplayPersonCard = false;
+
+    switch (_connectedUserObj.userType) {
+      case Constants.UserTypeEnum.SystemAdmin:
+        _allowDisplayPersonCard = true;
+        break;
+      case  Constants.UserTypeEnum.RotaryMember:
+        _allowDisplayPersonCard = true;
+        break;
+      case  Constants.UserTypeEnum.Guest:
+        _allowDisplayPersonCard = false;
+    }
+    return _allowDisplayPersonCard;
   }
 
   Future<PersonCardObject> getPersonalCardFromServer(String aUserGuidId) async {
@@ -89,11 +104,11 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
                     ),
                   ) :
 
-                (snapshot.hasData) || (widget.argConnectedUserObject != null) ?
+                (snapshot.hasData) || (currentConnectedUserObj != null) ?
                 Expanded(
                   child: DefaultTabController(
-                      length: displayPersonCard ? 2 : 1,
-                      initialIndex: displayPersonCard ? 1 : 0,
+                      length: allowDisplayPersonCard ? 2 : 1,
+                      initialIndex: allowDisplayPersonCard ? 1 : 0,
                       child: Scaffold(
                         appBar: PreferredSize(
                           preferredSize: Size.fromHeight(25),
@@ -107,7 +122,7 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
                                   labelStyle: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),   //For Selected tab
                                   unselectedLabelStyle: TextStyle(fontSize: 14.0),                      //For Un-selected Tabs
                                   tabs: <Widget>[
-                                    if (displayPersonCard) Tab(text :"כרטיס ביקור"),
+                                    if (allowDisplayPersonCard) Tab(text :"כרטיס ביקור"),
                                     Tab(text :"פרטי משתמש"),
                                   ],
                                   indicator: ShapeDecoration(
@@ -122,13 +137,13 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
                         body: TabBarView(
                           children: [
                             /// --------------- TAB: PersonCard ---------------------
-                            if (displayPersonCard) BuildPersonalAreaPageTabPersonCard(
+                            if (allowDisplayPersonCard) PersonalAreaPageTabPersonCard(
                                 argPersonCard: currentPersonCard,
-                                argConnectedUserGuidId: widget.argConnectedUserObject.userGuidId
+                                argConnectedUserGuidId: currentConnectedUserObj.userGuidId
                             ),
 
                             /// --------------- TAB: User ---------------------
-                            BuildPersonalAreaPageTabUser(argConnectedUser: widget.argConnectedUserObject),
+                            PersonalAreaPageTabUser(argConnectedUser: currentConnectedUserObj),
                           ],
                         ),
                       ),

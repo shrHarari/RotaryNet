@@ -37,20 +37,10 @@ class _DebugSettings extends State<DebugSettings> {
 
   @override
   void initState() {
-    getConnectedUserObject().then((value) {
-      setState(() {
-        currentConnectedUserObj = value;
+        currentConnectedUserObj = ConnectedUserGlobal.currentConnectedUserObject;
         setCurrentLoginState();
         setCurrentUserType();
-      });
-    });
     super.initState();
-  }
-
-  Future<ConnectedUserObject> getConnectedUserObject() async {
-    var _userGlobal = ConnectedUserGlobal();
-    ConnectedUserObject _connectedUserObj = _userGlobal.getConnectedUserObject();
-    return _connectedUserObj;
   }
 
   void setCurrentLoginState() async {

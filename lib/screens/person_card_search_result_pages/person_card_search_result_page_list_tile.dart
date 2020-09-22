@@ -8,6 +8,7 @@ class PersonCardSearchResultPageListTile extends StatelessWidget {
 
   const PersonCardSearchResultPageListTile({Key key, this.argPersonCardObj}) : super(key: key);
 
+  //#region Open Person Card Detail Screen
   openPersonCardDetailScreen(BuildContext context) async {
     Navigator.push(
       context,
@@ -18,6 +19,7 @@ class PersonCardSearchResultPageListTile extends StatelessWidget {
       ),
     );
   }
+  //#endregion
 
   @override
   Widget build(BuildContext context) {

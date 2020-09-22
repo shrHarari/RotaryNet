@@ -8,16 +8,16 @@ import 'package:rotary_net/services/user_service.dart';
 import 'package:rotary_net/shared/decoration_style.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 
-class BuildPersonalAreaPageTabUser extends StatefulWidget {
+class PersonalAreaPageTabUser extends StatefulWidget {
   final ConnectedUserObject argConnectedUser;
 
-  BuildPersonalAreaPageTabUser({Key key, @required this.argConnectedUser}) : super(key: key);
+  PersonalAreaPageTabUser({Key key, @required this.argConnectedUser}) : super(key: key);
 
   @override
-  _BuildPersonalAreaPageTabUserState createState() => _BuildPersonalAreaPageTabUserState();
+  _PersonalAreaPageTabUserState createState() => _PersonalAreaPageTabUserState();
 }
 
-class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabUser> {
+class _PersonalAreaPageTabUserState extends State<PersonalAreaPageTabUser> {
 
   final ConnectedUserService connectedUserService = ConnectedUserService();
   final formKey = GlobalKey<FormState>();

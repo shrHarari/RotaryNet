@@ -87,15 +87,6 @@ class _EventSearchResultPageState extends State<EventSearchResultPage> {
                       ),
                     ),
 
-                    // SliverPersistentHeader(
-                    //   pinned: true,
-                    //   floating: false,
-                    //   delegate: EventSearchResultPageHeaderAddEventButton(
-                    //     minExtent: 90.0,
-                    //     maxExtent: 90.0,
-                    //   ),
-                    // ),
-
                     // (snapshot.connectionState == ConnectionState.waiting) ?
                     // SliverFillRemaining(
                     //     child: Loading()

@@ -23,23 +23,21 @@ class EventDetailPageScreen extends StatefulWidget {
 
 class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
 
-  EventObject displayEventObject;
-  Widget hebrewEventTimeLabel;
-
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormState>();
-  Future<DataRequiredForBuild> dataRequiredForBuild;
-  DataRequiredForBuild currentDataRequired;
 
+  EventObject displayEventObject;
+  Widget hebrewEventTimeLabel;
   AssetImage eventImageDefaultAsset;
 
+  bool allowUpdate = false;
   String error = '';
   bool loading = false;
 
   @override
   void initState() {
     displayEventObject = widget.argEventObject;
-    dataRequiredForBuild = _fetchAllRequiredForBuild();
+    allowUpdate = getUpdatePermission();
 
     hebrewEventTimeLabel = widget.argHebrewEventTimeLabel;
     eventImageDefaultAsset = AssetImage('assets/images/events/EventImageDefaultPicture.jpg');
@@ -47,20 +45,9 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
     super.initState();
   }
 
-  Future<DataRequiredForBuild> _fetchAllRequiredForBuild() async {
-    return DataRequiredForBuild(
-      allowUpdate: await getUpdatePermission(),
-    );
-  }
-
-  Future<ConnectedUserObject> getConnectedUserObject() async {
-    var _userGlobal = ConnectedUserGlobal();
-    ConnectedUserObject _connectedUserObj = _userGlobal.getConnectedUserObject();
-    return _connectedUserObj;
-  }
-
-  Future <bool> getUpdatePermission() async {
-    ConnectedUserObject _connectedUserObj = await getConnectedUserObject();
+  //#region Get Update Permission
+  bool getUpdatePermission()  {
+    ConnectedUserObject _connectedUserObj = ConnectedUserGlobal.currentConnectedUserObject;
     bool _allowUpdate = false;
 
     switch (_connectedUserObj.userType) {
@@ -75,11 +62,14 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
     }
     return _allowUpdate;
   }
+  //#endregion
+
   Future<void> openMenu() async {
     // Open Menu from Left side
     _scaffoldKey.currentState.openDrawer();
   }
 
+  //#region Open Event Detail Edit Screen
   openEventDetailEditScreen(EventObject aEventObj) async {
     final result = await Navigator.push(
       context,
@@ -97,6 +87,7 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
       });
     }
   }
+  //#endregion
 
   @override
   Widget build(BuildContext context) {
@@ -112,18 +103,7 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
         ),
       ),
 
-      body: FutureBuilder<DataRequiredForBuild>(
-          future: dataRequiredForBuild,
-          builder: (context, snapshot) {
-
-            if (snapshot.hasData)
-            {
-              currentDataRequired = snapshot.data;
-              return buildMainScaffoldBody();
-            }
-            return Loading();
-          }
-      ),
+      body: buildMainScaffoldBody(),
     );
   }
 
@@ -252,7 +232,7 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
                 style: TextStyle(color: Colors.grey[900], fontSize: 20.0, fontWeight: FontWeight.bold),
               ),
 
-              if (currentDataRequired.allowUpdate)
+              if (allowUpdate)
                 IconButton(
                   icon: Icon(Icons.mode_edit, color: Colors.grey[900]),
                   onPressed: () {openEventDetailEditScreen(aEventObj);},
@@ -392,12 +372,4 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
       ),
     );
   }
-}
-
-class DataRequiredForBuild {
-  bool allowUpdate;
-
-  DataRequiredForBuild({
-    this.allowUpdate,
-  });
 }

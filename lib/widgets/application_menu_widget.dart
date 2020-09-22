@@ -7,6 +7,7 @@ import 'package:rotary_net/screens/menu_pages/privacy_policy_screen.dart';
 import 'package:rotary_net/screens/personal_area_pages/personal_area_page_screen.dart';
 import 'package:rotary_net/screens/rotary_users_pages/rotary_users_list_page_screen.dart';
 import 'package:rotary_net/services/connected_user_service.dart';
+import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class ApplicationMenuDrawer extends StatefulWidget {
 
@@ -19,35 +20,43 @@ class ApplicationMenuDrawer extends StatefulWidget {
 class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
 
   ConnectedUserObject currentConnectedUserObj;
+  bool userHasPermission = false;
 
   @override
   void initState() {
-    getConnectedUserObject().then((value) {
-      setState(() {
-        currentConnectedUserObj = value;
-      });
-    });
+    currentConnectedUserObj = ConnectedUserGlobal.currentConnectedUserObject;
+    userHasPermission = getUserPermission();
     super.initState();
   }
 
-  Future<ConnectedUserObject> getConnectedUserObject() async {
-    var _userGlobal = ConnectedUserGlobal();
-    ConnectedUserObject _connectedUserObj = _userGlobal.getConnectedUserObject();
-    return _connectedUserObj;
+  //#region Get User Permission
+  bool getUserPermission()  {
+    bool _userHasPermission = false;
+
+    switch (currentConnectedUserObj.userType) {
+      case Constants.UserTypeEnum.SystemAdmin:
+        _userHasPermission = true;
+        break;
+      case  Constants.UserTypeEnum.RotaryMember:
+        _userHasPermission = false;
+        break;
+      case  Constants.UserTypeEnum.Guest:
+        _userHasPermission = false;
+    }
+    return _userHasPermission;
   }
+  //#endregion
 
-  openPersonalAreaScreen(ConnectedUserObject aConnectedUserObj) async {
-
+  openPersonalAreaScreen() async {
     // Drawer --> Close the drawer
     Navigator.of(context).pop();
 
     // Drawer --> Open PersonalAreaScreen
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => PersonalAreaScreen(argConnectedUserObject: aConnectedUserObj),
+        builder: (context) => PersonalAreaScreen(),
       ),
     );
-
   }
 
   void exitFromApp() async {
@@ -75,8 +84,8 @@ class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
                 Column(
                   children: <Widget>[
                     buildPersonalAreaIcon(),
-                    buildUserWelcomeTitle(),  // שלום אורח
-                    buildPersonalAreaTitle(context, currentConnectedUserObj), // לאיזור האישי
+                    buildUserWelcomeTitle(),          // שלום אורח
+                    buildPersonalAreaTitle(context),  // לאיזור האישי
                   ],
                 ),
               ),
@@ -123,22 +132,24 @@ class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
                   onTap: () => {Navigator.of(context).pop()},
                 ),
                 Divider(),
-                ListTile(
-                  leading: Icon(Icons.verified_user),
-                  title: Text('ניהול משתמשים'),
-                  onTap: () => {
-                    Navigator.of(context).pop(),
+                if (userHasPermission)
+                  ListTile(
+                    leading: Icon(Icons.verified_user),
+                    title: Text('ניהול משתמשים'),
+                    onTap: () => {
+                      Navigator.of(context).pop(),
 
-                    Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                        RotaryUsersListPageScreen(argConnectedUserObject: currentConnectedUserObj)
+                      Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                          RotaryUsersListPageScreen(argConnectedUserObject: currentConnectedUserObj)
+                        ),
                       ),
-                    ),
-                  },
-                ),
-                Divider(),
+                    },
+                  ),
+                if (userHasPermission)
+                  Divider(),
                 ListTile(
                   leading: Icon(Icons.exit_to_app),
                   title: Text('יציאה'),
@@ -204,10 +215,10 @@ class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
     );
   }
 
-  Widget buildPersonalAreaTitle (BuildContext context, ConnectedUserObject aConnectedUserObj)
+  Widget buildPersonalAreaTitle (BuildContext context)
   {
     return InkWell(
-      onTap: () {openPersonalAreaScreen(aConnectedUserObj);},
+      onTap: () {openPersonalAreaScreen();},
       child: Padding(
         padding: const EdgeInsets.only(top: 20.0),
         child: Text(

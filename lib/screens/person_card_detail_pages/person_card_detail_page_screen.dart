@@ -27,33 +27,21 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormState>();
-  Future<DataRequiredForBuild> dataRequiredForBuild;
-  DataRequiredForBuild currentDataRequired;
 
+  bool allowUpdate = false;
   String error = '';
   bool loading = false;
 
   @override
   void initState() {
     displayPersonCardObject = widget.argPersonCardObject;
-    dataRequiredForBuild = _fetchAllRequiredForBuild();
+    allowUpdate = getUpdatePermission();
     super.initState();
   }
 
-  Future<DataRequiredForBuild> _fetchAllRequiredForBuild() async {
-    return DataRequiredForBuild(
-      allowUpdate: await getUpdatePermission(),
-    );
-  }
-
-  Future<ConnectedUserObject> getConnectedUserObject() async {
-    var _userGlobal = ConnectedUserGlobal();
-    ConnectedUserObject _connectedUserObj = _userGlobal.getConnectedUserObject();
-    return _connectedUserObj;
-  }
-
-  Future <bool> getUpdatePermission() async {
-    ConnectedUserObject _connectedUserObj = await getConnectedUserObject();
+  //#region Get Update Permission
+  bool getUpdatePermission()  {
+    ConnectedUserObject _connectedUserObj = ConnectedUserGlobal.currentConnectedUserObject;
     bool _allowUpdate = false;
 
     switch (_connectedUserObj.userType) {
@@ -69,12 +57,14 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
     }
     return _allowUpdate;
   }
+  //#endregion
 
   Future<void> openMenu() async {
     // Open Menu from Left side
     _scaffoldKey.currentState.openDrawer();
   }
 
+  //#region Open Person Card Detail Edit Screen
   openPersonCardDetailEditScreen(PersonCardObject aPersonCardObj) async {
     final result = await Navigator.push(
       context,
@@ -89,6 +79,7 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
       });
     }
   }
+  //#endregion
 
   @override
   Widget build(BuildContext context) {
@@ -105,19 +96,7 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
           ),
         ),
 
-        body: FutureBuilder<DataRequiredForBuild>(
-          future: dataRequiredForBuild,
-          builder: (context, snapshot) {
-
-          if (snapshot.hasData)
-          {
-            currentDataRequired = snapshot.data;
-            return buildMainScaffoldBody();
-          }
-          else
-            return Loading();
-        }
-      ),
+          body: buildMainScaffoldBody(),
     );
   }
 
@@ -260,7 +239,7 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
                 ),
               ),
 
-              if (currentDataRequired.allowUpdate)
+              if (allowUpdate)
                 Padding(
                   padding: const EdgeInsets.only(left: 0.0, top: 0.0, right: 10.0, bottom: 0.0),
                   child: IconButton(
@@ -378,12 +357,4 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
         ]
     );
   }
-}
-
-class DataRequiredForBuild {
-  bool allowUpdate;
-
-  DataRequiredForBuild({
-    this.allowUpdate,
-  });
 }

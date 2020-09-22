@@ -28,9 +28,7 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  Future<DataRequiredForBuild> dataRequiredForBuild;
-  DataRequiredForBuild currentDataRequired;
-
+  bool userHasPermission = false;
   bool loading = false;
 
   SearchTypeEnum currentSearchType = SearchTypeEnum.PersonCard;
@@ -48,38 +46,29 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
       DeviceOrientation.portraitDown,
     ]);
 
-    dataRequiredForBuild = _fetchAllRequiredForBuild();
+    userHasPermission = getUserPermission();
     super.initState();
   }
 
-  Future<DataRequiredForBuild> _fetchAllRequiredForBuild() async {
-    return DataRequiredForBuild(
-      allowUpdate: await getUpdatePermission(),
-    );
-  }
+  //#region Get User Permission
+  bool getUserPermission()  {
+    ConnectedUserObject _connectedUserObj = ConnectedUserGlobal.currentConnectedUserObject;
 
-  Future<ConnectedUserObject> getConnectedUserObject() async {
-    var _userGlobal = ConnectedUserGlobal();
-    ConnectedUserObject _connectedUserObj = _userGlobal.getConnectedUserObject();
-    return _connectedUserObj;
-  }
-
-  Future <bool> getUpdatePermission() async {
-    ConnectedUserObject _connectedUserObj = await getConnectedUserObject();
-    bool _allowUpdate = false;
+    bool _userHasPermission = false;
 
     switch (_connectedUserObj.userType) {
       case Constants.UserTypeEnum.SystemAdmin:
-        _allowUpdate = true;
+        _userHasPermission = true;
         break;
       case  Constants.UserTypeEnum.RotaryMember:
-        _allowUpdate = true;
+        _userHasPermission = true;
         break;
       case  Constants.UserTypeEnum.Guest:
-        _allowUpdate = false;
+        _userHasPermission = false;
     }
-    return _allowUpdate;
+    return _userHasPermission;
   }
+  //#endregion
 
   @override
   dispose(){
@@ -232,19 +221,7 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
             ),
           ),
 
-          body: FutureBuilder<DataRequiredForBuild>(
-            future: dataRequiredForBuild,
-            builder: (context, snapshot) {
-
-              if (snapshot.hasData)
-              {
-                currentDataRequired = snapshot.data;
-                return buildMainScaffoldBody();
-              }
-              else
-                return Loading();
-            }
-          ),
+        body: buildMainScaffoldBody(),
       ),
     );
   }
@@ -254,7 +231,7 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
 
     return Container(
       child: Stack(
-        children: [
+        children: <Widget>[
           /// ----------- Header - Application Logo [Title] & Search Box Area [TextBox] -----------------
           CustomScrollView(
             slivers: <Widget>[
@@ -291,8 +268,9 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
                             children: [
                               buildImageIconWithTitle('אירועים', Icons.event, executeSearchByType, SearchTypeEnum.Event, eventsBackgroundColor),
 
-                              if (currentDataRequired.allowUpdate)
-                                buildAddEventImageIconWithTitle('הוסף אירוע', Icons.plus_one, openEventDetailEditScreen, Colors.white),
+                              // if (currentDataRequired.allowUpdate)
+                                if (userHasPermission)
+                                  buildAddEventImageIconWithTitle('הוסף אירוע', Icons.plus_one, openEventDetailEditScreen, Colors.white),
                             ],
                           ),
                           buildImageIconWithTitle('כרטיס ביקור', Icons.person, executeSearchByType, SearchTypeEnum.PersonCard, personCardBackgroundColor),
@@ -424,13 +402,5 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
       ),
     );
   }
-}
-
-class DataRequiredForBuild {
-  bool allowUpdate;
-
-  DataRequiredForBuild({
-    this.allowUpdate,
-  });
 }
 

@@ -34,8 +34,8 @@ class _RotaryUserDetailPageScreenState extends State<RotaryUserDetailPageScreen>
     super.initState();
   }
 
-  openUserDetailEditScreen(UserObject aUserObj) async {
-
+  //region Open User Detail Edit Screen
+  void openUserDetailEditScreen(UserObject aUserObj) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -49,6 +49,7 @@ class _RotaryUserDetailPageScreenState extends State<RotaryUserDetailPageScreen>
       });
     }
   }
+  //endregion
 
   @override
   Widget build(BuildContext context) {

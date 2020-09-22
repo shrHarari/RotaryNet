@@ -7,18 +7,18 @@ import 'package:rotary_net/shared/decoration_style.dart';
 import 'package:rotary_net/utils/utils_class.dart';
 import 'package:path/path.dart' as Path;
 
-class BuildPersonalAreaPageTabPersonCard extends StatefulWidget {
+class PersonalAreaPageTabPersonCard extends StatefulWidget {
   final PersonCardObject argPersonCard;
   final String argConnectedUserGuidId;
 
-  BuildPersonalAreaPageTabPersonCard({Key key,
+  PersonalAreaPageTabPersonCard({Key key,
     @required this.argPersonCard, @required this.argConnectedUserGuidId}) : super(key: key);
 
   @override
-  _BuildPersonalAreaPageTabPersonCardState createState() => _BuildPersonalAreaPageTabPersonCardState();
+  _PersonalAreaPageTabPersonCardState createState() => _PersonalAreaPageTabPersonCardState();
 }
 
-class _BuildPersonalAreaPageTabPersonCardState extends State<BuildPersonalAreaPageTabPersonCard> {
+class _PersonalAreaPageTabPersonCardState extends State<PersonalAreaPageTabPersonCard> {
 
   final PersonCardService personCardService = PersonCardService();
   final formKey = GlobalKey<FormState>();
@@ -163,7 +163,7 @@ class _BuildPersonalAreaPageTabPersonCardState extends State<BuildPersonalAreaPa
   }
   //#endregion
 
-  //#region pickImageFile
+  //#region Pick Image File
   Future <void> pickImageFile() async {
 
     ImagePicker imagePicker = ImagePicker();

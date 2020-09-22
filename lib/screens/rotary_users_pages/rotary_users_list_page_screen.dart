@@ -9,7 +9,7 @@ import 'package:rotary_net/screens/rotary_users_pages/rotary_users_list_page_til
 import 'package:rotary_net/shared/error_message_screen.dart';
 
 class RotaryUsersListPageScreen extends StatefulWidget {
-  static const routeName = '/UserPageScreen';
+  static const routeName = '/RotaryUsersListPageScreen';
   final ConnectedUserObject argConnectedUserObject;
 
   RotaryUsersListPageScreen({Key key, @required this.argConnectedUserObject}) : super(key: key);
