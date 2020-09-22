@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class GlobalsService {
   static bool isDebugMode;
-  static int encryptedTimeOffset;
 
   //#region Debug Mode
   //------------------------------------------------------------------------------
@@ -87,7 +86,7 @@ class GlobalsService {
     catch (e){
       await LoggerService.log('<GlobalsService> Clear Globals Data From SharedPreferences >>> ERROR: ${e.toString()}');
       developer.log(
-        'clearTrackerObjectDataFromSharedPreferences',
+        'clearGlobalsDataFromSharedPreferences',
         name: 'GlobalsService',
         error: 'Clear Globals Data From SharedPreferences >>> ERROR: ${e.toString()}',
       );

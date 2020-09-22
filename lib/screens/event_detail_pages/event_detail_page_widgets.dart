@@ -3,7 +3,8 @@ import 'package:rotary_net/utils/hebrew_syntax_format.dart';
 
 class EventDetailWidgets {
 
-  static Future <Widget> buildEventDateTimeLabel(DateTime aEventStartDateTime,
+  static Future <Widget> buildEventDateTimeLabel(
+      DateTime aEventStartDateTime,
       DateTime aEventEndDateTime) async {
     // String eventDay = Intl.DateFormat('EEEE, d MMM, yyyy').format(aEventObj.eventStartDateTime); // prints Tuesday, 10 Dec, 2019
     // String eventStartTime = Intl.DateFormat('hh:mm').format(aEventObj.eventStartDateTime); // prints 10:02 AM
@@ -86,12 +87,6 @@ class EventDetailWidgets {
         textDirection: TextDirection.rtl,
         text: TextSpan(
           children: [
-            // TextSpan(
-            //   text: 'האירוע יערך ב',
-            //   style: TextStyle(
-            //       color: Colors.blue[700],
-            //       fontSize: 14.0),
-            // ),
             TextSpan(
               text: datesMapObj["HebrewStartDate"],
               style: TextStyle(

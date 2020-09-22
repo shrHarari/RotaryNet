@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 class PersonCardObject {
-  String emailId;
-  final String email;
+  final String userGuidId;
+  String email;
   final String firstName;
   final String lastName;
   final String firstNameEng;
@@ -11,13 +11,13 @@ class PersonCardObject {
   final String phoneNumberDialCode;
   final String phoneNumberParse;
   final String phoneNumberCleanLongFormat;
-  final String pictureUrl;
+  String pictureUrl;
   String cardDescription;
   String internetSiteUrl;
   String address;
 
   PersonCardObject({
-    this.emailId,
+    this.userGuidId,
     this.email,
     this.firstName,
     this.lastName,
@@ -34,14 +34,18 @@ class PersonCardObject {
   });
 
   // Set PersonCard Email
-  //=====================================
-  Future <void> setEmail(String aEmailId) async {
-    emailId = aEmailId;
+  Future <void> setEmail(String aEmail) async {
+    email = aEmail;
+  }
+
+  // Set PersonCard Email
+  Future <void> setPictureUrl(String aPictureUrl) async {
+    pictureUrl = aPictureUrl;
   }
 
   factory PersonCardObject.fromJson(Map<String, dynamic> parsedJson){
     return PersonCardObject(
-        emailId: parsedJson['emailId'],
+        userGuidId: parsedJson['userGuidId'],
         email: parsedJson['email'],
         firstName : parsedJson['firstName'],
         lastName : parsedJson['lastName'],
@@ -61,7 +65,7 @@ class PersonCardObject {
   @override
   String toString() {
     return '{'
-        ' ${this.emailId},'
+        ' ${this.userGuidId},'
         ' ${this.email},'
         ' ${this.firstName},'
         ' ${this.lastName},'
@@ -79,7 +83,7 @@ class PersonCardObject {
   }
 
   Map toJson() => {
-    'emailId': emailId,
+    'userGuidId': userGuidId,
     'email': email,
     'firstName': firstName,
     'lastName': lastName,
@@ -109,7 +113,7 @@ class PersonCardObject {
 
   factory PersonCardObject.fromMap(Map<String, dynamic> jsonFromMap) =>
       PersonCardObject(
-          emailId: jsonFromMap['emailId'],
+          userGuidId: jsonFromMap['userGuidId'],
           email: jsonFromMap['email'],
           firstName : jsonFromMap['firstName'],
           lastName : jsonFromMap['lastName'],
@@ -126,7 +130,7 @@ class PersonCardObject {
   );
 
   Map<String, dynamic> toMap() => {
-    'emailId': emailId,
+    'userGuidId': userGuidId,
     'email': email,
     'firstName': firstName,
     'lastName': lastName,

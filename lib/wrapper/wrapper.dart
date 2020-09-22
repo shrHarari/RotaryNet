@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:rotary_net/database/rotary_database_provider.dart';
-import 'package:rotary_net/objects/arg_data_objects.dart';
-import 'package:rotary_net/objects/person_card_object.dart';
-import 'package:rotary_net/objects/user_object.dart';
+import 'package:rotary_net/objects/connected_user_global.dart';
+import 'package:rotary_net/objects/connected_user_object.dart';
 import 'package:rotary_net/screens/rotary_main_pages/rotary_main_page_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/login_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/login_state_message_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/register_screen.dart';
+import 'package:rotary_net/services/connected_user_service.dart';
 import 'package:rotary_net/services/login_service.dart';
 import 'package:rotary_net/services/user_service.dart';
 import 'package:rotary_net/services/registration_service.dart';
@@ -28,11 +27,12 @@ class _WrapperState extends State<Wrapper> {
 
   Future<LoginObject> loginObjForBuild;
   final UserService userService = UserService();
+  final ConnectedUserService connectedUserService = ConnectedUserService();
   final RegistrationService registrationService = RegistrationService();
-  ArgDataUserObject argDataObject;
   bool loading = true;
 
   LoginObject currentLoginObj;
+  ConnectedUserObject currentConnectedUserObj;
 
   @override
   void initState() {
@@ -63,8 +63,7 @@ class _WrapperState extends State<Wrapper> {
   }
 
   Future<LoginObject> setApplicationPhase() async {
-    UserObject userObj;
-    LoginObject loginObject;
+    LoginObject _loginObject;
 
     await initializeGlobalValues();
 
@@ -72,13 +71,13 @@ class _WrapperState extends State<Wrapper> {
       loading = true;
     });
 
-    userObj = await userService.readUserObjectDataFromSharedPreferences();
+    currentConnectedUserObj = await connectedUserService.readConnectedUserObjectDataFromSecureStorage();
+    var userGlobal = ConnectedUserGlobal();
+    userGlobal.setConnectedUserObject(currentConnectedUserObj);
 
-    loginObject = await LoginService.readLoginObjectDataFromSharedPreferences();
-    print('readLoginObjectDataFromSharedPreferences: ${loginObject.loginStatus}');
-    await LoginService.setLogin(loginObject);
-
-    argDataObject = ArgDataUserObject(userObj, loginObject);
+    _loginObject = await LoginService.readLoginObjectDataFromSecureStorage();
+    await LoginService.setLogin(_loginObject);
+    print('Wrapper / loginObject: ${_loginObject.loginStatus}');
 
     await LoggerService.log('<${this.runtimeType}> Set Application Phase >>> Login State: ${LoginService.loginObject.loginStatus}');
 
@@ -86,13 +85,12 @@ class _WrapperState extends State<Wrapper> {
     {
       /// Check Login Status {NoRequest, Waiting, Accepted, Rejected, NoStatus}
       /// LoginStatus >>> Switch Cases in Build Widget
-      print('loginObject: ${loginObject.loginStatus}');
-      loginObject = await registrationService.getRequestStatusFromServer(userObj, loginObject);
+      _loginObject = await registrationService.getRequestStatusFromServer(currentConnectedUserObj, _loginObject);
     }
     setState(() {
       loading = false;
     });
-    return loginObject;
+    return _loginObject;
   }
 
   @override
@@ -116,7 +114,7 @@ class _WrapperState extends State<Wrapper> {
 
               : (snapshot.hasData)
                 ? Container(
-                      child: getPageByLoginStatus(currentLoginObj, argDataObject),
+                      child: getPageByLoginStatus(currentLoginObj, currentConnectedUserObj),
                   )
 
                 : Center(child: Text('אין תוצאות')),
@@ -125,18 +123,19 @@ class _WrapperState extends State<Wrapper> {
       );
     }
 
-  Widget getPageByLoginStatus(LoginObject aLoginObj, ArgDataUserObject aDataObject) {
+  Widget getPageByLoginStatus(LoginObject aLoginObj, ConnectedUserObject aConnectedUserObject) {
     switch (aLoginObj.loginStatus) {
       case Constants.LoginStatusEnum.NoRequest:
-        return RegisterScreen(argDataObject: aDataObject);
+        return RegisterScreen(argLoginObject: aLoginObj);
+        break;
       case Constants.LoginStatusEnum.Waiting:
-        return LoginStateMessageScreen(argDataObject: aDataObject);
+        return LoginStateMessageScreen(argConnectedUserObject: aConnectedUserObject, argLoginObject: aLoginObj);
         break;
       case Constants.LoginStatusEnum.Accepted:
-        if ((aDataObject.passUserObj.stayConnected == null) || (!aDataObject.passUserObj.stayConnected))
-          return LoginScreen(argDataObject: aDataObject);
+        if ((aConnectedUserObject.stayConnected == null) || (!aConnectedUserObject.stayConnected))
+          return LoginScreen(argLoginObject: aLoginObj);
         else
-          return RotaryMainPageScreen(argDataObject: aDataObject);
+          return RotaryMainPageScreen(argLoginObject: aLoginObj);
         break;
       case Constants.LoginStatusEnum.NoStatus:
         return RotaryErrorMessageScreen(

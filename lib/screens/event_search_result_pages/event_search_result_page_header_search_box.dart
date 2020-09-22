@@ -1,70 +1,87 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:path/path.dart';
+import 'package:rotary_net/BLoCs/events_list_bloc.dart';
+import 'package:rotary_net/screens/event_detail_pages/event_detail_edit_page_screen.dart';
 
 class EventSearchResultPageHeaderSearchBox implements SliverPersistentHeaderDelegate {
   final double minExtent;
   final double maxExtent;
+  EventsListBloc eventsBloc;
   TextEditingController searchController;
-  Function funcRenderSearch;
 
   EventSearchResultPageHeaderSearchBox({
-    this.minExtent,
+    @required this.minExtent,
     @required this.maxExtent,
-    this.searchController,
-    this.funcRenderSearch,
+    @required this.eventsBloc,
+    @required this.searchController,
   });
+
+  //#region Open Event Detail Edit Screen
+  openEventDetailEditScreen(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EventDetailEditPageScreen(
+            argEventObject: null,
+            argHebrewEventTimeLabel: null
+        ),
+      ),
+    );
+  }
+  //#endregion
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
 
     return Container(
       color: Colors.lightBlue[400],
-      child: Column(
-        children: <Widget>[
-          /// ----------- Header - Second line - Search Box Area -----------------
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Flexible(
+      child: SafeArea(
+        child: Stack(
+          children: [
+            Positioned(
+                left: -20.0,
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 50.0, top: 10.0, right: 50.0, bottom: 10.0),
-                  child: TextField(
-                    maxLines: 1,
-                    controller: searchController,
-                    textAlign: TextAlign.right,
-                    textInputAction: TextInputAction.search,
-                    style: TextStyle(
-                        fontSize: 14.0,
-                        height: 0.8,
-                        color: Colors.black
+                  padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                  child: buildInsertEventImageButton(context, openEventDetailEditScreen),
+                )
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 50.0, top: 10.0, right: 50.0, bottom: 10.0),
+              child: TextField(
+                maxLines: 1,
+                controller: searchController,
+                textAlign: TextAlign.right,
+                textInputAction: TextInputAction.search,
+                style: TextStyle(
+                    fontSize: 14.0,
+                    height: 0.8,
+                    color: Colors.black
+                ),
+                //onSubmitted: (value) async {await executeSearch(value);},
+                onChanged: (searchText) {eventsBloc.getEventsListBySearchQuery(searchText);},
+                decoration: InputDecoration(
+                    prefixIcon: IconButton(
+                      color: Colors.blue,
+                      icon: Icon(Icons.search),
+                      onPressed: () async {
+                        eventsBloc.getEventsListBySearchQuery(searchController.text);
+                      },
                     ),
-                    //onSubmitted: (value) async {await executeSearch(value);},
-//                    onChanged: (value) async {setSearchTextValueFunc(value);},
-                    decoration: InputDecoration(
-                        prefixIcon: IconButton(
-                          color: Colors.blue,
-                          icon: Icon(Icons.search),
-                          onPressed: () async {
-                            funcRenderSearch(searchController.text);
-                          },
-                        ),
-                        border: new OutlineInputBorder(
-                          borderRadius: const BorderRadius.all(
-                            const Radius.circular(30.0),
-                          ),
-                        ),
-                        filled: true,
-                        hintStyle: TextStyle(color: Colors.grey[800]),
-                        hintText: "מילת חיפוש",
-                        fillColor: Colors.white
+                    border: new OutlineInputBorder(
+                      borderRadius: const BorderRadius.all(
+                        const Radius.circular(30.0),
+                      ),
                     ),
-                  ),
+                    filled: true,
+                    hintStyle: TextStyle(color: Colors.grey[800]),
+                    hintText: "מילת חיפוש",
+                    fillColor: Colors.white
                 ),
               ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -79,4 +96,27 @@ class EventSearchResultPageHeaderSearchBox implements SliverPersistentHeaderDele
   bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {
     return true;
   }
+
+  Widget buildInsertEventImageButton(BuildContext context, Function aFunc) {
+    return MaterialButton(
+      elevation: 0.0,
+      onPressed: () async {
+        await aFunc(context);
+      },
+      color: Colors.white,
+      padding: EdgeInsets.all(10),
+      shape: CircleBorder(side: BorderSide(color: Colors.blue)),
+      child:
+      IconTheme(
+        data: IconThemeData(
+          color: Colors.lightBlue[700],
+        ),
+        child: Icon(
+          Icons.event,
+          size: 20,
+        ),
+      ),
+    );
+  }
+
 }

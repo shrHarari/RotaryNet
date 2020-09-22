@@ -1,16 +1,19 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:enum_to_string/enum_to_string.dart';
-import 'package:rotary_net/objects/arg_data_objects.dart';
+import 'package:rotary_net/objects/connected_user_global.dart';
+import 'package:rotary_net/objects/connected_user_object.dart';
+import 'package:rotary_net/objects/login_object.dart';
 import 'package:rotary_net/screens/debug_setting_screen.dart';
 import 'package:rotary_net/shared/circle_button.dart';
 import 'package:rotary_net/shared/loading.dart';
 
 class LoginStateMessageScreen extends StatefulWidget {
   static const routeName = '/LoginStateMessageScreen';
-  final ArgDataUserObject argDataObject;
+  final ConnectedUserObject argConnectedUserObject;
+  final LoginObject argLoginObject;
 
-  LoginStateMessageScreen({Key key, @required this.argDataObject}) : super(key: key);
+  LoginStateMessageScreen({Key key, @required this.argConnectedUserObject, @required this.argLoginObject}) : super(key: key);
 
   @override
   _LoginStateMessageScreen createState() => _LoginStateMessageScreen();
@@ -18,9 +21,10 @@ class LoginStateMessageScreen extends StatefulWidget {
 
 class _LoginStateMessageScreen extends State<LoginStateMessageScreen> {
 
+  ConnectedUserObject currentConnectedUserObj;
   String appBarTitle = 'רוטרי / אישור בקשה';
   String iconBarTitle = 'יציאה';
-  String sharedPreferencesData = '';
+  String currentConnectedUserData = '';
   String messageTitle = '';
   String messageBody = '';
   bool loading = true;
@@ -28,41 +32,55 @@ class _LoginStateMessageScreen extends State<LoginStateMessageScreen> {
 
   @override
   void initState() {
-    createDataToDisplay();
+
+    getConnectedUserObject().then((value) {
+      setState(() {
+        currentConnectedUserObj = value;
+        createDataToDisplay();
+      });
+    });
     super.initState();
+  }
+
+  Future<ConnectedUserObject> getConnectedUserObject() async {
+    var _userGlobal = ConnectedUserGlobal();
+    ConnectedUserObject _connectedUserObj = _userGlobal.getConnectedUserObject();
+    return _connectedUserObj;
   }
 
   Future<Null> createDataToDisplay() async {
 
-    if (widget.argDataObject.passUserObj.emailId == null)
+    if (currentConnectedUserObj.email == null)
     {
       setState(() {
-        sharedPreferencesData = 'שגיאה ברישום נתונים';
+        currentConnectedUserData = 'שגיאה ברישום נתונים';
         loading = false;
       });
     } else {
       setState(() {
-        messageTitle = 'שלום ${widget.argDataObject.passUserObj.firstName} ${widget.argDataObject.passUserObj.lastName},';
+        messageTitle = 'שלום '
+            '${currentConnectedUserObj.firstName} '
+            '${currentConnectedUserObj.lastName},';
         messageBody = 'מנהלי המערכת מטפלים בבקשתך.\n\n'
             'אנא המתן ואנו נשלח אליך מייל לאישור בקשתך\n';
 
-        sharedPreferencesData = 'User Data To Display: \n'
-            // 'User Request Id: ${widget.argDataObject.passUserObj.requestId}\n'
-            'User EmailId: ${widget.argDataObject.passUserObj.emailId}\n'
-            'User Name: ${widget.argDataObject.passUserObj.firstName} ${widget.argDataObject.passUserObj.lastName}\n'
-            'User Password: ${widget.argDataObject.passUserObj.password}\n'
-            'Login Status: ${EnumToString.parse(widget.argDataObject.passLoginObj.loginStatus)}';
+        currentConnectedUserData = 'User Data To Display: \n'
+            'User Guid Id: ${currentConnectedUserObj.userGuidId}\n'
+            'User EmailId: ${currentConnectedUserObj.email}\n'
+            'User Name: ${currentConnectedUserObj.firstName} '
+                       '${currentConnectedUserObj.lastName}\n'
+            'User Password: ${currentConnectedUserObj.password}\n'
+            'Login Status: ${EnumToString.parse(widget.argLoginObject.loginStatus)}';
         loading = false;
       });
     }
   }
 
   Future<void> openDebugSettings() async {
-    // Navigate to DebugSettings Screen
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DebugSettings(argDataObject: widget.argDataObject),
+        builder: (context) => DebugSettings(argLoginObject: widget.argLoginObject),
       ),
     );
   }
@@ -166,7 +184,7 @@ class _LoginStateMessageScreen extends State<LoginStateMessageScreen> {
                   child: Container(
                     color: Colors.white,
                     child: Text(
-                      sharedPreferencesData,
+                      currentConnectedUserData,
                       textAlign: TextAlign.left,
                       style: TextStyle(
                           color: Colors.blue[900],

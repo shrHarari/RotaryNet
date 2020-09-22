@@ -1,7 +1,8 @@
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:rotary_net/objects/arg_data_objects.dart';
+import 'package:rotary_net/BLoCs/bloc_provider.dart';
+import 'package:rotary_net/BLoCs/events_list_bloc.dart';
 import 'package:rotary_net/objects/event_object.dart';
 import 'package:rotary_net/screens/event_detail_pages/event_detail_page_widgets.dart';
 import 'package:rotary_net/services/event_service.dart';
@@ -11,13 +12,15 @@ import 'package:rotary_net/utils/hebrew_syntax_format.dart';
 import 'package:rotary_net/widgets/application_menu_widget.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 import 'package:rotary_net/widgets/pick_date_time_dialog_widget.dart';
+import 'package:rotary_net/utils/utils_class.dart';
+import 'package:path/path.dart' as Path;
 
 class EventDetailEditPageScreen extends StatefulWidget {
   static const routeName = '/EventDetailEditPageScreen';
-  final ArgDataEventObject argDataObject;
+  final EventObject argEventObject;
   final Widget argHebrewEventTimeLabel;
 
-  EventDetailEditPageScreen({Key key, @required this.argDataObject, this.argHebrewEventTimeLabel}) : super(key: key);
+  EventDetailEditPageScreen({Key key, @required this.argEventObject, this.argHebrewEventTimeLabel}) : super(key: key);
 
   @override
   _EventDetailEditPageScreenState createState() => _EventDetailEditPageScreenState();
@@ -26,26 +29,16 @@ class EventDetailEditPageScreen extends StatefulWidget {
 class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
 
   final EventService eventService = EventService();
-  EventObject currentDisplayEventObject;
-  Widget currentHebrewEventTimeLabel;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormState>();
 
-  @override
-  void initState() {
-    currentDisplayEventObject = widget.argDataObject.passEventObj;
-    currentHebrewEventTimeLabel = widget.argHebrewEventTimeLabel;
-
-    setEventVariables(currentDisplayEventObject);
-    super.initState();
-  }
-
   //#region Declare Variables
-  String eventId;
-  String pictureFileName;
-  AssetImage eventImage;
-  File picFile;
+  String currentEventImage;
+  bool isEventExist = false;
+  Widget currentHebrewEventTimeLabel;
+
+  AssetImage eventImageDefaultAsset;
   DateTime selectedPickStartDateTime;
   DateTime selectedPickEndDateTime;
 
@@ -56,38 +49,70 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
 
   String error = '';
   bool loading = false;
-  String updateStatus;
   //#endregion
+
+  @override
+  void initState() {
+    setEventVariables(widget.argEventObject);
+
+    super.initState();
+  }
 
   //#region Set event Variables
   Future<void> setEventVariables(EventObject aEvent) async {
-    eventId = aEvent.eventId;
-    pictureFileName = aEvent.eventPictureUrl;
-    eventImage = AssetImage('assets/images/events/$pictureFileName');
+    eventImageDefaultAsset = AssetImage('assets/images/events/EventImageDefaultPicture.jpg');
 
-    eventNameController = TextEditingController(text: aEvent.eventName);
-    eventDescriptionController = TextEditingController(text: aEvent.eventDescription);
-    eventLocationController = TextEditingController(text: aEvent.eventLocation);
-    eventManagerController = TextEditingController(text: aEvent.eventManager);
+    if (aEvent != null)
+    {
+      isEventExist = true;   /// If Exist ? Update(has Guid) : Insert(copy Guid)
 
-    selectedPickStartDateTime = aEvent.eventStartDateTime;
-    selectedPickEndDateTime = aEvent.eventEndDateTime;
+      currentEventImage = aEvent.eventPictureUrl;
+      currentHebrewEventTimeLabel = widget.argHebrewEventTimeLabel;
+
+      eventNameController = TextEditingController(text: aEvent.eventName);
+      eventDescriptionController = TextEditingController(text: aEvent.eventDescription);
+      eventLocationController = TextEditingController(text: aEvent.eventLocation);
+      eventManagerController = TextEditingController(text: aEvent.eventManager);
+
+      selectedPickStartDateTime = aEvent.eventStartDateTime;
+      selectedPickEndDateTime = aEvent.eventEndDateTime;
+    } else {
+      isEventExist = false;
+
+      eventNameController = TextEditingController(text: '');
+      eventDescriptionController = TextEditingController(text: '');
+      eventLocationController = TextEditingController(text: '');
+      eventManagerController = TextEditingController(text: '');
+    }
   }
   //#endregion
 
+  Future<void> openMenu() async {
+    // Open Menu from Left side
+    _scaffoldKey.currentState.openDrawer();
+  }
+
   //#region Check Validation
   Future<bool> checkValidation() async {
-    bool validationVal = true;
+    bool validationVal = false;
 
     if (formKey.currentState.validate()){
+      if (selectedPickStartDateTime == null)
+      {
+        validationVal = false;
+        setState(() {
+          error = "יש להגדיר מועד ושעה לאירוע";
+        });
+      } else
         validationVal = true;
     }
+
     return validationVal;
   }
   //#endregion
 
   //#region Update Event
-  Future updateEvent() async {
+  Future updateEvent(EventsListBloc aEventBloc) async {
 
     bool validationVal = await checkValidation();
 
@@ -98,41 +123,40 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
       String _eventLocation = (eventLocationController.text != null) ? (eventLocationController.text) : '';
       String _eventManager = (eventManagerController.text != null) ? (eventManagerController.text) : '';
 
-      EventObject newEventObj =
-          eventService.createEventAsObject(
-              eventId, _eventName,
-              pictureFileName, _eventDescription,
-              selectedPickStartDateTime, selectedPickEndDateTime,
-              _eventLocation, _eventManager,);
+      String _pictureUrl = '';
+      if (currentEventImage != null) _pictureUrl = currentEventImage;
 
-      String updateVal = await eventService.updateEventObjectDataToDataBase(newEventObj);
+      EventObject _newEventObj;
+      if (isEventExist) {
+        _newEventObj = eventService.createEventAsObject(
+            widget.argEventObject.eventGuidId,
+            _eventName, _pictureUrl, _eventDescription,
+            selectedPickStartDateTime, selectedPickEndDateTime,
+            _eventLocation, _eventManager,);
 
-      if (int.parse(updateVal) > 0) {
-        updateStatus = 'נתוני האירוע עודכנו';
-
-        /// Return multiple data using MAP
-        final returnDataMap = {
-          "EventObject": newEventObj,
-          "PickedPictureFile": picFile,
-          "HebrewEventTimeLabel": currentHebrewEventTimeLabel
-        };
-        Navigator.pop(context, returnDataMap);
-      } else {
-        setState(() {
-          updateStatus = 'עדכון נתוני האירוע נכשל, נסה שנית';
-        });
+        await aEventBloc.updateEvent(widget.argEventObject, _newEventObj);
       }
+      else {
+        String _eventGuidId = await Utils.createGuidUserId();
+        _newEventObj = eventService.createEventAsObject(
+            _eventGuidId,
+            _eventName, _pictureUrl, _eventDescription,
+            selectedPickStartDateTime, selectedPickEndDateTime,
+            _eventLocation, _eventManager,);
+
+        await aEventBloc.insertEvent(_newEventObj);
+      }
+
+      Navigator.pop(context, _newEventObj);
     }
-//    return returnVal;
   }
   //#endregion
 
-  Future<void> openMenu() async {
-    // Open Menu from Left side
-    _scaffoldKey.currentState.openDrawer();
-  }
-
+  //#region Pick DateTime Dialog
   Future<void> openDateTimePickerDialog(BuildContext context) async {
+
+    if (selectedPickStartDateTime == null) selectedPickStartDateTime = DateTime.now();
+    if (selectedPickEndDateTime == null) selectedPickEndDateTime = DateTime.now();
 
     Map datesMapObj = await HebrewFormatSyntax.getHebrewDateTimeLabels(selectedPickStartDateTime, selectedPickEndDateTime);
 
@@ -150,7 +174,6 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
       DateTime _startDateTime = returnDataMapFromPicker["EventPickedStartDateTime"];
       DateTime _endDateTime = returnDataMapFromPicker["EventPickedEndDateTime"];
       Widget _displayHebrewDateTime = await EventDetailWidgets.buildEventDateTimeLabel(_startDateTime, _endDateTime);
-      // print('_startDateTime: $_startDateTime \n_endDateTime: $_endDateTime \n_displayHebrewDateTime: $_displayHebrewDateTime');
 
       setState(() {
         selectedPickStartDateTime = _startDateTime;
@@ -159,7 +182,9 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
       });
     }
   }
+  //#endregion
 
+  //#region Pick Image File
   Future <void> pickImageFile() async {
     ImagePicker imagePicker = ImagePicker();
     PickedFile _compressedImage = await imagePicker.getImage(
@@ -167,13 +192,33 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
         imageQuality: 80,
         maxHeight: 800
     );
-    File _pictureFile = File(_compressedImage.path);
 
-    setState(() {
-      picFile = _pictureFile;
-      pictureFileName = _pictureFile.path;
-    });
+    if (_compressedImage != null)
+    {
+      if ((currentEventImage != null) && (currentEventImage != ''))
+      {
+        File originalImageFile = File(currentEventImage);
+        originalImageFile.delete();
+      }
+
+      File _pickedPictureFile = File(_compressedImage.path);
+      String _newEventImagesDirectory = await Utils.createDirectoryInAppDocDir('assets/images/event_images');
+      String _newImageFileName =  Path.basename(_pickedPictureFile.path);
+
+      String _copyFilePath = '$_newEventImagesDirectory/$_newImageFileName';
+
+      // copy the file to a new path
+      await _pickedPictureFile.copy(_copyFilePath).then((File _newImageFile) {
+        if (_newImageFile != null) {
+
+          setState(() {
+            currentEventImage = _newImageFile.path;
+          });
+        }
+      });
+    }
   }
+  //#endregion
 
   @override
   Widget build(BuildContext context) {
@@ -185,7 +230,7 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
       drawer: Container(
         width: 250,
         child: Drawer(
-          child: ApplicationMenuDrawer(argUserObj: widget.argDataObject.passUserObj),
+          child: ApplicationMenuDrawer(),
         ),
       ),
 
@@ -264,7 +309,10 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
                           padding: const EdgeInsets.only(left: 0.0, top: 10.0, right: 10.0, bottom: 0.0),
                           child: IconButton(
                             icon: Icon(Icons.arrow_forward, color: Colors.white),
-                            onPressed: () {Navigator.pop(context);},
+                            onPressed: () {
+                              FocusScope.of(context).requestFocus(FocusNode()); // Hide Keyboard
+                              Navigator.pop(context);
+                            },
                           ),
                         ),
                       ],
@@ -275,7 +323,7 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
             ),
 
             Expanded(
-              child: buildEventDetailDisplay(currentDisplayEventObject),
+              child: buildEventDetailDisplay(),
             ),
           ]
       ),
@@ -283,62 +331,72 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
   }
 
   /// ====================== Event All Fields ==========================
-  Widget buildEventDetailDisplay(EventObject aEventObj) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: Column(
-        children: <Widget>[
-          /// ------------------- Event Image -------------------------
-          Stack(
-            children: <Widget>[
-              Container(
-                height: 200.0,
-                  width: double.infinity,
-                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: picFile == null ? eventImage : FileImage(picFile),
-                        fit: BoxFit.cover
-                    ),
-                  ),
-                ),
-              Positioned(
-                bottom: 30.0, left: 20.0,
-                child: IconButton(
-                  icon: Icon(Icons.add_photo_alternate, color: Colors.blue, size: 40.0,),
-                  onPressed: () {pickImageFile();},
-                ),
-              ),
-            ]
-          ),
-
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 30.0, horizontal: 20.0),
-            width: double.infinity,
-            child: Form(
-              key: formKey,
+  Widget buildEventDetailDisplay() {
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Container(
               child: Column(
                 children: <Widget>[
-                  /// ------------------- Input Text Fields ----------------------
-                  buildEnabledTextInputWithImageIcon(eventNameController, 'Event Name', Icons.description, false),
-                  buildEnabledTextInputWithImageIcon(eventManagerController, 'Event Manager', Icons.person, false),
-                  buildEnabledTextInputWithImageIcon(eventDescriptionController, 'Event Description', Icons.view_list, true),
-                  buildEnabledTextInputWithImageIcon(eventLocationController, 'Event Location', Icons.location_on, false),
-                  buildEventDetailImageIcon(Icons.event_available, currentHebrewEventTimeLabel, openDateTimePickerDialog),
-                  buildUpdateImageButton('עדכון', updateEvent, Icons.update),
-                  /// ---------------------- Display Error -----------------------
-                  Text(
-                    error,
-                    style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 14.0),
+                  /// ------------------- Event Image -------------------------
+                  buildEventImage(),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 30.0, horizontal: 20.0),
+                    child: Form(
+                      key: formKey,
+                      child: Column(
+                        children: <Widget>[
+                          /// ------------------- Input Text Fields ----------------------
+                          buildEnabledTextInputWithImageIcon(eventNameController, 'שם אירוע', Icons.description, false),
+                          buildEnabledTextInputWithImageIcon(eventManagerController, 'מנהל ואיש קשר', Icons.person, false),
+                          buildEnabledTextInputWithImageIcon(eventDescriptionController, 'תיאור האירוע', Icons.view_list, true),
+                          buildEnabledTextInputWithImageIcon(eventLocationController, 'מיקום האירוע', Icons.location_on, false),
+                          buildEventDetailImageIcon(Icons.event_available, currentHebrewEventTimeLabel, openDateTimePickerDialog),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
           ),
-        ],
-      ),
+        ),
+
+        buildUpdateButton('עדכון', updateEvent, Icons.update),
+        /// ---------------------- Display Error -----------------------
+        Text(
+          error,
+          style: TextStyle(
+              color: Colors.red,
+              fontSize: 14.0),
+        ),
+      ],
+    );
+  }
+
+  Widget buildEventImage() {
+    return Stack(
+      children: <Widget>[
+        Container(
+          height: 200.0,
+          width: double.infinity,
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+                image: (currentEventImage == null) || (currentEventImage == '')
+                    ? eventImageDefaultAsset
+                    : FileImage(File(currentEventImage)),
+                fit: BoxFit.cover
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 30.0,
+          child: buildUpdateEventImageButton(pickImageFile),
+        ),
+      ]
     );
   }
 
@@ -402,7 +460,7 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
       decoration: aEnabled ?
       TextInputDecoration.copyWith(hintText: textInputName) :
       DisabledTextInputDecoration.copyWith(hintText: textInputName), // Disabled Field
-      validator: (val) => val.isEmpty ? 'Enter $textInputName' : null,
+      validator: (val) => val.isEmpty ? 'הקלד $textInputName' : null,
     );
   }
 
@@ -442,51 +500,90 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
 
           Expanded(
             flex: 2,
-            child: MaterialButton(
-              elevation: 0.0,
-              onPressed: () async {
-                await aFunc(context);
-              },
-              color: Colors.white,
-              padding: EdgeInsets.all(10),
-              shape: CircleBorder(side: BorderSide(color: Colors.blue)),
-              child:
-              IconTheme(
-                data: IconThemeData(
-                  color: Colors.black,
-                ),
-                child: Icon(
-                  Icons.edit,
-                  size: 20,
-                ),
-              ),
-            ),
+            child: buildUpdateDateTimeButton(aFunc),
           ),
         ]
     );
   }
 
-  Widget buildUpdateImageButton(String buttonText, Function aFunc, IconData aIcon) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 20.0),
-      child: RaisedButton.icon(
-        onPressed: () {aFunc(); },
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5.0))
+  Widget buildUpdateEventImageButton(Function aFunc) {
+    return MaterialButton(
+      elevation: 0.0,
+      onPressed: () async {
+        await aFunc();
+      },
+      color: Colors.white,
+      padding: EdgeInsets.all(10),
+      shape: CircleBorder(side: BorderSide(color: Colors.blue)),
+      child:
+      IconTheme(
+        data: IconThemeData(
+          color: Colors.black,
         ),
-        label: Text(
-          buttonText,
-          style: TextStyle(
-              color: Colors.white, fontSize: 16.0
-          ),
+        child: Icon(
+          Icons.add_photo_alternate,
+          size: 30,
         ),
-        icon: Icon(
-          aIcon,
-          color:Colors.white,
-        ),
-        textColor: Colors.white,
-        color: Colors.blue[400],
       ),
+    );
+  }
+
+  Widget buildUpdateDateTimeButton(Function aFunc) {
+    return MaterialButton(
+      elevation: 0.0,
+      onPressed: () async {
+        await aFunc(context);
+      },
+      color: Colors.white,
+      padding: EdgeInsets.all(10),
+      shape: CircleBorder(side: BorderSide(color: Colors.blue)),
+      child:
+      IconTheme(
+        data: IconThemeData(
+          color: Colors.black,
+        ),
+        child: Icon(
+          Icons.edit,
+          size: 20,
+        ),
+      ),
+    );
+  }
+
+  Widget buildUpdateButton(String buttonText, Function aFunc, IconData aIcon) {
+
+    final eventsBloc = BlocProvider.of<EventsListBloc>(context);
+
+    return StreamBuilder<List<EventObject>>(
+        stream: eventsBloc.eventsStream,
+        initialData: eventsBloc.eventsList,
+        builder: (context, snapshot) {
+          List<EventObject> currentEventsList =
+          (snapshot.connectionState == ConnectionState.waiting)
+              ? eventsBloc.eventsList
+              : snapshot.data;
+
+        return RaisedButton.icon(
+          onPressed: () {
+            aFunc(eventsBloc);
+          },
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(5.0))
+          ),
+          label: Text(
+            buttonText,
+            style: TextStyle(
+                color: Colors.white, fontSize: 16.0
+            ),
+          ),
+          icon: Icon(
+            aIcon,
+            color:Colors.white,
+          ),
+          textColor: Colors.white,
+          color: Colors.blue[400],
+        );
+      }
     );
   }
 }

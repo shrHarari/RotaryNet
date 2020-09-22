@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:rotary_net/objects/arg_data_objects.dart';
+import 'package:rotary_net/BLoCs/bloc_provider.dart';
+import 'package:rotary_net/BLoCs/events_list_bloc.dart';
 import 'package:rotary_net/objects/event_object.dart';
-import 'package:rotary_net/screens/event_detail_pages/event_detail_page_screen.dart';
-import 'package:rotary_net/screens/event_detail_pages/event_detail_page_widgets.dart';
 import 'package:rotary_net/screens/event_search_result_pages/event_search_result_page_list_tile.dart';
 import 'package:rotary_net/screens/event_search_result_pages/event_search_result_page_header_search_box.dart';
 import 'package:rotary_net/screens/event_search_result_pages/event_search_result_page_header_title.dart';
 import 'package:rotary_net/services/event_service.dart';
 import 'package:rotary_net/shared/error_message_screen.dart';
-import 'package:rotary_net/shared/loading.dart';
 import 'package:rotary_net/widgets/application_menu_widget.dart';
 
 class EventSearchResultPage extends StatefulWidget {
   static const routeName = '/PersonCardSearchResultPage';
-  final ArgDataUserObject argDataObject;
   final String searchText;
 
-  EventSearchResultPage({Key key, @required this.argDataObject, @required this.searchText}) : super(key: key);
+  EventSearchResultPage({Key key, @required this.searchText}) : super(key: key);
 
   @override
   _EventSearchResultPageState createState() => _EventSearchResultPageState();
@@ -27,33 +24,16 @@ class _EventSearchResultPageState extends State<EventSearchResultPage> {
   TextEditingController searchController = TextEditingController();
 
   final EventService eventService = EventService();
-  Future<List<EventObject>> eventsListForBuild;
-  List<EventObject> currentEventsList;
+  EventsListBloc eventsBloc;
 
   @override
   void initState() {
     super.initState();
 
     searchController = TextEditingController(text: widget.searchText);
-    eventsListForBuild = getEventsListFromServer(widget.searchText);
-  }
 
-  void renderSearch(String aSearchText){
-    // Hide Keyboard
-    FocusScope.of(context).requestFocus(FocusNode());
-
-    setState(() {
-      searchController = TextEditingController(text: aSearchText);
-      eventsListForBuild = getEventsListFromServer(aSearchText);
-    });
-  }
-
-  Future<List<EventObject>> getEventsListFromServer(String aSearchText) async {
-
-//    await Future<void>.delayed(Duration(seconds: 1));
-
-    dynamic eventsList = await eventService.getEventsListSearchFromServer(widget.searchText);
-    return eventsList;
+    eventsBloc = BlocProvider.of<EventsListBloc>(context);
+    eventsBloc.getEventsListBySearchQuery(searchController.text);
   }
 
   Future<void> openMenu() async {
@@ -61,43 +41,24 @@ class _EventSearchResultPageState extends State<EventSearchResultPage> {
     _scaffoldKey.currentState.openDrawer();
   }
 
-  openEventDetailScreen(EventObject aEventObj, int indexOfEventObj) async {
-    Widget hebrewEventTimeLabel = await EventDetailWidgets.buildEventDateTimeLabel(aEventObj.eventStartDateTime, aEventObj.eventEndDateTime);
-
-    ArgDataEventObject argDataEventObject;
-    argDataEventObject = ArgDataEventObject(widget.argDataObject.passUserObj, aEventObj, widget.argDataObject.passLoginObj);
-
-    final resultDataObj = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EventDetailPageScreen(
-            argDataObject: argDataEventObject,
-            argHebrewEventTimeLabel: hebrewEventTimeLabel,
-        ),
-      ),
-    );
-
-    /// When return from Page >>> Update EventObject in the List[pos: indexOfEventObj]
-    if (resultDataObj != null) {
-      setState(() {
-        currentEventsList[indexOfEventObj] = resultDataObj;
-      });
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<EventObject>>(
-      future: eventsListForBuild,
+
+    return StreamBuilder<List<EventObject>>(
+      stream: eventsBloc.eventsStream,
+      initialData: eventsBloc.eventsList,
       builder: (context, snapshot) {
-        if (snapshot.hasData) currentEventsList = snapshot.data;
+        List<EventObject> currentEventsList =
+        (snapshot.connectionState == ConnectionState.waiting)
+            ? eventsBloc.eventsList
+            : snapshot.data;
 
         return Scaffold(
           key: _scaffoldKey,
           drawer: Container(
             width: 250,
             child: Drawer(
-              child: ApplicationMenuDrawer(argUserObj: widget.argDataObject.passUserObj),
+              child: ApplicationMenuDrawer(),
             ),
           ),
 
@@ -119,24 +80,33 @@ class _EventSearchResultPageState extends State<EventSearchResultPage> {
                       pinned: true,
                       floating: true,
                       delegate: EventSearchResultPageHeaderSearchBox(
-                          minExtent: 90.0,
-                          maxExtent: 90.0,
-                          searchController: searchController,
-                          funcRenderSearch: renderSearch
+                        minExtent: 100.0,
+                        maxExtent: 100.0,
+                        eventsBloc: eventsBloc,
+                        searchController: searchController,
                       ),
                     ),
 
-                    (snapshot.connectionState == ConnectionState.waiting) ?
-                    SliverFillRemaining(
-                        child: Loading()
-                    ) :
+                    // SliverPersistentHeader(
+                    //   pinned: true,
+                    //   floating: false,
+                    //   delegate: EventSearchResultPageHeaderAddEventButton(
+                    //     minExtent: 90.0,
+                    //     maxExtent: 90.0,
+                    //   ),
+                    // ),
+
+                    // (snapshot.connectionState == ConnectionState.waiting) ?
+                    // SliverFillRemaining(
+                    //     child: Loading()
+                    // ) :
 
                     (snapshot.hasError) ?
                     SliverFillRemaining(
                       child: DisplayErrorTextAndRetryButton(
                         errorText: 'שגיאה בשליפת אירועים',
                         buttonText: 'נסה שוב',
-                        onPressed: () {renderSearch(searchController.text);},
+                        onPressed: () {},
                       ),
                     ) :
 
@@ -145,10 +115,8 @@ class _EventSearchResultPageState extends State<EventSearchResultPage> {
                       itemExtent: 200.0,
                       delegate: SliverChildBuilderDelegate(
                             (context, index) {
-                          return BuildEventTileRectangle(
+                          return EventSearchResultPageListTile(
                             argEventObj: currentEventsList[index],
-                            argFuncOpenEventDetail: openEventDetailScreen,
-                            argIndexOfEventObj: index,
                           );
                         },
                         childCount: currentEventsList.length,

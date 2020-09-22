@@ -3,18 +3,20 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:rotary_net/database/rotary_database_provider.dart';
-import 'package:rotary_net/objects/arg_data_objects.dart';
+import 'package:rotary_net/objects/connected_user_global.dart';
+import 'package:rotary_net/objects/connected_user_object.dart';
+import 'package:rotary_net/objects/login_object.dart';
+import 'package:rotary_net/services/connected_user_service.dart';
 import 'package:rotary_net/services/globals_service.dart';
 import 'package:rotary_net/services/login_service.dart';
-import 'package:rotary_net/services/user_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 import 'package:rotary_net/shared/user_type_labled_radio.dart';
 
 class DebugSettings extends StatefulWidget {
   static const routeName = '/DebugSettings';
-  final ArgDataUserObject argDataObject;
+  final LoginObject argLoginObject;
 
-  DebugSettings({Key key, @required this.argDataObject}) : super(key: key);
+  DebugSettings({Key key, @required this.argLoginObject}) : super(key: key);
 
   @override
   _DebugSettings createState() => _DebugSettings();
@@ -22,6 +24,7 @@ class DebugSettings extends StatefulWidget {
 
 class _DebugSettings extends State<DebugSettings> {
 
+  ConnectedUserObject currentConnectedUserObj;
   String appBarTitle = 'Rotary Net';
   String iconBarTitle = 'Exit';
   bool isNoRequestStatus = false;
@@ -29,37 +32,48 @@ class _DebugSettings extends State<DebugSettings> {
   bool isFirst = true;
   Constants.UserTypeEnum userType;
 
-  final UserService userService = UserService();
+  final ConnectedUserService connectedUserService = ConnectedUserService();
   String newLoginStatus = '';
 
   @override
   void initState() {
-    setCurrentLoginState();
-    setCurrentUserType();
+    getConnectedUserObject().then((value) {
+      setState(() {
+        currentConnectedUserObj = value;
+        setCurrentLoginState();
+        setCurrentUserType();
+      });
+    });
     super.initState();
   }
 
+  Future<ConnectedUserObject> getConnectedUserObject() async {
+    var _userGlobal = ConnectedUserGlobal();
+    ConnectedUserObject _connectedUserObj = _userGlobal.getConnectedUserObject();
+    return _connectedUserObj;
+  }
+
   void setCurrentLoginState() async {
-    if (widget.argDataObject.passLoginObj == null) isNoRequestStatus = true;
+    if (widget.argLoginObject == null) isNoRequestStatus = true;
   }
 
   void setCurrentUserType() async {
-    if (widget.argDataObject.passUserObj.userType == null)
+    if (currentConnectedUserObj.userType == null)
       userType = Constants.UserTypeEnum.SystemAdmin;
     else
-      userType = widget.argDataObject.passUserObj.userType;
+      userType = currentConnectedUserObj.userType;
   }
 
   Future updateLoginPhase(String aLoginStatus) async {
     Constants.LoginStatusEnum loginStatus;
     loginStatus = EnumToString.fromString(Constants.LoginStatusEnum.values, aLoginStatus);
-    await LoginService.writeLoginObjectDataToSharedPreferences(loginStatus);
+    await LoginService.writeLoginObjectDataToSecureStorage(loginStatus);
     exitFromApp();
   }
 
   Future updateUserType(Constants.UserTypeEnum aUserType) async {
-    await widget.argDataObject.passUserObj.setUserType(aUserType);
-    await userService.writeUserTypeToSharedPreferences(aUserType);
+    await currentConnectedUserObj.setUserType(aUserType);
+    await connectedUserService.writeConnectedUserTypeToSecureStorage(aUserType);
   }
 
   void updateDebugModeFunc(bool aIsDebug) {
@@ -68,18 +82,18 @@ class _DebugSettings extends State<DebugSettings> {
   }
 
   Future startAllOver() async {
-    /// LoginStatus='NoRequest' ==>>> Clear all data from SharedPreferences
-    await userService.clearUserObjectDataFromSharedPreferences();
-    await LoginService.clearLoginObjectDataFromSharedPreferences();
+    /// LoginStatus='NoRequest' ==>>> Clear all data from SecureStorage
+    await connectedUserService.clearConnectedUserObjectDataFromSecureStorage();
+    await LoginService.clearLoginObjectDataFromSecureStorage();
     exitFromApp();
   }
 
-  Future waitingToAcceptPersonCardRegistration() async {
+  Future waitingToAcceptUserRegistration() async {
     newLoginStatus = 'Waiting';         /// ==>>> Waiting to PersonCard Confirmation [MessagePersonCardRequest]
     updateLoginPhase(newLoginStatus);
   }
 
-  Future acceptPersonCardRegistration() async {
+  Future acceptUserRegistration() async {
     newLoginStatus = 'Accepted';        /// ==>>> Register PersonCard Accepted [DisplayRotaryMainScreen]
     updateLoginPhase(newLoginStatus);
   }
@@ -87,7 +101,6 @@ class _DebugSettings extends State<DebugSettings> {
   void exitFromApp() {
     exit(0);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +162,7 @@ class _DebugSettings extends State<DebugSettings> {
                       style: TextStyle(color: Colors.white),
                     ),
                     onPressed: isNoRequestStatus ? null : () async {
-                      await waitingToAcceptPersonCardRegistration();
+                      await waitingToAcceptUserRegistration();
                     }
                 ),
 
@@ -163,10 +176,9 @@ class _DebugSettings extends State<DebugSettings> {
                       style: TextStyle(color: Colors.white),
                     ),
                     onPressed: isNoRequestStatus ? null : () async {
-                      await acceptPersonCardRegistration();
+                      await acceptUserRegistration();
                     }
                 ),
-
 
                 ///============ Debug Mode SETTINGS ============
                 SizedBox(height: 40.0,),
@@ -300,6 +312,7 @@ class _DebugSettings extends State<DebugSettings> {
 
                       await RotaryDataBaseProvider.rotaryDB.insertAllStartedUsersToDb();
                       await RotaryDataBaseProvider.rotaryDB.insertAllStartedPersonCardsToDb();
+                      await RotaryDataBaseProvider.rotaryDB.insertAllStartedEventsToDb();
                     }
                 ),
                 SizedBox(height: 20.0,),

@@ -6,7 +6,6 @@ const String rotaryApplicationName = 'מועדון רוטרי';
 
 //#region Application Parameters: SharedPreferences [Key Name]
 // ==============================================================
-const String rotaryEncryptedTimeOffsetMin = 'Encrypted Time Offset Min';
 const String rotaryDebugMode = 'Rotary Debug Mode';
 //#endregion
 
@@ -26,19 +25,20 @@ const String rotaryPersonCardWriteToDataBaseRequestUrl = 'http://159.89.225.231:
 const String rotaryEventWriteToDataBaseRequestUrl = 'http://159.89.225.231:7775/api/registration/';
 //#endregion
 
-//#region User Data: SharedPreferences [Key Name]
+//#region Application Assets URL
 // ==============================================================
-const String rotaryUserRequestId = 'Rotary User Request ID';
-const String rotaryUserEmailId = 'Rotary User EmailId';
+const String rotaryAssetPersonCardImageUrl = 'C:/FLUTTER_OCTIA/rotary_net/assets/images/person_cards/';
+const String rotaryAssetEventImageUrl = 'C:/FLUTTER_OCTIA/rotary_net/assets/images/events';
+//#endregion
+
+//#region User Data: Secure Storage [Key Name]
+// ==============================================================
+const String rotaryUserGuidId = 'Rotary User Guid ID';
+const String rotaryUserEmail = 'Rotary User Email';
 const String rotaryUserFirstName = 'Rotary User First Name';
 const String rotaryUserLastName = 'Rotary User Family Name';
 const String rotaryUserPassword = 'Rotary User Password';
 const String rotaryUserStayConnected = 'Rotary User StayConnected';
-//#endregion
-
-//#region User Data: SharedPreferences [Initial Value]
-// ==============================================================
-const String rotaryNoRequestIdInitValue = 'No Request ID';
 //#endregion
 
 //#region Login Status [Key Name]+[Enum]

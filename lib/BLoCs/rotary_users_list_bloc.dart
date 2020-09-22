@@ -1,8 +1,6 @@
 import 'package:rotary_net/BLoCs/bloc.dart';
-import 'package:rotary_net/database/rotary_database_provider.dart';
 import 'package:rotary_net/objects/user_object.dart';
 import 'dart:async';
-
 import 'package:rotary_net/services/user_service.dart';
 
 class RotaryUsersListBloc implements BloC {
@@ -58,21 +56,21 @@ class RotaryUsersListBloc implements BloC {
 
   //#region CRUD: User
 
-  Future<void> insertUser(UserObject aUsrObj) async {
-    if (_usersList.contains(aUsrObj)) {
-      await userService.insertUserToDataBase(aUsrObj);
+  Future<void> insertUser(UserObject aUserObj) async {
+    if (_usersList.contains(aUserObj)) {
+      await userService.insertUserToDataBase(aUserObj);
       // await RotaryDataBaseProvider.rotaryDB.insertUser(aUsrObj);
-      _usersList.add(aUsrObj);
+      _usersList.add(aUserObj);
       _usersController.sink.add(_usersList);
     }
   }
 
-  Future<void> updateUser(UserObject aOldUsrObj, UserObject aNewUsrObj) async {
-    if (_usersList.contains(aOldUsrObj)) {
-      await userService.updateUserToDataBase(aNewUsrObj);
+  Future<void> updateUser(UserObject aOldUserObj, UserObject aNewUserObj) async {
+    if (_usersList.contains(aOldUserObj)) {
+      await userService.updateUserToDataBase(aNewUserObj);
 
-      _usersList.remove(aOldUsrObj);
-      _usersList.add(aNewUsrObj);
+      _usersList.remove(aOldUserObj);
+      _usersList.add(aNewUserObj);
       _usersController.sink.add(_usersList);
     }
   }

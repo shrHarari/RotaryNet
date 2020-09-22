@@ -1,10 +1,23 @@
 
 class CreateDbTablesSyntax {
 
+  static String createUsersTable(){
+    return
+      "CREATE TABLE IF NOT EXISTS Users ("
+          "userGuidId TEXT PRIMARY KEY, "
+          "email TEXT, "
+          "firstName TEXT, "
+          "lastName TEXT, "
+          "password TEXT, "
+          "userType TEXT, "
+          "stayConnected BIT "
+          ")";
+  }
+
   static String createPersonCardsTable(){
     return
       "CREATE TABLE IF NOT EXISTS PersonCards ("
-          "emailId TEXT PRIMARY KEY, "
+          "userGuidId TEXT PRIMARY KEY, "
           "email TEXT, "
           "firstName TEXT, "
           "lastName TEXT,"
@@ -21,15 +34,17 @@ class CreateDbTablesSyntax {
           ")";
   }
 
-  static String createUsersTable(){
+  static String createEventsTable(){
     return
-      "CREATE TABLE IF NOT EXISTS Users ("
-          "emailId TEXT PRIMARY KEY, "
-          "firstName TEXT, "
-          "lastName TEXT, "
-          "password TEXT, "
-          "userType TEXT, "
-          "stayConnected BIT "
+      "CREATE TABLE IF NOT EXISTS Events ("
+          "eventGuidId TEXT PRIMARY KEY, "
+          "eventName TEXT, "
+          "eventPictureUrl TEXT, "
+          "eventDescription TEXT, "
+          "eventStartDateTime TEXT, "
+          "eventEndDateTime TEXT, "
+          "eventLocation TEXT, "
+          "eventManager TEXT "
           ")";
   }
 }

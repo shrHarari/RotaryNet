@@ -15,7 +15,7 @@ class PersonCardService {
   //#region Create PersonCard As Object
   //=============================================================================
   PersonCardObject createPersonCardAsObject(
-      String aEmailId,
+      String aUserGuidId,
       String aEmail,
       String aFirstName,
       String aLastName,
@@ -33,7 +33,7 @@ class PersonCardService {
     {
       if (aEmail == null)
         return PersonCardObject(
-            emailId: '',
+            userGuidId: '',
             email: '',
             firstName: '',
             lastName: '',
@@ -50,7 +50,7 @@ class PersonCardService {
         );
       else
         return PersonCardObject(
-            emailId: aEmailId,
+            userGuidId: aUserGuidId,
             email: aEmail,
             firstName: aFirstName,
             lastName: aLastName,
@@ -68,74 +68,11 @@ class PersonCardService {
     }
   //#endregion
 
-  //#region Read PersonCard Object Data From DataBase [ReadFromDB OLD]
-  //=============================================================================
-  // Future<PersonCardObject> readPersonCardObjectDataFromDataBase() async {
-  //   String _emailId;
-  //   String _email;
-  //   String _firstName;
-  //   String _lastName;
-  //   String _firstNameEng;
-  //   String _lastNameEng;
-  //   String _phoneNumber;
-  //   String _phoneNumberDialCode;
-  //   String _phoneNumberParse;
-  //   String _phoneNumberCleanLongFormat;
-  //   String _pictureUrl;
-  //   String _cardDescription;
-  //   String _internetSiteUrl;
-  //   String _address;
-  //
-  //   try{
-  //     _emailId = 'shr.harari@gmail.com';
-  //     _email = 'shr.harari@gmail.com';
-  //     _firstName = 'שחר';
-  //     _lastName = 'הררי';
-  //     _firstNameEng = 'Shahar';
-  //     _lastNameEng = 'Harari';
-  //     _phoneNumber = '+972525464640';
-  //     _phoneNumberDialCode = '972';
-  //     _phoneNumberParse = '525464640';
-  //     _phoneNumberCleanLongFormat = '972525464640';
-  //     _pictureUrl = '';
-  //     _cardDescription = 'תיאור מפורט של כרטיס הביקור';
-  //     _internetSiteUrl = '';
-  //     _address = 'הנשיאים 6, הוד-השרון';
-  //
-  //     return createPersonCardAsObject(
-  //         _emailId,
-  //         _email,
-  //         _firstName,
-  //         _lastName,
-  //         _firstNameEng,
-  //         _lastNameEng,
-  //         _phoneNumber,
-  //         _phoneNumberDialCode,
-  //         _phoneNumberParse,
-  //         _phoneNumberCleanLongFormat,
-  //         _pictureUrl,
-  //         _cardDescription,
-  //         _internetSiteUrl,
-  //         _address);
-  //   }
-  //   catch  (e) {
-  //     await LoggerService.log('<PersonCardService> Read PersonCard Object Data From DataBase >>> ERROR: ${e.toString()}');
-  //     developer.log(
-  //       'readPersonCardObjectDataFromDataBase',
-  //       name: 'PersonCardService',
-  //       error: 'Read PersonCard Object Data From DataBase >>> ERROR: ${e.toString()}',
-  //     );
-  //     return null;
-  //   }
-  // }
-  //#endregion
-
   //#region Update PersonCard Object Data To DataBase [WriteToDB]
   //=============================================================================
   Future updatePersonCardObjectDataToDataBase(PersonCardObject aPersonCardObj) async {
     try{
       String jsonToPost = jsonEncode(aPersonCardObj);
-//      print('updatePersonCardObjectDataToDataBase / Json: \n$jsonToPost');
 
       /// *** debug:
       if(GlobalsService.isDebugMode)
@@ -192,7 +129,7 @@ class PersonCardService {
         //// Using JSON
         var initializePersonCardsListForDebug = jsonDecode(initializePersonCardsJsonForDebug) as List;    // List of Users to display;
         List<PersonCardObject> personCardObjListForDebug = initializePersonCardsListForDebug.map((personJsonDebug) => PersonCardObject.fromJson(personJsonDebug)).toList();
-        print('personCardObjListForDebug.length: ${personCardObjListForDebug.length}');
+        // print('personCardObjListForDebug.length: ${personCardObjListForDebug.length}');
 
         personCardObjListForDebug.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
         return personCardObjListForDebug;
@@ -212,7 +149,7 @@ class PersonCardService {
   }
   //#endregion
 
-  //#region Get PersonCard List From Server [GET]
+  //#region Get PersonCards List From Server [GET]
   // =========================================================
   Future getPersonCardsListSearchFromServer(String aValueToSearch) async {
     try {
@@ -236,7 +173,7 @@ class PersonCardService {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        await LoggerService.log('<PersonCardService> Get PersonCard List From Server >>> OK\nHeader: $contentType \nPersonCardListFromJSON: $jsonResponse');
+        await LoggerService.log('<PersonCardService> Get PersonCard List Search From Server >>> OK\nHeader: $contentType \nPersonCardListFromJSON: $jsonResponse');
 
         var personCardList = jsonDecode(jsonResponse) as List;    // List of PersonCard to display;
         List<PersonCardObject> personCardObjList = personCardList.map((personCardJson) => PersonCardObject.fromJson(personCardJson)).toList();
@@ -249,63 +186,93 @@ class PersonCardService {
         return personCardObjList;
 
       } else {
-        await LoggerService.log('<PersonCardService> Get PersonCard List From Server >>> Failed: ${response.statusCode}');
-        print('<PersonCardService> Get PersonCard List From Server >>> Failed: ${response.statusCode}');
+        await LoggerService.log('<PersonCardService> Get PersonCard List Search From Server >>> Failed: ${response.statusCode}');
+        print('<PersonCardService> Get PersonCard List Search From Server >>> Failed: ${response.statusCode}');
         return null;
       }
     }
     catch (e) {
-      await LoggerService.log('<PersonCardService> Get PersonCard List From Server >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<PersonCardService> Get PersonCard List Search From Server >>> ERROR: ${e.toString()}');
       developer.log(
-        'getPersonCardListFromServer',
+        'getPersonCardsListSearchFromServer',
         name: 'PersonCardService',
-        error: 'PersonCards List >>> ERROR: ${e.toString()}',
+        error: 'PersonCards List Search >>> ERROR: ${e.toString()}',
       );
       return null;
     }
   }
   //#endregion
 
-  //#region Create Json PersonalCard [Data for Debug]
-  String createJsonForPersonalCardByEmail() {
+  //#region Get PersonCards List By Search Query From Server [GET]
+  // =========================================================
+  Future getPersonCardsListBySearchQueryFromServer(String aValueToSearch) async {
+    try {
 
-    String personCardListJson =
-        '{'
-        '"emailId": "shr.harari@gmail.com", '
-        '"email": "shr.harari@gmail.com", '
-        '"firstName": "שחר", '
-        '"lastName": "הררי", '
-        '"firstNameEng": "Shahar", '
-        '"lastNameEng": "Harari", '
-        '"phoneNumber": "+972525464640", '
-        '"phoneNumberDialCode": "972", '
-        '"phoneNumberParse": "525464640", '
-        '"phoneNumberCleanLongFormat": "972525464640", '
-        '"pictureUrl": "shr.harari@gmail.com.jpg", '
-          '"cardDescription": "תיאור מפורט של כרטיס הביקור של שחר הררי", '
-        '"internetSiteUrl": "https://www.google.co.il/", '
-        '"address": "הנשיאים 6, הוד-השרון ישראל" '
-        '}';
+      //***** for debug *****
+      // When the Server side will be ready >>> remove that calling
 
-    return personCardListJson;
+      // Because of RotaryUsersListBloc >>> Need to initialize GlobalService here too
+      bool debugMode = await GlobalsService.getDebugMode();
+      await GlobalsService.setDebugMode(debugMode);
+
+      if (GlobalsService.isDebugMode) {
+        //// Using DB
+        List<PersonCardObject> personCardObjListForDebug = await RotaryDataBaseProvider.rotaryDB.getPersonCardsListBySearchQuery(aValueToSearch);
+        if (personCardObjListForDebug == null) {
+          // print('>>>>>>>>>> userObjListForDebug: Empty');
+        } else {
+          // print('>>>>>>>>>> personCardObjListForDebug: ${personCardObjListForDebug[4].email}');
+          personCardObjListForDebug.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
+        }
+
+        return personCardObjListForDebug;
+      }
+      //***** for debug *****
+
+      /// UserListUrl: 'http://.......'
+      Response response = await get(Constants.rotaryGetUserListUrl);
+
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+        await LoggerService.log('<PersonCardService> Get PersonCards List By Search Query From Server >>> OK\nHeader: $contentType \nPersonCardsListFromJSON: $jsonResponse');
+
+        var personCardsList = jsonDecode(jsonResponse) as List;    // List of PersonCard to display;
+        List<PersonCardObject> personCardsObjList = personCardsList.map((userJson) => PersonCardObject.fromJson(userJson)).toList();
+
+        personCardsObjList.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
+
+        return personCardsObjList;
+
+      } else {
+        await LoggerService.log('<PersonCardService> Get PersonCards List By Search Query From Server >>> Failed: ${response.statusCode}');
+        print('<PersonCardService> Get PersonCards List By Search Query From Server >>> Failed: ${response.statusCode}');
+        return null;
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<PersonCardService> Get PersonCards List By Search Query From Server >>> ERROR: ${e.toString()}');
+      developer.log(
+        'getPersonCardsListBySearchQueryFromServer',
+        name: 'PersonCardService',
+        error: 'UserCards List >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
   }
   //#endregion
 
-  //#region Get Personal Card By EmailId From Server [GET]
+  //#region Get Personal Card By UserGuidId From Server [GET]
   // =========================================================
-  Future getPersonalCardByEmailFromServer(String aEmailId) async {
+  Future getPersonalCardByUserGuidIdFromServer(String aUserGuidId) async {
     try {
 
       //***** for debug *****
       // When the Server side will be ready >>> remove that calling
       if (GlobalsService.isDebugMode) {
-        String jsonResponseForDebug = createJsonForPersonalCardByEmail();
-//        print('jsonResponseForDebug: $jsonResponseForDebug');
-
-        var personCardForDebug = jsonDecode(jsonResponseForDebug);
-        PersonCardObject personCardObjForDebug = PersonCardObject.fromJson(personCardForDebug);
-
-        return personCardObjForDebug;
+        PersonCardObject _personCardObj = await RotaryDataBaseProvider.rotaryDB.getPersonCardByGuidId(aUserGuidId);
+        return _personCardObj;
       }
       //***** for debug *****
 
@@ -316,7 +283,7 @@ class PersonCardService {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        await LoggerService.log('<PersonCardService> Get PersonCard List From Server >>> OK\nHeader: $contentType \nPersonCardListFromJSON: $jsonResponse');
+        await LoggerService.log('<PersonCardService> Get PersonCard ByUserGuidId From Server >>> OK\nHeader: $contentType \nPersonCardListFromJSON: $jsonResponse');
 
         var personCardList = jsonDecode(jsonResponse) as List;    // List of PersonCard to display;
         List<PersonCardObject> personCardObjList = personCardList.map((personCardJson) => PersonCardObject.fromJson(personCardJson)).toList();
@@ -324,21 +291,94 @@ class PersonCardService {
         return personCardObjList;
 
       } else {
-        await LoggerService.log('<PersonCardService> Get PersonCard List From Server >>> Failed: ${response.statusCode}');
+        await LoggerService.log('<PersonCardService> Get PersonCard By UserGuidId From Server >>> Failed: ${response.statusCode}');
         print('<PersonCardService> Get PersonCard List From Server >>> Failed: ${response.statusCode}');
         return null;
       }
     }
     catch (e) {
-      await LoggerService.log('<RegistrationService> Get PersonCard List From Server >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<RegistrationService> Get PersonCard By UserGuidId From Server >>> ERROR: ${e.toString()}');
       developer.log(
-        'getPersonCardListFromServer',
+        'getPersonalCardByUserGuidIdFromServer',
         name: 'PersonCardService',
-        error: 'PersonCards List >>> ERROR: ${e.toString()}',
+        error: 'PersonCard By UserGuidId >>> ERROR: ${e.toString()}',
       );
       return null;
     }
   }
+  //#endregion
+
+  //#region CRUD: Person Card
+
+  //#region Insert PersonCard To DataBase [WriteToDB]
+  //=============================================================================
+  Future insertPersonCardToDataBase(PersonCardObject aPersonCardObj) async {
+    try{
+      //***** for debug *****
+      if (GlobalsService.isDebugMode) {
+        var dbResult = await RotaryDataBaseProvider.rotaryDB.insertPersonCard(aPersonCardObj);
+        return dbResult;
+        //***** for debug *****
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<PersonCardService> Insert PersonCard To DataBase >>> ERROR: ${e.toString()}');
+      developer.log(
+        'insertPersonCardToDataBase',
+        name: 'PersonCardService',
+        error: 'Insert PersonCard To DataBase >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+  //#endregion
+
+  //#region Update PersonCard To DataBase [WriteToDB]
+  //=============================================================================
+  Future updatePersonCardToDataBase(PersonCardObject aPersonCardObj) async {
+    try{
+      //***** for debug *****
+      if (GlobalsService.isDebugMode) {
+        var dbResult = await RotaryDataBaseProvider.rotaryDB.updatePersonCard(aPersonCardObj);
+        return dbResult;
+        //***** for debug *****
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<PersonCardService> Update PersonCard To DataBase >>> ERROR: ${e.toString()}');
+      developer.log(
+        'updatePersonCardToDataBase',
+        name: 'PersonCardService',
+        error: 'Update PersonCard To DataBase >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+  //#endregion
+
+  //#region Delete PersonCard To DataBase [WriteToDB]
+  //=============================================================================
+  Future deletePersonCardFromDataBase(PersonCardObject aPersonCardObj) async {
+    try{
+      //***** for debug *****
+      if (GlobalsService.isDebugMode) {
+        var dbResult = await RotaryDataBaseProvider.rotaryDB.deletePersonCard(aPersonCardObj);
+        return dbResult;
+        //***** for debug *****
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<PersonCardService> Delete PersonCard From DataBase >>> ERROR: ${e.toString()}');
+      developer.log(
+        'deletePersonCardFromDataBase',
+        name: 'PersonCardService',
+        error: 'Delete PersonCard From DataBase >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+//#endregion
+
 //#endregion
 
 }

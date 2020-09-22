@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:rotary_net/objects/arg_data_objects.dart';
+import 'package:flutter/rendering.dart';
+import 'package:rotary_net/BLoCs/bloc_provider.dart';
+import 'package:rotary_net/BLoCs/person_cards_list_bloc.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
-import 'package:rotary_net/screens/person_card_detail_pages/person_card_detail_page_screen.dart';
 import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_list_tile.dart';
 import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_header_search_box.dart';
 import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_header_title.dart';
 import 'package:rotary_net/services/person_card_service.dart';
 import 'package:rotary_net/shared/error_message_screen.dart';
-import 'package:rotary_net/shared/loading.dart';
 import 'package:rotary_net/widgets/application_menu_widget.dart';
 
 class PersonCardSearchResultPage extends StatefulWidget {
   static const routeName = '/PersonCardSearchResultPage';
-  final ArgDataUserObject argDataObject;
   final String searchText;
 
-  PersonCardSearchResultPage({Key key, @required this.argDataObject, @required this.searchText}) : super(key: key);
+  PersonCardSearchResultPage({Key key, @required this.searchText}) : super(key: key);
 
   @override
   _PersonCardSearchResultPageState createState() => _PersonCardSearchResultPageState();
@@ -26,33 +25,17 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
   TextEditingController searchController = TextEditingController();
 
   final PersonCardService personCardService = PersonCardService();
-  Future<List<PersonCardObject>> personCardsListForBuild;
-  List<PersonCardObject> currentPersonCardsList;
+
+  PersonCardsListBloc personCardsBloc;
 
   @override
   void initState() {
     super.initState();
 
     searchController = TextEditingController(text: widget.searchText);
-    personCardsListForBuild = getPersonCardsListFromServer(widget.searchText);
-  }
 
-  void renderSearch(String aSearchText){
-    // Hide Keyboard
-    FocusScope.of(context).requestFocus(FocusNode());
-
-    setState(() {
-      searchController = TextEditingController(text: aSearchText);
-      personCardsListForBuild = getPersonCardsListFromServer(aSearchText);
-    });
-  }
-
-  Future<List<PersonCardObject>> getPersonCardsListFromServer(String aSearchText) async {
-
-//    await Future<void>.delayed(Duration(seconds: 1));
-
-    dynamic personCardsList = await personCardService.getPersonCardsListSearchFromServer(widget.searchText);
-    return personCardsList;
+    personCardsBloc = BlocProvider.of<PersonCardsListBloc>(context);
+    personCardsBloc.getPersonCardsListBySearchQuery(searchController.text);
   }
 
   Future<void> openMenu() async {
@@ -60,44 +43,30 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
     _scaffoldKey.currentState.openDrawer();
   }
 
-  openPersonCardDetailScreen(PersonCardObject aPersonCardObj, int indexOfPersonCardObj) async {
-    ArgDataPersonCardObject argDataPersonCardObject;
-    argDataPersonCardObject = ArgDataPersonCardObject(widget.argDataObject.passUserObj, aPersonCardObj, widget.argDataObject.passLoginObj);
-
-    final resultDataObj = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PersonCardDetailPageScreen(argDataObject: argDataPersonCardObject),
-      ),
-    );
-
-    /// When return from Page >>> Update PersonCardObject in the List[pos: indexOfPersonCardObj]
-    if (resultDataObj != null) {
-      setState(() {
-        currentPersonCardsList[indexOfPersonCardObj] = resultDataObj;
-      });
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<PersonCardObject>>(
-      future: personCardsListForBuild,
+
+    return StreamBuilder<List<PersonCardObject>>(
+      stream: personCardsBloc.personCardsStream,
+      initialData: personCardsBloc.personCardsList,
       builder: (context, snapshot) {
-        if (snapshot.hasData) currentPersonCardsList = snapshot.data;
+        List<PersonCardObject> currentPersonCardsList =
+        (snapshot.connectionState == ConnectionState.waiting)
+            ? personCardsBloc.personCardsList
+            : snapshot.data;
 
         return Scaffold(
           key: _scaffoldKey,
           drawer: Container(
             width: 250,
             child: Drawer(
-              child: ApplicationMenuDrawer(argUserObj: widget.argDataObject.passUserObj),
+              child: ApplicationMenuDrawer(),
             ),
           ),
 
           body: Container(
             child: Stack(
-              children: [
+              children: <Widget>[
                 /// ----------- Header - Application Logo [Title] & Search Box Area [TextBox] -----------------
                 CustomScrollView(
                   slivers: <Widget>[
@@ -113,24 +82,24 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
                       pinned: true,
                       floating: true,
                       delegate: PersonCardSearchResultPageHeaderSearchBox(
-                          minExtent: 90.0,
-                          maxExtent: 90.0,
-                          searchController: searchController,
-                          funcRenderSearch: renderSearch
+                        minExtent: 100.0,
+                        maxExtent: 100.0,
+                        personCardsBloc: personCardsBloc,
+                        searchController: searchController,
                       ),
                     ),
 
-                    (snapshot.connectionState == ConnectionState.waiting) ?
-                    SliverFillRemaining(
-                        child: Loading()
-                    ) :
+                    // (snapshot.connectionState == ConnectionState.waiting) ?
+                    // SliverFillRemaining(
+                    //     child: Loading()
+                    // ) :
 
                     (snapshot.hasError) ?
                       SliverFillRemaining(
                         child: DisplayErrorTextAndRetryButton(
-                            errorText: 'שגיאה בשליפת כרטיסי הביקור',
-                            buttonText: 'נסה שוב',
-                            onPressed: () {renderSearch(searchController.text);},
+                          errorText: 'שגיאה בשליפת כרטיסי הביקור',
+                          buttonText: 'נסה שוב',
+                          onPressed: () {},
                         ),
                       ) :
 
@@ -138,13 +107,11 @@ class _PersonCardSearchResultPageState extends State<PersonCardSearchResultPage>
                         SliverFixedExtentList(
                             itemExtent: 130.0,
                             delegate: SliverChildBuilderDelegate(
-                                (context, index) {
-                                  return BuildPersonCardTile(
-                                      argPersonCardObj: currentPersonCardsList[index],
-                                      argFuncOpenPersonCardDetail: openPersonCardDetailScreen,
-                                      argIndexOfPersonCardObj: index,
-                                  );
-                                },
+                              (context, index) {
+                                return PersonCardSearchResultPageListTile(
+                                  argPersonCardObj: currentPersonCardsList[index],
+                                );
+                              },
                             childCount: currentPersonCardsList.length,
                           ),
                         ) :

@@ -2,15 +2,16 @@ import 'dart:io';
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:enum_to_string/enum_to_string.dart';
 import 'package:rotary_net/BLoCs/bloc_provider.dart';
 import 'package:rotary_net/BLoCs/rotary_users_list_bloc.dart';
+import 'package:rotary_net/objects/connected_user_global.dart';
+import 'package:rotary_net/objects/connected_user_object.dart';
 import 'package:rotary_net/objects/user_object.dart';
+import 'package:rotary_net/services/connected_user_service.dart';
 import 'package:rotary_net/services/user_service.dart';
 import 'package:rotary_net/shared/decoration_style.dart';
 import 'package:rotary_net/shared/loading.dart';
 import 'package:rotary_net/shared/user_type_labled_radio.dart';
-import 'package:rotary_net/widgets/application_menu_widget.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class UserDetailEditPageScreen extends StatefulWidget {
@@ -37,9 +38,7 @@ class _UserDetailEditPageScreenState extends State<UserDetailEditPageScreen> {
   }
 
   //#region Declare Variables
-  String emailId;
-
-  TextEditingController eMailIdController;
+  TextEditingController eMailController;
   TextEditingController firstNameController;
   TextEditingController lastNameController;
   TextEditingController passwordController;
@@ -48,14 +47,12 @@ class _UserDetailEditPageScreenState extends State<UserDetailEditPageScreen> {
 
   String error = '';
   bool loading = false;
-  String updateStatus;
   //#endregion
 
   //#region Set PersonCard Variables
   Future<void> setUserVariables(UserObject aUser) async {
-    emailId = aUser.emailId;
 
-    eMailIdController = TextEditingController(text: aUser.emailId);
+    eMailController = TextEditingController(text: aUser.email);
     firstNameController = TextEditingController(text: aUser.firstName);
     lastNameController = TextEditingController(text: aUser.lastName);
     passwordController = TextEditingController(text: aUser.password);
@@ -85,32 +82,40 @@ class _UserDetailEditPageScreenState extends State<UserDetailEditPageScreen> {
 
     if (validationVal){
 
-      String _emailId = (eMailIdController.text != null) ? (eMailIdController.text) : '';
+      String _emailId = (eMailController.text != null) ? (eMailController.text) : '';
       String _firstName = (firstNameController.text != null) ? (firstNameController.text) : '';
       String _lastName = (lastNameController.text != null) ? (lastNameController.text) : '';
       String _password = (passwordController.text != null) ? (passwordController.text) : '';
       Constants.UserTypeEnum _userType = userType;
       bool _stayConnected = stayConnected;
 
-      // print ('firstNameController.text: ${firstNameController.text}');
-
       UserObject newUserObj =
       userService.createUserAsObject(
-          _emailId, _firstName, _lastName, _password, _userType,
-          _stayConnected);
+          widget.argUserObject.userGuidId,
+          _emailId, _firstName, _lastName,
+          _password, _userType, _stayConnected);
 
+      /// 1. Update Database
       aUserBloc.updateUser(widget.argUserObject, newUserObj);
+
+      /// If the USER is also the CURRENT user:
+      var userGlobal = ConnectedUserGlobal();
+      ConnectedUserObject currentConnectedUserObj = userGlobal.getConnectedUserObject();
+      if (newUserObj.userGuidId == currentConnectedUserObj.userGuidId)
+      {
+        /// 2. App Global: Update Global Current Connected User
+        ConnectedUserObject newConnectedUserObj = await ConnectedUserObject.getConnectedUserObjectFromUserObject(newUserObj);
+        userGlobal.setConnectedUserObject(newConnectedUserObj);
+
+        /// 3. Secure storage: Update only if it's the Current user
+        ConnectedUserService _connectedUserService = ConnectedUserService();
+        await _connectedUserService.writeConnectedUserObjectDataToSecureStorage(newConnectedUserObj);
+      }
 
       Navigator.pop(context, newUserObj);
     }
-//    return returnVal;
   }
   //#endregion
-
-  Future<void> openMenu() async {
-    // Open Menu from Left side
-    _scaffoldKey.currentState.openDrawer();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -186,7 +191,10 @@ class _UserDetailEditPageScreenState extends State<UserDetailEditPageScreen> {
                           child: IconButton(
                             icon: Icon(
                               Icons.close, color: Colors.white, size: 26.0,),
-                            onPressed: () {Navigator.pop(context);},
+                            onPressed: () {
+                              FocusScope.of(context).requestFocus(FocusNode()); // Hide Keyboard
+                              Navigator.pop(context);
+                            },
                           ),
                         ),
                       ],
@@ -227,7 +235,7 @@ class _UserDetailEditPageScreenState extends State<UserDetailEditPageScreen> {
                         firstNameController, 'First Name',
                         lastNameController, 'Last Name',
                         Icons.person),
-                    buildEnabledTextInputWithImageIcon(eMailIdController, 'Email Id', Icons.mail_outline, aEnabled: false),
+                    buildEnabledTextInputWithImageIcon(eMailController, 'Email', Icons.mail_outline),
                     buildEnabledTextInputWithImageIcon(passwordController, 'Password', Icons.lock),
                     buildUserTypeRadioButton(),
                     buildStayConnectedCheckBox(),

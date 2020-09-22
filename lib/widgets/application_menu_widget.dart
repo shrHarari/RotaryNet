@@ -1,17 +1,16 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:rotary_net/objects/user_object.dart';
+import 'package:rotary_net/objects/connected_user_global.dart';
+import 'package:rotary_net/objects/connected_user_object.dart';
 import 'package:rotary_net/screens/menu_pages/about_screen.dart';
 import 'package:rotary_net/screens/menu_pages/privacy_policy_screen.dart';
 import 'package:rotary_net/screens/personal_area_pages/personal_area_page_screen.dart';
 import 'package:rotary_net/screens/rotary_users_pages/rotary_users_list_page_screen.dart';
-import 'package:rotary_net/services/user_service.dart';
+import 'package:rotary_net/services/connected_user_service.dart';
 
 class ApplicationMenuDrawer extends StatefulWidget {
-  final  UserObject argUserObj;
-  final Function argReturnDataFunc;
 
-  ApplicationMenuDrawer({Key key, @required this.argUserObj, this.argReturnDataFunc }) : super(key: key);
+  ApplicationMenuDrawer({Key key}) : super(key: key);
 
   @override
   _ApplicationMenuDrawerState createState() => _ApplicationMenuDrawerState();
@@ -19,36 +18,42 @@ class ApplicationMenuDrawer extends StatefulWidget {
 
 class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
 
-//  UserObject displayUserObj;
+  ConnectedUserObject currentConnectedUserObj;
 
   @override
   void initState() {
-//    displayUserObj = widget.argUserObj;
+    getConnectedUserObject().then((value) {
+      setState(() {
+        currentConnectedUserObj = value;
+      });
+    });
     super.initState();
   }
 
-  openPersonalAreaScreen(UserObject aUserObj) async {
+  Future<ConnectedUserObject> getConnectedUserObject() async {
+    var _userGlobal = ConnectedUserGlobal();
+    ConnectedUserObject _connectedUserObj = _userGlobal.getConnectedUserObject();
+    return _connectedUserObj;
+  }
 
-    // 1. Drawer --> open PersonalAreaScreen --> then get updated User Object
-    final result = await Navigator.of(context).push(
+  openPersonalAreaScreen(ConnectedUserObject aConnectedUserObj) async {
+
+    // Drawer --> Close the drawer
+    Navigator.of(context).pop();
+
+    // Drawer --> Open PersonalAreaScreen
+    Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => PersonalAreaScreen(argUserObject: aUserObj),
+        builder: (context) => PersonalAreaScreen(argConnectedUserObject: aConnectedUserObj),
       ),
     );
 
-    // 2. We have to send User Object back to RotaryMainScreen
-    // 3. so -->> Call RotaryMainScreen Function (callback function)
-    if (result != null)
-      widget.argReturnDataFunc(result);
-
-    // 4. finally, close the Drawer
-    Navigator.of(context).pop();
   }
 
   void exitFromApp() async {
-    // Update SharedPreferences [Remove StayConnected]
-    final UserService userService = UserService();
-    await userService.exitFromApplicationUpdateSharedPreferences();
+    /// Update SecureStorage [Remove StayConnected]
+    final ConnectedUserService connectedUserService = ConnectedUserService();
+    await connectedUserService.exitFromApplicationUpdateSecureStorage();
 
     exit(0);
   }
@@ -71,7 +76,7 @@ class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
                   children: <Widget>[
                     buildPersonalAreaIcon(),
                     buildUserWelcomeTitle(),  // שלום אורח
-                    buildPersonalAreaTitle(context, widget.argUserObj), // לאיזור האישי
+                    buildPersonalAreaTitle(context, currentConnectedUserObj), // לאיזור האישי
                   ],
                 ),
               ),
@@ -128,8 +133,7 @@ class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                      // RotaryUsersPageScreen(argUserObject: widget.argUserObj)
-                      RotaryUsersListPageScreen(argUserObject: widget.argUserObj)
+                        RotaryUsersListPageScreen(argConnectedUserObject: currentConnectedUserObj)
                       ),
                     ),
                   },
@@ -171,8 +175,8 @@ class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
   Widget buildUserWelcomeTitle ()
   {
     String userTitle = 'אורח';
-    if (widget.argUserObj.firstName.toString() != '') {
-      userTitle = '${widget.argUserObj.firstName} ${widget.argUserObj.lastName}';
+    if (currentConnectedUserObj != null && currentConnectedUserObj.firstName != '') {
+      userTitle = '${currentConnectedUserObj.firstName} ${currentConnectedUserObj.lastName}';
     }
 
     return Padding(
@@ -200,10 +204,10 @@ class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
     );
   }
 
-  Widget buildPersonalAreaTitle (BuildContext context, UserObject aUserObj)
+  Widget buildPersonalAreaTitle (BuildContext context, ConnectedUserObject aConnectedUserObj)
   {
     return InkWell(
-      onTap: () {openPersonalAreaScreen(aUserObj);},
+      onTap: () {openPersonalAreaScreen(aConnectedUserObj);},
       child: Padding(
         padding: const EdgeInsets.only(top: 20.0),
         child: Text(

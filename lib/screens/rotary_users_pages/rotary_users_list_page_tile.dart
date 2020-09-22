@@ -9,27 +9,37 @@ class RotaryUsersListPageTile extends StatelessWidget {
 
   RotaryUsersListPageTile({Key key, this.argUserObj}) : super(key: key);
 
+  openUserDetailScreen(BuildContext context) async {
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) =>
+            RotaryUserDetailPageScreen(
+                argUserObject: argUserObj
+            ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
 
     return Padding(
-      padding: const EdgeInsets.only(left: 15.0, top: 5.0, right: 15.0, bottom: 5.0),
+      padding: const EdgeInsets.only(left: 20.0, top: 10.0, right: 20.0, bottom: 5.0),
       child: GestureDetector(
-        child: Container(
-          margin: const EdgeInsets.all(2.0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(4.0)),
-            color: Colors.blue[300],
-          ),
-
-          child: Container(
-            padding: const EdgeInsets.all(20.0),
-            margin: const EdgeInsets.all(2.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(4.0)),
-              color: Colors.grey[50],
+        child: Stack(
+          children: <Widget>[
+          Container(
+            width: double.infinity,
+              clipBehavior: Clip.antiAliasWithSaveLayer,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.blue,
+                ),
+              ),
             ),
 
+          Container(
             child: Row(
               textDirection: TextDirection.rtl,
               children: <Widget>[
@@ -38,48 +48,40 @@ class RotaryUsersListPageTile extends StatelessWidget {
                 //   backgroundColor: Colors.blue[900],
                 //   backgroundImage: userImage,
                 // ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 20.0),
-                    child: Column(
-                      textDirection: TextDirection.rtl,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8.0),
-                          child: Text(
-                            argUserObj.firstName + " " + argUserObj.lastName,
-                            style: TextStyle(color: Colors.grey[900], fontSize: 20.0, fontWeight: FontWeight.bold),
-                          ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 20.0),
+                  child: Column(
+                    textDirection: TextDirection.rtl,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20.0, bottom: 8.0),
+                        child: Text(
+                          argUserObj.firstName + " " + argUserObj.lastName,
+                          style: TextStyle(color: Colors.grey[900], fontSize: 20.0, fontWeight: FontWeight.bold),
                         ),
-                        Text(
-                          argUserObj.emailId,
-                          style: TextStyle(color: Colors.grey[900], fontSize: 12.0, fontWeight: FontWeight.w400),
-                        ),
-                      ],
-                    ),
+                      ),
+                      Text(
+                        argUserObj.email,
+                        style: TextStyle(color: Colors.grey[900], fontSize: 12.0, fontWeight: FontWeight.w400),
+                      ),
+                    ],
                   ),
                 ),
-
-                _buildDeleteUserButton(context),
-                // IconButton(
-                //     icon: Icon(Icons.delete) ,
-                //     onPressed: () {
-                //       bloc.deleteUser(argUserObj);
-                //     }
-                // ),
               ],
             ),
           ),
+          Positioned(
+              bottom: 20.0,
+              child: _buildDeleteUserButton(context)
+          ),
+          ],
         ),
         onTap: ()
         {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) =>
-                RotaryUserDetailPageScreen(argUserObject: argUserObj),
-            ),
-          );
+          // Hide Keyboard
+          FocusScope.of(context).requestFocus(FocusNode());
+          openUserDetailScreen(context);
         },
       ),
     );
@@ -96,11 +98,22 @@ class RotaryUsersListPageTile extends StatelessWidget {
             ? bloc.usersList
             : snapshot.data;
 
-        return IconButton(
-            icon: Icon(Icons.delete) ,
-            onPressed: () {
-              bloc.deleteUser(argUserObj);
-            }
+        return MaterialButton(
+          onPressed: () async {
+            await bloc.deleteUser(argUserObj);
+          },
+          color: Colors.white,
+          shape: CircleBorder(side: BorderSide(color: Colors.blue)),
+          child:
+          IconTheme(
+            data: IconThemeData(
+              color: Colors.black,
+            ),
+            child: Icon(
+              Icons.delete,
+              size: 20,
+            ),
+          ),
         );
       },
     );

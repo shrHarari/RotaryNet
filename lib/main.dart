@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rotary_net/BLoCs/bloc_provider.dart';
+import 'package:rotary_net/BLoCs/events_list_bloc.dart';
+import 'package:rotary_net/BLoCs/person_cards_list_bloc.dart';
 import 'package:rotary_net/BLoCs/rotary_users_list_bloc.dart';
 import 'package:rotary_net/services/route_generator_service.dart';
 
@@ -13,11 +15,17 @@ class RotaryNetApp extends StatelessWidget {
     return
       BlocProvider<RotaryUsersListBloc>(
         bloc: RotaryUsersListBloc(),
-        child: MaterialApp(
-          title: 'RotaryNet',
-          initialRoute: '/',
-          onGenerateRoute: RouteGenerator.generateRoute,
+        child: BlocProvider<EventsListBloc>(
+          bloc: EventsListBloc(),
+          child: BlocProvider<PersonCardsListBloc>(
+            bloc: PersonCardsListBloc(),
+            child: MaterialApp(
+              title: 'RotaryNet',
+              initialRoute: '/',
+              onGenerateRoute: RouteGenerator.generateRoute,
       ),
+          ),
+        ),
     );
   }
 }

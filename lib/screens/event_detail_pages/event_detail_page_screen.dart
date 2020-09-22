@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:rotary_net/objects/arg_data_objects.dart';
+import 'package:rotary_net/objects/connected_user_global.dart';
+import 'package:rotary_net/objects/connected_user_object.dart';
 import 'package:rotary_net/objects/event_object.dart';
 import 'package:rotary_net/screens/event_detail_pages/event_detail_edit_page_screen.dart';
-import 'package:rotary_net/services/event_service.dart';
 import 'package:rotary_net/shared/loading.dart';
 import 'package:rotary_net/widgets/application_menu_widget.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
@@ -12,10 +12,10 @@ import 'package:rotary_net/utils/utils_class.dart';
 
 class EventDetailPageScreen extends StatefulWidget {
   static const routeName = '/EventDetailPageScreen';
-  final ArgDataEventObject argDataObject;
+  final EventObject argEventObject;
   final Widget argHebrewEventTimeLabel;
 
-  EventDetailPageScreen({Key key, @required this.argDataObject, @required this.argHebrewEventTimeLabel}) : super(key: key);
+  EventDetailPageScreen({Key key, @required this.argEventObject, @required this.argHebrewEventTimeLabel}) : super(key: key);
 
   @override
   _EventDetailPageScreenState createState() => _EventDetailPageScreenState();
@@ -23,57 +23,79 @@ class EventDetailPageScreen extends StatefulWidget {
 
 class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
 
-  final EventService eventService = EventService();
   EventObject displayEventObject;
   Widget hebrewEventTimeLabel;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormState>();
+  Future<DataRequiredForBuild> dataRequiredForBuild;
+  DataRequiredForBuild currentDataRequired;
 
-  AssetImage eventImage;
-  File picFile;
+  AssetImage eventImageDefaultAsset;
 
   String error = '';
   bool loading = false;
-  bool isPhoneNumberEnteredOK = false;
-  String phoneNumberHintText = 'Phone Number';
 
   @override
   void initState() {
-    displayEventObject = widget.argDataObject.passEventObj;
+    displayEventObject = widget.argEventObject;
+    dataRequiredForBuild = _fetchAllRequiredForBuild();
+
     hebrewEventTimeLabel = widget.argHebrewEventTimeLabel;
-    eventImage = AssetImage('assets/images/events/${displayEventObject.eventPictureUrl}');
+    eventImageDefaultAsset = AssetImage('assets/images/events/EventImageDefaultPicture.jpg');
+
     super.initState();
   }
 
+  Future<DataRequiredForBuild> _fetchAllRequiredForBuild() async {
+    return DataRequiredForBuild(
+      allowUpdate: await getUpdatePermission(),
+    );
+  }
+
+  Future<ConnectedUserObject> getConnectedUserObject() async {
+    var _userGlobal = ConnectedUserGlobal();
+    ConnectedUserObject _connectedUserObj = _userGlobal.getConnectedUserObject();
+    return _connectedUserObj;
+  }
+
+  Future <bool> getUpdatePermission() async {
+    ConnectedUserObject _connectedUserObj = await getConnectedUserObject();
+    bool _allowUpdate = false;
+
+    switch (_connectedUserObj.userType) {
+      case Constants.UserTypeEnum.SystemAdmin:
+        _allowUpdate = true;
+        break;
+      case  Constants.UserTypeEnum.RotaryMember:
+        _allowUpdate = true;
+        break;
+      case  Constants.UserTypeEnum.Guest:
+        _allowUpdate = false;
+    }
+    return _allowUpdate;
+  }
   Future<void> openMenu() async {
     // Open Menu from Left side
     _scaffoldKey.currentState.openDrawer();
   }
 
   openEventDetailEditScreen(EventObject aEventObj) async {
-    ArgDataEventObject argDataEventObject;
-    argDataEventObject = ArgDataEventObject(widget.argDataObject.passUserObj, aEventObj, widget.argDataObject.passLoginObj);
-
-    final resultDataMap = await Navigator.push(
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EventDetailEditPageScreen(argDataObject: argDataEventObject, argHebrewEventTimeLabel: hebrewEventTimeLabel),
+        builder: (context) => EventDetailEditPageScreen(
+            argEventObject: displayEventObject,
+            argHebrewEventTimeLabel: hebrewEventTimeLabel
+        ),
       ),
     );
 
-    if (resultDataMap != null) {
+    if (result != null) {
       setState(() {
-        displayEventObject = resultDataMap["EventObject"];
-        picFile = resultDataMap["PickedPictureFile"];
-        hebrewEventTimeLabel = resultDataMap["HebrewEventTimeLabel"];
+        displayEventObject = result;
       });
-    };
-  }
-
-  closeAndReturnUpdatedEventObject() async {
-    /// Return  displayEventObject
-    Navigator.pop(context, displayEventObject);
+    }
   }
 
   @override
@@ -86,10 +108,22 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
       drawer: Container(
         width: 250,
         child: Drawer(
-          child: ApplicationMenuDrawer(argUserObj: widget.argDataObject.passUserObj),
+          child: ApplicationMenuDrawer(),
         ),
       ),
-      body: buildMainScaffoldBody(),
+
+      body: FutureBuilder<DataRequiredForBuild>(
+          future: dataRequiredForBuild,
+          builder: (context, snapshot) {
+
+            if (snapshot.hasData)
+            {
+              currentDataRequired = snapshot.data;
+              return buildMainScaffoldBody();
+            }
+            return Loading();
+          }
+      ),
     );
   }
 
@@ -164,7 +198,7 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
                           child: IconButton(
                             icon: Icon(Icons.arrow_forward, color: Colors.white),
                             onPressed: () {
-                              closeAndReturnUpdatedEventObject();
+                              Navigator.pop(context);
                               },
                           ),
                         ),
@@ -175,16 +209,18 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
               ),
             ),
 
-            Container(
-              width: double.infinity,
-              child: buildEventDetailDisplay(displayEventObject),
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                child: buildEventDetailDisplay(displayEventObject),
+              ),
             ),
           ]
       ),
     );
   }
 
-  /// ====================== Person Card All Fields ==========================
+  /// ====================== Event All Fields ==========================
   Widget buildEventDetailDisplay(EventObject aEventObj) {
 
     return Column(
@@ -196,8 +232,9 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
           clipBehavior: Clip.antiAliasWithSaveLayer,
           decoration: BoxDecoration(
             image: DecorationImage(
-                image: picFile == null ? eventImage : FileImage(picFile),
-                // image: eventImage,
+                image: (aEventObj.eventPictureUrl == null) || (aEventObj.eventPictureUrl == '')
+                    ? eventImageDefaultAsset
+                    : FileImage(File('${aEventObj.eventPictureUrl}')),
                 fit: BoxFit.cover
             ),
           ),
@@ -214,46 +251,59 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
                 aEventObj.eventName,
                 style: TextStyle(color: Colors.grey[900], fontSize: 20.0, fontWeight: FontWeight.bold),
               ),
-              IconButton(
-                icon: Icon(Icons.mode_edit, color: Colors.grey[900]),
-                onPressed: () {openEventDetailEditScreen(aEventObj);},
-              ),
+
+              if (currentDataRequired.allowUpdate)
+                IconButton(
+                  icon: Icon(Icons.mode_edit, color: Colors.grey[900]),
+                  onPressed: () {openEventDetailEditScreen(aEventObj);},
+                ),
             ],
           ),
         ),
 
         /// --------------------- Event Content -------------------------
-        Padding(
-          padding: const EdgeInsets.only(left: 20.0, right: 30.0, bottom: 40.0),
-          child: Row(
-            textDirection: TextDirection.rtl,
-            children: [
-              Text(
-                aEventObj.eventDescription,
-                textDirection: TextDirection.rtl,
-                style: TextStyle(
-                    fontFamily: 'Heebo-Light',
-                    fontSize: 20.0,
-                    height: 1.5,
-                    color: Colors.black87
-                ),
-              ),
-            ],
-          ),
-        ),
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Container(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20.0, right: 30.0, bottom: 40.0),
+                    child: Row(
+                      textDirection: TextDirection.rtl,
+                      children: [
+                        Text(
+                          aEventObj.eventDescription,
+                          textDirection: TextDirection.rtl,
+                          style: TextStyle(
+                              fontFamily: 'Heebo-Light',
+                              fontSize: 20.0,
+                              height: 1.5,
+                              color: Colors.black87
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
 
-        /// ---------------- Card Details (Icon Images) --------------------
-        Padding(
-          padding: const EdgeInsets.only(left: 20.0, right: 30.0, bottom: 20.0),
-          child: Directionality(
-            textDirection: TextDirection.rtl,
-            child: Column(
-              textDirection: TextDirection.rtl,
-              children: <Widget>[
-                if (aEventObj.eventLocation != "") buildDetailImageIcon(Icons.location_on, aEventObj.eventLocation, Utils.launchInMapByAddress),
-                if (aEventObj.eventManager != "") buildDetailImageIcon(Icons.person, aEventObj.eventManager, Utils.sendEmail),
-                if (aEventObj.eventStartDateTime != null) buildEventDetailImageIcon(Icons.event_available, aEventObj, Utils.addEventToCalendar),
-              ],
+                  /// ---------------- Card Details (Icon Images) --------------------
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20.0, right: 30.0, bottom: 20.0),
+                    child: Directionality(
+                      textDirection: TextDirection.rtl,
+                      child: Column(
+                        textDirection: TextDirection.rtl,
+                        children: <Widget>[
+                          if (aEventObj.eventLocation != "") buildDetailImageIcon(Icons.location_on, aEventObj.eventLocation, Utils.launchInMapByAddress),
+                          if (aEventObj.eventManager != "") buildDetailImageIcon(Icons.person, aEventObj.eventManager, Utils.sendEmail),
+                          if (aEventObj.eventStartDateTime != null) buildEventDetailImageIcon(Icons.event_available, aEventObj, Utils.addEventToCalendar),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -342,4 +392,12 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
       ),
     );
   }
+}
+
+class DataRequiredForBuild {
+  bool allowUpdate;
+
+  DataRequiredForBuild({
+    this.allowUpdate,
+  });
 }

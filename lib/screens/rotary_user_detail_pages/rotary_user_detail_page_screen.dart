@@ -5,7 +5,6 @@ import 'package:rotary_net/BLoCs/rotary_users_list_bloc.dart';
 import 'package:rotary_net/objects/user_object.dart';
 import 'package:rotary_net/screens/rotary_user_detail_pages/rotary_user_detail_edit_page_screen.dart';
 import 'package:rotary_net/shared/loading.dart';
-import 'package:rotary_net/widgets/application_menu_widget.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 import 'package:rotary_net/utils/utils_class.dart';
 
@@ -35,14 +34,7 @@ class _RotaryUserDetailPageScreenState extends State<RotaryUserDetailPageScreen>
     super.initState();
   }
 
-  Future<void> openMenu() async {
-    // Open Menu from Left side
-    _scaffoldKey.currentState.openDrawer();
-  }
-
   openUserDetailEditScreen(UserObject aUserObj) async {
-    // ArgDataUserObject argDataUserObject;
-    // argDataUserObject = ArgDataUserObject(aUserObj, widget.argDataUserObject.passLoginObj);
 
     final result = await Navigator.push(
       context,
@@ -55,7 +47,7 @@ class _RotaryUserDetailPageScreenState extends State<RotaryUserDetailPageScreen>
       setState(() {
         displayUserObject = result;
       });
-    };
+    }
   }
 
   @override
@@ -212,8 +204,9 @@ class _RotaryUserDetailPageScreenState extends State<RotaryUserDetailPageScreen>
                   Column(
                     textDirection: TextDirection.rtl,
                     children: <Widget>[
-                      buildDetailImageIcon(Icons.mail_outline, aUserObj.emailId, Utils.sendEmail),
-                      buildDetailImageIcon(Icons.lock, aUserObj.password, Utils.launchInMapByAddress),
+                      buildDetailImageIcon(Icons.language, aUserObj.userGuidId),
+                      buildDetailImageIcon(Icons.mail_outline, aUserObj.email, aFunc: Utils.sendEmail),
+                      buildDetailImageIcon(Icons.lock, aUserObj.password),
                       buildStayConnectedCheckBox(),
                       buildUserTypeRadioButton(),
                     ],
@@ -230,7 +223,7 @@ class _RotaryUserDetailPageScreenState extends State<RotaryUserDetailPageScreen>
     );
   }
 
-  Row buildDetailImageIcon(IconData aIcon, String aTitle, Function aFunc) {
+  Row buildDetailImageIcon(IconData aIcon, String aTitle, {Function aFunc}) {
     return Row(
         textDirection: TextDirection.rtl,
         mainAxisAlignment: MainAxisAlignment.start,

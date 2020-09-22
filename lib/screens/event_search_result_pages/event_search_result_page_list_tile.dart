@@ -1,18 +1,35 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:rotary_net/BLoCs/bloc_provider.dart';
+import 'package:rotary_net/BLoCs/events_list_bloc.dart';
 import 'package:rotary_net/objects/event_object.dart';
+import 'package:rotary_net/screens/event_detail_pages/event_detail_page_screen.dart';
+import 'package:rotary_net/screens/event_detail_pages/event_detail_page_widgets.dart';
 
-class BuildEventTileRectangle extends StatelessWidget {
-  const BuildEventTileRectangle({Key key, this.argEventObj, this.argFuncOpenEventDetail, this.argIndexOfEventObj})
-      : super(key: key);
+class EventSearchResultPageListTile extends StatelessWidget {
   final EventObject argEventObj;
-  final Function argFuncOpenEventDetail;
-  final int argIndexOfEventObj;
+
+  const EventSearchResultPageListTile({Key key, this.argEventObj}) : super(key: key);
+
+  openEventDetailScreen(BuildContext context) async {
+    Widget hebrewEventTimeLabel = await EventDetailWidgets.buildEventDateTimeLabel(argEventObj.eventStartDateTime, argEventObj.eventEndDateTime);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EventDetailPageScreen(
+          argEventObject: argEventObj,
+          argHebrewEventTimeLabel: hebrewEventTimeLabel,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-
-    AssetImage eventImage = AssetImage('assets/images/events/${argEventObj.eventPictureUrl}');
+    AssetImage eventImageDefaultAsset = AssetImage('assets/images/events/EventImageDefaultPicture.jpg');
 
     return Padding(
       padding: const EdgeInsets.only(left: 20.0, top: 10.0, right: 20.0, bottom: 5.0),
@@ -27,7 +44,9 @@ class BuildEventTileRectangle extends StatelessWidget {
                   color: Colors.blue,
                 ),
                 image: DecorationImage(
-                    image: eventImage,
+                    image: (argEventObj.eventPictureUrl == null) || (argEventObj.eventPictureUrl == '')
+                        ? eventImageDefaultAsset
+                        : FileImage(File('${argEventObj.eventPictureUrl}')),
                     fit: BoxFit.cover
                 ),
               ),
@@ -44,7 +63,7 @@ class BuildEventTileRectangle extends StatelessWidget {
               ),
             ),
 
-            Container(
+        Container(
               child: Row(
                 textDirection: TextDirection.rtl,
                 children: <Widget>[
@@ -76,92 +95,51 @@ class BuildEventTileRectangle extends StatelessWidget {
                 ],
               ),
             ),
-          ],
-        ),
-        onTap: ()
-        {
-          argFuncOpenEventDetail(argEventObj, argIndexOfEventObj);
-        },
-      ),
-    );
-  }
-}
-
-class BuildEventTileCircular extends StatelessWidget {
-  const BuildEventTileCircular({Key key, this.argEventObj, this.argFuncOpenEventDetail, this.argIndexOfEventObj})
-      : super(key: key);
-  final EventObject argEventObj;
-  final Function argFuncOpenEventDetail;
-  final int argIndexOfEventObj;
-
-  @override
-  Widget build(BuildContext context) {
-
-    AssetImage eventImage = AssetImage('assets/images/events/${argEventObj.eventPictureUrl}');
-    return Padding(
-      padding: const EdgeInsets.only(left: 20.0, top: 10.0, right: 20.0, bottom: 5.0),
-      child: GestureDetector(
-        child: Stack(
-          children: <Widget>[
-            Container(
-              width: double.infinity,
-              clipBehavior: Clip.antiAliasWithSaveLayer,
-              margin: const EdgeInsets.all(5.0),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                image: DecorationImage(
-                    colorFilter:
-                    ColorFilter.mode(Colors.white.withOpacity(0.6), BlendMode.dstATop),
-                    image: eventImage,
-                    fit: BoxFit.cover
-                ),
-
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey[600],
-                    offset: Offset(5.0, 10.0),
-                    blurRadius: 10.0,
-                  ),
-                ],
-              ),
-              child: Row(
-                textDirection: TextDirection.rtl,
-                children: <Widget>[
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top:10.0, right: 30.0),
-                      child: Column(
-                        textDirection: TextDirection.rtl,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 10.0),
-                            child: Text(
-                              argEventObj.eventName,
-                              style: TextStyle(color: Colors.grey[900], fontSize: 20.0, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 10.0),
-                            child: Text(
-                              argEventObj.eventLocation,
-                              style: TextStyle(color: Colors.grey[900], fontSize: 16.0, fontWeight: FontWeight.w700),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            Positioned(
+                bottom: 10.0,
+                child: _buildDeleteEventButton(context)
             ),
           ],
         ),
         onTap: ()
         {
-          argFuncOpenEventDetail(argEventObj, argIndexOfEventObj);
+          // Hide Keyboard
+          FocusScope.of(context).requestFocus(FocusNode());
+          openEventDetailScreen(context);
         },
       ),
+    );
+  }
+
+  Widget _buildDeleteEventButton(BuildContext context) {
+    final bloc = BlocProvider.of<EventsListBloc>(context);
+    return StreamBuilder<List<EventObject>>(
+      stream: bloc.eventsStream,
+      initialData: bloc.eventsList,
+      builder: (context, snapshot) {
+        List<EventObject> users =
+        (snapshot.connectionState == ConnectionState.waiting)
+            ? bloc.eventsList
+            : snapshot.data;
+
+        return MaterialButton(
+          onPressed: () async {
+            await bloc.deleteEvent(argEventObj);
+          },
+          color: Colors.white,
+          shape: CircleBorder(side: BorderSide(color: Colors.blue)),
+          child:
+          IconTheme(
+            data: IconThemeData(
+              color: Colors.black,
+            ),
+            child: Icon(
+              Icons.delete,
+              size: 20,
+            ),
+          ),
+        );
+      },
     );
   }
 }

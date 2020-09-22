@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:rotary_net/objects/connected_user_object.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
-import 'package:rotary_net/objects/user_object.dart';
 import 'package:rotary_net/screens/personal_area_pages/personal_area_page_header.dart';
 import 'package:rotary_net/screens/personal_area_pages/personal_area_page_tab_person_card.dart';
 import 'package:rotary_net/screens/personal_area_pages/personal_area_page_tab_user.dart';
@@ -12,9 +12,9 @@ import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class PersonalAreaScreen extends StatefulWidget {
   static const routeName = '/PersonalAreaScreen';
-  final UserObject argUserObject;
+  final ConnectedUserObject argConnectedUserObject;
 
-  PersonalAreaScreen({Key key, @required this.argUserObject}) : super(key: key);
+  PersonalAreaScreen({Key key, @required this.argConnectedUserObject}) : super(key: key);
 
   @override
   _PersonalAreaScreenState createState() => _PersonalAreaScreenState();
@@ -33,9 +33,9 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
 
   @override
   void initState() {
-    personCardForBuild = getPersonalCardFromServer(widget.argUserObject.emailId);
+    personCardForBuild = getPersonalCardFromServer(widget.argConnectedUserObject.userGuidId);
 
-    if(widget.argUserObject.userType == Constants.UserTypeEnum.Guest)
+    if(widget.argConnectedUserObject.userType == Constants.UserTypeEnum.Guest)
       displayPersonCard = false;
     else
       displayPersonCard = true;
@@ -43,14 +43,9 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
     super.initState();
   }
 
-  Future<PersonCardObject> getPersonalCardFromServer(String aEmailId) async {
-    dynamic personCardsObj = await personCardService.getPersonalCardByEmailFromServer(aEmailId);
+  Future<PersonCardObject> getPersonalCardFromServer(String aUserGuidId) async {
+    dynamic personCardsObj = await personCardService.getPersonalCardByUserGuidIdFromServer(aUserGuidId);
     return personCardsObj;
-  }
-
-  Future<void> openMenu() async {
-    // Open Menu from Left side
-    _scaffoldKey.currentState.openDrawer();
   }
 
   @override
@@ -69,7 +64,7 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
           drawer: Container(
             width: 250,
             child: Drawer(
-              child: ApplicationMenuDrawer(argUserObj: widget.argUserObject),
+              child: ApplicationMenuDrawer(),
             ),
           ),
 
@@ -82,7 +77,7 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
               children: [
 
                 /// --------------- Screen Header Area ---------------------
-                BuildPersonalAreaPageHeader(onPressed: () async {await openMenu();}),
+                BuildPersonalAreaPageHeader(),
 
                 (snapshot.connectionState == ConnectionState.waiting) ?
                   Container(child: Loading()) :
@@ -94,7 +89,7 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
                     ),
                   ) :
 
-                (snapshot.hasData) ?
+                (snapshot.hasData) || (widget.argConnectedUserObject != null) ?
                 Expanded(
                   child: DefaultTabController(
                       length: displayPersonCard ? 2 : 1,
@@ -112,8 +107,8 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
                                   labelStyle: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),   //For Selected tab
                                   unselectedLabelStyle: TextStyle(fontSize: 14.0),                      //For Un-selected Tabs
                                   tabs: <Widget>[
-                                    Tab(text :"כרטיס ביקור"),
-                                    if (displayPersonCard) Tab(text :"פרטי משתמש"),
+                                    if (displayPersonCard) Tab(text :"כרטיס ביקור"),
+                                    Tab(text :"פרטי משתמש"),
                                   ],
                                   indicator: ShapeDecoration(
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(topRight: radius, topLeft: radius)),
@@ -127,11 +122,13 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
                         body: TabBarView(
                           children: [
                             /// --------------- TAB: PersonCard ---------------------
-                            if (displayPersonCard) BuildPersonalAreaPageTabPersonCard(argPersonCard: currentPersonCard),
+                            if (displayPersonCard) BuildPersonalAreaPageTabPersonCard(
+                                argPersonCard: currentPersonCard,
+                                argConnectedUserGuidId: widget.argConnectedUserObject.userGuidId
+                            ),
 
                             /// --------------- TAB: User ---------------------
-                            BuildPersonalAreaPageTabUser(argUser: widget.argUserObject),
-//                            StretchExample(),
+                            BuildPersonalAreaPageTabUser(argConnectedUser: widget.argConnectedUserObject),
                           ],
                         ),
                       ),

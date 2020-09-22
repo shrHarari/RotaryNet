@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
+import 'package:rotary_net/database/init_database_data.dart';
+import 'package:rotary_net/database/rotary_database_provider.dart';
 import 'package:rotary_net/objects/event_object.dart';
 import 'package:rotary_net/services/logger_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
@@ -12,7 +14,7 @@ class EventService {
   //#region Create Event As Object
   //=============================================================================
   EventObject createEventAsObject(
-      String aEventId,
+      String aEventGuidId,
       String aEventName,
       String aEventPictureUrl,
       String aEventDescription,
@@ -22,9 +24,9 @@ class EventService {
       String aEventManager,
       )
   {
-    if (aEventId == null)
+    if (aEventGuidId == null)
       return EventObject(
-          eventId: '',
+          eventGuidId: '',
           eventName: '',
           eventPictureUrl: '',
           eventDescription: '',
@@ -35,7 +37,7 @@ class EventService {
       );
     else
       return EventObject(
-        eventId: aEventId,
+        eventGuidId: aEventGuidId,
         eventName: aEventName,
         eventPictureUrl: aEventPictureUrl,
         eventDescription: aEventDescription,
@@ -95,73 +97,59 @@ class EventService {
   }
   //#endregion
 
-  //#region Create Json EventsList [Data for Debug]
-  String createJsonForEventsList() {
-
-    String eventsListJson =
-        '['
-        '{'
-          '"eventId": "1", '
-          '"eventName": "מסיבת סיום גדולה", '
-          '"eventPictureUrl": "1.jpg", '
-          '"eventDescription": "מסיבת סיום גדולה בעיר", '
-          '"eventStartDateTime": "${DateTime.now().toString()}", '
-          '"eventEndDateTime": "${DateTime.now().add(Duration(hours: 1)).toString()}", '
-          '"eventLocation": "ויצמן 32, כפר-סבא ישראל", '
-          '"eventManager": "shr.harari@gmail.com" '
-        '},'
-        '{'
-          '"eventId": "2", '
-          '"eventName": "מסיבת סיום", '
-          '"eventPictureUrl": "2.jpg", '
-          '"eventDescription": "מסיבת סיום גדולה בעיר", '
-          '"eventStartDateTime": "2020-07-25 09:30:00.000000", '
-          '"eventEndDateTime": "2020-07-25 10:30:00.000000", '
-          '"eventLocation": "6767 Hollywood Blvd, Los Angeles, CA 90028, ארצות הברית", '
-          '"eventManager": "shr.harari@gmail.com" '
-        '},'
-        '{'
-          '"eventId": "3", '
-          '"eventName": "הנואם הצעיר אירוע בוקר", '
-          '"eventPictureUrl": "3.jpg", '
-          '"eventDescription": "הנואם הצעיר - מחוז מרכז", '
-          '"eventStartDateTime": "2020-08-12 08:00:00", '
-          '"eventEndDateTime": "2020-08-12 10:00:00", '
-          '"eventLocation": "יפו 32 ירושלים ישראל", '
-          '"eventManager": "shr.harari@gmail.com" '
-        '},'
-        '{'
-          '"eventId": "4", '
-          '"eventName": "הנואם הצעיר אירוע ערב", '
-          '"eventPictureUrl": "4.jpg", '
-          '"eventDescription": "תחרות ארצית - הנואם הצעיר", '
-          '"eventStartDateTime": "2020-09-18 20:00:00", '
-          '"eventEndDateTime": "2020-09-18 22:00:00", '
-          '"eventLocation": "הנשיא 6, פתח-תקווה", '
-          '"eventManager": "shr.harari@gmail.com" '
-        '}'
-        ']';
-
-    return eventsListJson;
-  }
-  //#endregion
-
-  //#region Get Events List From Server [GET]
-  // =========================================================
-  Future getEventsListSearchFromServer(String aValueToSearch) async {
+  //#region Initialize Events Table Data [INIT Events BY JSON DATA]
+  // ========================================================================
+  Future initializeEventsTableData() async {
     try {
 
       //***** for debug *****
       // When the Server side will be ready >>> remove that calling
       if (GlobalsService.isDebugMode) {
-        String jsonResponseForDebug = createJsonForEventsList();
-       // print('jsonResponseForDebug: $jsonResponseForDebug');
+        String initializeEventsJsonForDebug = InitDataBaseData.createJsonRowsForEvents();
+        // print('initializeEventsJsonForDebug: initializeEventsJsonForDebug');
 
-        var eventsListForDebug = jsonDecode(jsonResponseForDebug) as List;    // List of PersonCard to display;
-        List<EventObject> eventObjListForDebug = eventsListForDebug.map((eventJsonDebug) => EventObject.fromJson(eventJsonDebug)).toList();
-//        print('personCardObjListForDebug.length: ${personCardObjListForDebug.length}');
+        //// Using JSON
+        var initializeEventsListForDebug = jsonDecode(initializeEventsJsonForDebug) as List;    // List of Users to display;
+        List<EventObject> eventObjListForDebug = initializeEventsListForDebug.map((eventJsonDebug) => EventObject.fromJson(eventJsonDebug)).toList();
+        // print('eventObjListForDebug.length: ${eventObjListForDebug.length}');
 
         eventObjListForDebug.sort((a, b) => a.eventName.toLowerCase().compareTo(b.eventName.toLowerCase()));
+        return eventObjListForDebug;
+      }
+      //***** for debug *****
+
+    }
+    catch (e) {
+      await LoggerService.log('<EventService> Get Events List From Server >>> ERROR: ${e.toString()}');
+      developer.log(
+        'initializeEventsTableData',
+        name: 'EventService',
+        error: 'Events List >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+  //#endregion
+
+  //#region Get Events List By Search Query From Server [GET]
+  // =========================================================
+  Future getEventsListBySearchQueryFromServer(String aValueToSearch) async {
+    try {
+
+      //***** for debug *****
+      // When the Server side will be ready >>> remove that calling
+
+      // Because of RotaryUsersListBloc >>> Need to initialize GlobalService here too
+      bool debugMode = await GlobalsService.getDebugMode();
+      await GlobalsService.setDebugMode(debugMode);
+
+      if (GlobalsService.isDebugMode) {
+        List<EventObject> eventObjListForDebug = await RotaryDataBaseProvider.rotaryDB.getEventsListBySearchQuery(aValueToSearch);
+        if (eventObjListForDebug == null) {
+        } else {
+          eventObjListForDebug.sort((a, b) => a.eventName.toLowerCase().compareTo(b.eventName.toLowerCase()));
+        }
+
         return eventObjListForDebug;
       }
       //***** for debug *****
@@ -201,6 +189,81 @@ class EventService {
       return null;
     }
   }
+  //#endregion
+
+  //#region CRUD: Events
+
+  //#region Insert Event To DataBase [WriteToDB]
+  //=============================================================================
+  Future insertEventToDataBase(EventObject aEventObj) async {
+    try{
+      //***** for debug *****
+      if (GlobalsService.isDebugMode) {
+        var dbResult = await RotaryDataBaseProvider.rotaryDB.insertEvent(aEventObj);
+        return dbResult;
+        //***** for debug *****
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<EventService> Insert Event To DataBase >>> ERROR: ${e.toString()}');
+      developer.log(
+        'insertEventToDataBase',
+        name: 'EventService',
+        error: 'Insert Event To DataBase >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+  //#endregion
+
+  //#region Update Event To DataBase [WriteToDB]
+  //=============================================================================
+  Future updateEventToDataBase(EventObject aEventObj) async {
+    try{
+      String jsonToPost = jsonEncode(aEventObj);
+
+      //***** for debug *****
+      if (GlobalsService.isDebugMode) {
+        var dbResult = await RotaryDataBaseProvider.rotaryDB.updateEvent(aEventObj);
+        return dbResult;
+        //***** for debug *****
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<EventService> Update Event To DataBase >>> ERROR: ${e.toString()}');
+      developer.log(
+        'updateEventToDataBase',
+        name: 'EventService',
+        error: 'Update Event To DataBase >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+  //#endregion
+
+  //#region Delete Event To DataBase [WriteToDB]
+  //=============================================================================
+  Future deleteEventFromDataBase(EventObject aEventObj) async {
+    try{
+      //***** for debug *****
+      if (GlobalsService.isDebugMode) {
+        var dbResult = await RotaryDataBaseProvider.rotaryDB.deleteEvent(aEventObj);
+        return dbResult;
+        //***** for debug *****
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<EventService> Delete Event To DataBase >>> ERROR: ${e.toString()}');
+      developer.log(
+        'deleteEventFromDataBase',
+        name: 'EventService',
+        error: 'Delete Event To DataBase >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+  //#endregion
+
   //#endregion
 
 }

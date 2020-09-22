@@ -1,9 +1,10 @@
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:rotary_net/objects/arg_data_objects.dart';
+import 'package:rotary_net/objects/connected_user_global.dart';
+import 'package:rotary_net/objects/connected_user_object.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
 import 'package:rotary_net/screens/person_card_detail_pages/person_card_detail_edit_page_screen.dart';
-import 'package:rotary_net/services/person_card_service.dart';
 import 'package:rotary_net/shared/bubbles_box_decoration.dart';
 import 'package:rotary_net/shared/loading.dart';
 import 'package:rotary_net/widgets/application_menu_widget.dart';
@@ -12,9 +13,9 @@ import 'package:rotary_net/utils/utils_class.dart';
 
 class PersonCardDetailPageScreen extends StatefulWidget {
   static const routeName = '/PersonCardDetailScreen';
-  final ArgDataPersonCardObject argDataObject;
+  final PersonCardObject argPersonCardObject;
 
-  PersonCardDetailPageScreen({Key key, @required this.argDataObject}) : super(key: key);
+  PersonCardDetailPageScreen({Key key, @required this.argPersonCardObject}) : super(key: key);
 
   @override
   _PersonCardDetailPageScreenState createState() => _PersonCardDetailPageScreenState();
@@ -26,18 +27,47 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormState>();
-
-  AssetImage personCardImage;
+  Future<DataRequiredForBuild> dataRequiredForBuild;
+  DataRequiredForBuild currentDataRequired;
 
   String error = '';
   bool loading = false;
-  bool isPhoneNumberEnteredOK = false;
-  String phoneNumberHintText = 'Phone Number';
 
   @override
   void initState() {
-    displayPersonCardObject = widget.argDataObject.passPersonCardObj;
+    displayPersonCardObject = widget.argPersonCardObject;
+    dataRequiredForBuild = _fetchAllRequiredForBuild();
     super.initState();
+  }
+
+  Future<DataRequiredForBuild> _fetchAllRequiredForBuild() async {
+    return DataRequiredForBuild(
+      allowUpdate: await getUpdatePermission(),
+    );
+  }
+
+  Future<ConnectedUserObject> getConnectedUserObject() async {
+    var _userGlobal = ConnectedUserGlobal();
+    ConnectedUserObject _connectedUserObj = _userGlobal.getConnectedUserObject();
+    return _connectedUserObj;
+  }
+
+  Future <bool> getUpdatePermission() async {
+    ConnectedUserObject _connectedUserObj = await getConnectedUserObject();
+    bool _allowUpdate = false;
+
+    switch (_connectedUserObj.userType) {
+      case Constants.UserTypeEnum.SystemAdmin:
+        _allowUpdate = true;
+        break;
+      case  Constants.UserTypeEnum.RotaryMember:
+        if (_connectedUserObj.userGuidId == displayPersonCardObject.userGuidId)
+          _allowUpdate = true;
+        break;
+      case  Constants.UserTypeEnum.Guest:
+        _allowUpdate = false;
+    }
+    return _allowUpdate;
   }
 
   Future<void> openMenu() async {
@@ -46,13 +76,10 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
   }
 
   openPersonCardDetailEditScreen(PersonCardObject aPersonCardObj) async {
-    ArgDataPersonCardObject argDataPersonCardObject;
-    argDataPersonCardObject = ArgDataPersonCardObject(widget.argDataObject.passUserObj, aPersonCardObj, widget.argDataObject.passLoginObj);
-
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PersonCardDetailEditPageScreen(argDataObject: argDataPersonCardObject),
+        builder: (context) => PersonCardDetailEditPageScreen(argPersonCardObject: displayPersonCardObject),
       ),
     );
 
@@ -60,28 +87,37 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
       setState(() {
         displayPersonCardObject = result;
       });
-    };
-  }
-
-  closeAndReturnUpdatedPersonCardObject() async {
-    /// Return  displayEventObject
-    Navigator.pop(context, displayPersonCardObject);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+
     return loading ? Loading() :
-    Scaffold(
+      Scaffold(
         key: _scaffoldKey,
         backgroundColor: Colors.blue[50],
 
         drawer: Container(
           width: 250,
           child: Drawer(
-            child: ApplicationMenuDrawer(argUserObj: widget.argDataObject.passUserObj),
+            child: ApplicationMenuDrawer(),
           ),
         ),
-      body: buildMainScaffoldBody(),
+
+        body: FutureBuilder<DataRequiredForBuild>(
+          future: dataRequiredForBuild,
+          builder: (context, snapshot) {
+
+          if (snapshot.hasData)
+          {
+            currentDataRequired = snapshot.data;
+            return buildMainScaffoldBody();
+          }
+          else
+            return Loading();
+        }
+      ),
     );
   }
 
@@ -92,7 +128,7 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
+        children: <Widget>[
           /// --------------- Title Area ---------------------
           Container(
             height: 160,
@@ -142,42 +178,42 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
                   ),
 
                   /// --------------- Application Menu ---------------------
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        /// Menu Icon
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10.0, top: 10.0, right: 0.0, bottom: 0.0),
-                          child: IconButton(
-                            icon: Icon(Icons.menu, color: Colors.white),
-                            onPressed: () async {await openMenu();},
-                          ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      /// Menu Icon
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10.0, top: 10.0, right: 0.0, bottom: 0.0),
+                        child: IconButton(
+                          icon: Icon(Icons.menu, color: Colors.white),
+                          onPressed: () async {await openMenu();},
                         ),
+                      ),
 
-                        /// Debug Icon --->>> Remove before Production
-                        Padding(
-                          padding: const EdgeInsets.only(left: 0.0, top: 10.0, right: 10.0, bottom: 0.0),
-                          child: IconButton(
-                            icon: Icon(Icons.arrow_forward, color: Colors.white),
-                            onPressed: () {
-                              closeAndReturnUpdatedPersonCardObject();
-                              },
-                          ),
+                      /// Debug Icon --->>> Remove before Production
+                      Padding(
+                        padding: const EdgeInsets.only(left: 0.0, top: 10.0, right: 10.0, bottom: 0.0),
+                        child: IconButton(
+                          icon: Icon(Icons.arrow_forward, color: Colors.white),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
           ),
 
-            Expanded(
-                child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 30.0, horizontal: 30.0),
-                  width: double.infinity,
-                  child: buildPersonCardDetailDisplay(displayPersonCardObject),
-                  ),
-            ),
+          Expanded(
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 30.0, horizontal: 30.0),
+                width: double.infinity,
+                child: buildPersonCardDetailDisplay(displayPersonCardObject),
+                ),
+          ),
         ]
       ),
     );
@@ -185,7 +221,6 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
 
   /// ====================== Person Card All Fields ==========================
   Widget buildPersonCardDetailDisplay(PersonCardObject aPersonCardObj) {
-    personCardImage = AssetImage('assets/images/person_cards/${aPersonCardObj.pictureUrl}');
 
     return Column(
       children: <Widget>[
@@ -195,10 +230,12 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
           child: Row(
             textDirection: TextDirection.rtl,
             children: <Widget>[
-              CircleAvatar(
+              (aPersonCardObj.pictureUrl == null) || (aPersonCardObj.pictureUrl == '')
+                ? buildEmptyPersonCardImageIcon(Icons.person)
+                : CircleAvatar(
                     radius: 30.0,
                     backgroundColor: Colors.blue[900],
-                    backgroundImage: personCardImage,
+                    backgroundImage: FileImage(File('${aPersonCardObj.pictureUrl}')),
                   ),
               Expanded(
                 child: Padding(
@@ -222,13 +259,16 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 0.0, top: 0.0, right: 10.0, bottom: 0.0),
-                child: IconButton(
-                  icon: Icon(Icons.mode_edit, color: Colors.grey[900]),
-                  onPressed: () {openPersonCardDetailEditScreen(aPersonCardObj);},
+
+              if (currentDataRequired.allowUpdate)
+                Padding(
+                  padding: const EdgeInsets.only(left: 0.0, top: 0.0, right: 10.0, bottom: 0.0),
+                  child: IconButton(
+                    icon: Icon(Icons.mode_edit, color: Colors.grey[900]),
+                    onPressed: () {openPersonCardDetailEditScreen(aPersonCardObj);},
+                  ),
                 ),
-              ),
+
             ],
           ),
         ),
@@ -274,12 +314,35 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
     );
   }
 
+  Widget buildEmptyPersonCardImageIcon(IconData aIcon, {Function aFunc}) {
+    return Container(
+        height: 60.0,
+        width: 60.0,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Colors.blue[700],
+            style: BorderStyle.solid,
+            width: 1.0,
+          ),
+        ),
+
+        child: Center(
+          child: Icon(aIcon,
+            size: 30.0,
+            color: Colors.grey[700],
+          ),
+        )
+    );
+  }
+
   Row buildDetailImageIcon(IconData aIcon, String aTitle, Function aFunc) {
     return Row(
         textDirection: TextDirection.rtl,
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
+        children: <Widget>[
           Padding(
             padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
             child: MaterialButton(
@@ -315,4 +378,12 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
         ]
     );
   }
+}
+
+class DataRequiredForBuild {
+  bool allowUpdate;
+
+  DataRequiredForBuild({
+    this.allowUpdate,
+  });
 }

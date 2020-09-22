@@ -14,55 +14,51 @@ class PersonCardSearchResultPageHeaderTitle implements SliverPersistentHeaderDel
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+
     return Container(
       color: Colors.lightBlue[400],
       child: SafeArea(
-        child: Column(
+        child: Stack(
           children: <Widget>[
-            /// ----------- Header - First line - Application Logo -----------------
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Expanded(
-                  flex: 8,
-                  child: Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10.0),
-                        child: MaterialButton(
-                          elevation: 0.0,
-                          onPressed: () {},
-                          color: Colors.lightBlue.withOpacity(headerOpacity(shrinkOffset)),
-                          textColor: Colors.white.withOpacity(headerOpacity(shrinkOffset)),
-                          child: Icon(
-                            Icons.account_balance,
-                            size: 30,
-                          ),
-                          padding: EdgeInsets.all(20),
-                          shape: CircleBorder(
-                              side: BorderSide(
-                                color: Colors.white.withOpacity(headerOpacity(shrinkOffset)),
-                              )
-                          ),
-                        ),
+            Align(
+              alignment: Alignment.center,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10.0),
+                    child: MaterialButton(
+                      elevation: 0.0,
+                      onPressed: () {},
+                      color: Colors.lightBlue.withOpacity(headerOpacity(shrinkOffset)),
+                      textColor: Colors.white.withOpacity(headerOpacity(shrinkOffset)),
+                      child: Icon(
+                        Icons.account_balance,
+                        size: 30,
                       ),
-
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10.0),
-                        child: Text(Constants.rotaryApplicationName,
-                          style: TextStyle(
-                              color: Colors.white.withOpacity(headerOpacity(shrinkOffset)),
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.bold
-                          ),
-                        ),
+                      padding: EdgeInsets.all(20),
+                      shape: CircleBorder(
+                          side: BorderSide(
+                            color: Colors.white.withOpacity(headerOpacity(shrinkOffset)),
+                          )
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10.0),
+                    child: Text(
+                      Constants.rotaryApplicationName,
+                      style: TextStyle(
+                          color: Colors.white.withOpacity(headerOpacity(shrinkOffset)),
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.bold
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
+          ]
         ),
       ),
     );

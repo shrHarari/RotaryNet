@@ -1,14 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:rotary_net/objects/connected_user_global.dart';
+import 'package:rotary_net/objects/connected_user_object.dart';
 import 'package:rotary_net/objects/user_object.dart';
+import 'package:rotary_net/services/connected_user_service.dart';
 import 'package:rotary_net/services/user_service.dart';
 import 'package:rotary_net/shared/decoration_style.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class BuildPersonalAreaPageTabUser extends StatefulWidget {
-  final UserObject argUser;
+  final ConnectedUserObject argConnectedUser;
 
-  BuildPersonalAreaPageTabUser({Key key, @required this.argUser}) : super(key: key);
+  BuildPersonalAreaPageTabUser({Key key, @required this.argConnectedUser}) : super(key: key);
 
   @override
   _BuildPersonalAreaPageTabUserState createState() => _BuildPersonalAreaPageTabUserState();
@@ -16,19 +19,19 @@ class BuildPersonalAreaPageTabUser extends StatefulWidget {
 
 class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabUser> {
 
-  final UserService userService = UserService();
+  final ConnectedUserService connectedUserService = ConnectedUserService();
   final formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
-    setPersonCardVariables(widget.argUser);
+    setPersonCardVariables(widget.argConnectedUser);
     super.initState();
   }
 
   //#region Declare Variables
   bool newStayConnected;
 
-  TextEditingController eMailIdController;
+  TextEditingController eMailController;
   TextEditingController firstNameController;
   TextEditingController lastNameController;
   TextEditingController passwordController;
@@ -39,12 +42,12 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
   //#endregion
 
   //#region Set PersonCard Variables
-  Future<void> setPersonCardVariables(UserObject aUserObj) async {
-    eMailIdController = TextEditingController(text: aUserObj.emailId);
-    firstNameController = TextEditingController(text: aUserObj.firstName);
-    lastNameController = TextEditingController(text: aUserObj.lastName);
-    passwordController = TextEditingController(text: aUserObj.password);
-    newStayConnected = aUserObj.stayConnected;
+  Future<void> setPersonCardVariables(ConnectedUserObject aConnectedUserObj) async {
+    eMailController = TextEditingController(text: aConnectedUserObj.email);
+    firstNameController = TextEditingController(text: aConnectedUserObj.firstName);
+    lastNameController = TextEditingController(text: aConnectedUserObj.lastName);
+    passwordController = TextEditingController(text: aConnectedUserObj.password);
+    newStayConnected = aConnectedUserObj.stayConnected;
   }
   //#endregion
 
@@ -63,94 +66,87 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
     bool validationVal = await checkValidation();
 
     if (validationVal){
-      String _email = (eMailIdController.text != null) ? (eMailIdController.text) : '';
+      String _email = (eMailController.text != null) ? (eMailController.text) : '';
       String _firstName = (firstNameController.text != null) ? (firstNameController.text) : '';
       String _lastName = (lastNameController.text != null) ? (lastNameController.text) : '';
       String _password = (passwordController.text != null) ? (passwordController.text) : '';
 
-      // UserObject newUserObj = userService.createUserAsObject(
-      //     '', _email, _firstName, _lastName, _password, widget.argUser.userType, newStayConnected);
+      ConnectedUserObject newConnectedUserObj = connectedUserService.createConnectedUserAsObject(
+          widget.argConnectedUser.userGuidId,
+          _email, _firstName, _lastName, _password,
+          widget.argConnectedUser.userType, newStayConnected);
 
-      UserObject newUserObj = userService.createUserAsObject(
-          _email, _firstName, _lastName, _password, widget.argUser.userType, newStayConnected);
+      /// SAVE ConnectedUser:
+      /// 1. Secure Storage: Write to storage
+      await connectedUserService.writeConnectedUserObjectDataToSecureStorage(newConnectedUserObj);
 
-      await userService.writeUserObjectDataToSharedPreferences(newUserObj);
-      Navigator.pop(context, newUserObj);
+      /// 2. App Global: Update Global Current Connected User
+      var userGlobal = ConnectedUserGlobal();
+      userGlobal.setConnectedUserObject(newConnectedUserObj);
+
+      /// 3. DataBase: Update the User Data
+      UserObject _usrObj = await  UserObject.getUserObjectFromConnectedUserObject(newConnectedUserObj);
+      UserService _userService = UserService();
+      _userService.updateUserToDataBase(_usrObj);
+
+      Navigator.pop(context, newConnectedUserObj);
     }
   }
   //#endregion
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: IntrinsicHeight(
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Expanded(
-              flex: 15,
+    return Column(
+      children: [
+        Expanded(
+          flex: 4,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Container(
+              padding: EdgeInsets.only(left: 30, top: 30.0, right: 10.0, bottom: 0.0),
               child: Column(
                 children: <Widget>[
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.only(left: 30, top: 30.0, right: 30.0, bottom: 0.0),
-                      child: Form(
-                        key: formKey,
-                        child: Column(
-                          children: <Widget>[
-                            /// ------------------- Input Text Fields ----------------------
-                            buildEnabledTextInputWithImageIcon(eMailIdController, 'Email ID', Icons.mail_outline, false, aEnabled: false),
-                            buildEnabledDoubleTextInputWithImageIcon(
-                                firstNameController, 'First Name',
-                                lastNameController, 'Last Name',
-                                Icons.person, false),
-                            buildEnabledTextInputWithImageIcon(passwordController, 'Password', Icons.lock, false, isPassword: true),
-                            buildStayConnectedCheckBox(),
-                            buildUserTypeRadioButton(),
-                          ],
-                        ),
-                      ),
+                  Form(
+                    key: formKey,
+                    child: Column(
+                      children: <Widget>[
+                        /// ------------------- Input Text Fields ----------------------
+                        buildEnabledTextInputWithImageIcon(eMailController, 'דוא"ל', Icons.mail_outline, false),
+                        buildEnabledDoubleTextInputWithImageIcon(
+                            firstNameController, 'שם פרטי',
+                            lastNameController, 'שם משפחה',
+                            Icons.person, false),
+                        buildEnabledTextInputWithImageIcon(passwordController, 'סיסמה', Icons.lock, false, isPassword: true),
+                      ],
+                    ),
+                  ),
+
+                  Container(
+                    padding: EdgeInsets.only(left: 30, right: 30.0, bottom: 0.0),
+                    child: Column(
+                        children: [
+                          buildStayConnectedCheckBox(),
+                          buildUserTypeRadioButton(),
+                        ]
                     ),
                   ),
                 ],
               ),
             ),
-
-            Expanded(
-              flex: 2,
-              child: Container(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    buildUpdateImageButton('עדכון', updateUser, Icons.update),
-                  ],
-                ),
-              ),
-            ),
-
-            /// ---------------------- Display Error -----------------------
-            Expanded(
-              flex: 1,
-              child: Container(
-                child: Column(
-                  children: <Widget>[
-                    Text(
-                      error,
-                      style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 14.0
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+
+        buildUpdateImageButton('עדכון', updateUser, Icons.update),
+
+        /// ---------------------- Display Error -----------------------
+        Text(
+          error,
+          style: TextStyle(
+              color: Colors.red,
+              fontSize: 14.0
+          ),
+        ),
+      ],
     );
   }
 
@@ -254,9 +250,15 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
       style: TextStyle(fontSize: 16.0),
       enabled: aEnabled ? true : false,
       obscureText: isPassword,
-      decoration: aEnabled ?
-          TextInputDecoration.copyWith(hintText: textInputName) :
-          DisabledTextInputDecoration.copyWith(hintText: textInputName), // Disabled Field
+      decoration: aEnabled
+          ? TextInputDecoration.copyWith(
+          hintText: textInputName,
+          hintStyle: TextStyle(fontSize: 14.0)
+      )
+          : DisabledTextInputDecoration.copyWith(
+          hintText: textInputName,
+          hintStyle: TextStyle(fontSize: 14.0)
+      ), // Disabled Field
       validator: (val) => val.isEmpty ? 'Enter $textInputName' : null,
     );
   }
@@ -304,7 +306,7 @@ class _BuildPersonalAreaPageTabUserState extends State<BuildPersonalAreaPageTabU
 
   Widget buildUserTypeRadioButton() {
     String userTypeTitle;
-    switch (widget.argUser.userType) {
+    switch (widget.argConnectedUser.userType) {
       case Constants.UserTypeEnum.SystemAdmin:
         userTypeTitle = "מנהל מערכת";
         break;

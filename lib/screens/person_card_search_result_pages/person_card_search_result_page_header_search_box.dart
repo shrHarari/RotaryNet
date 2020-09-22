@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:rotary_net/BLoCs/person_cards_list_bloc.dart';
 
 class PersonCardSearchResultPageHeaderSearchBox implements SliverPersistentHeaderDelegate {
   final double minExtent;
   final double maxExtent;
+  PersonCardsListBloc personCardsBloc;
   TextEditingController searchController;
-  Function funcRenderSearch;
 
   PersonCardSearchResultPageHeaderSearchBox({
-    this.minExtent,
+    @required this.minExtent,
     @required this.maxExtent,
-    this.searchController,
-    this.funcRenderSearch,
+    @required this.personCardsBloc,
+    @required this.searchController,
   });
 
   @override
@@ -19,52 +20,41 @@ class PersonCardSearchResultPageHeaderSearchBox implements SliverPersistentHeade
 
     return Container(
       color: Colors.lightBlue[400],
-      child: Column(
-        children: <Widget>[
-          /// ----------- Header - Second line - Search Box Area -----------------
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Flexible(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 50.0, top: 10.0, right: 50.0, bottom: 10.0),
-                  child: TextField(
-                    maxLines: 1,
-                    controller: searchController,
-                    textAlign: TextAlign.right,
-                    textInputAction: TextInputAction.search,
-                    style: TextStyle(
-                        fontSize: 14.0,
-                        height: 0.8,
-                        color: Colors.black
-                    ),
-                    //onSubmitted: (value) async {await executeSearch(value);},
-//                    onChanged: (value) async {setSearchTextValueFunc(value);},
-                    decoration: InputDecoration(
-                        prefixIcon: IconButton(
-                          color: Colors.blue,
-                          icon: Icon(Icons.search),
-                          onPressed: () async {
-                            funcRenderSearch(searchController.text);
-                          },
-                        ),
-                        border: new OutlineInputBorder(
-                          borderRadius: const BorderRadius.all(
-                            const Radius.circular(30.0),
-                          ),
-                        ),
-                        filled: true,
-                        hintStyle: TextStyle(color: Colors.grey[800]),
-                        hintText: "מילת חיפוש",
-                        fillColor: Colors.white
-                    ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.only(left: 50.0, top: 10.0, right: 50.0, bottom: 10.0),
+          child: TextField(
+            maxLines: 1,
+            controller: searchController,
+            textAlign: TextAlign.right,
+            textInputAction: TextInputAction.search,
+            style: TextStyle(
+                fontSize: 14.0,
+                height: 0.8,
+                color: Colors.black
+            ),
+            // onSubmitted: (searchText) {bloc.getPersonCardsListBySearchQuery(searchText);},
+            onChanged: (searchText) {personCardsBloc.getPersonCardsListBySearchQuery(searchText);},
+            decoration: InputDecoration(
+                prefixIcon: IconButton(
+                  color: Colors.blue,
+                  icon: Icon(Icons.search),
+                  onPressed: () async {
+                    personCardsBloc.getPersonCardsListBySearchQuery(searchController.text);
+                  },
+                ),
+                border: new OutlineInputBorder(
+                  borderRadius: const BorderRadius.all(
+                    const Radius.circular(30.0),
                   ),
                 ),
-              ),
-            ],
+                filled: true,
+                hintStyle: TextStyle(color: Colors.grey[800]),
+                hintText: "מילת חיפוש",
+                fillColor: Colors.white
+            ),
           ),
-        ],
+        ),
       ),
     );
   }

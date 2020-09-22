@@ -1,22 +1,22 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:rotary_net/objects/arg_data_objects.dart';
+import 'package:rotary_net/objects/connected_user_global.dart';
+import 'package:rotary_net/objects/connected_user_object.dart';
 import 'package:rotary_net/objects/login_object.dart';
-import 'package:rotary_net/objects/user_object.dart';
 import 'package:rotary_net/screens/debug_setting_screen.dart';
 import 'package:rotary_net/screens/rotary_main_pages/rotary_main_page_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/register_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/wellcome_decoration_style.dart';
-import 'package:rotary_net/services/registration_service.dart';
-import 'package:rotary_net/services/user_service.dart';
+import 'package:rotary_net/services/connected_user_service.dart';
+import 'package:rotary_net/services/login_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class LoginScreen extends StatefulWidget {
   static const routeName = '/LoginScreen';
-  final ArgDataUserObject argDataObject;
+  final LoginObject argLoginObject;
 
-  LoginScreen({Key key, @required this.argDataObject}) : super(key: key);
+  LoginScreen({Key key, @required this.argLoginObject}) : super(key: key);
 
 
   @override
@@ -24,10 +24,10 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final RegistrationService registrationService = RegistrationService();
-  final UserService userService = UserService();
+  final LoginService loginService = LoginService();
+  final ConnectedUserService connectedUserService = ConnectedUserService();
   final formKey = GlobalKey<FormState>();
-  UserObject newUserObj;
+  ConnectedUserObject newConnectedUserObj;
   LoginObject newLoginObject;
 
   /// Fields Param
@@ -36,7 +36,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   String newEmail;
   String newPassword;
-  Constants.UserTypeEnum newUserType;
   bool newStayConnected;
 
   bool loginConfirmationCheck;
@@ -45,17 +44,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void initState() {
-    setAsRegisterState();
+    setAsLoginState();
     super.initState();
   }
 
-  void setAsRegisterState() {
-    newUserObj = widget.argDataObject.passUserObj;
-    newLoginObject = widget.argDataObject.passLoginObj;
+  void setAsLoginState() {
+    newLoginObject = widget.argLoginObject;
 
     eMailController = TextEditingController(text: '');
     passwordController = TextEditingController(text: '');
-    newUserType = newUserObj.userType;
     newStayConnected = false;
     loginConfirmationCheck = true;
   }
@@ -67,75 +64,54 @@ class _LoginScreenState extends State<LoginScreen> {
     newPassword = aPassword;
   }
 
-  Future<bool> checkValidation() async {
-    bool _validationVal = false;
-
-    if (formKey.currentState.validate()){
-      _validationVal = true;
-    } else {
-    }
-    return _validationVal;
-  }
-
   Future performLoginProcess() async {
     if (formKey.currentState.validate()){
       setState(() {
         loading = true;
       });
 
-      newUserObj = userService.createUserAsObject(
-          // '',
+      newConnectedUserObj = connectedUserService.createConnectedUserAsObject(
+          '',
           newEmail.trim(),
           '',
           '',
           newPassword.trim(),
-          newUserType,
+          Constants.UserTypeEnum.Guest,
           newStayConnected);
 
       /// Send User Login Request ===>>> Check if Login Parameters are OK
-      UserObject currentUserObj = await registrationService.userLoginConfirmAtServer(newUserObj);
-      if (currentUserObj == null) {
+      /// Check if user exist by Email & Password
+      ConnectedUserObject currentConnectedUserObj = await loginService.userLoginConfirmAtServer(newConnectedUserObj);
+      if (currentConnectedUserObj == null) {
         setState(() {
           loginConfirmationCheck = false;
-          error = 'Unable to check confirmation';
+          error = 'שגיאה בנתונים, נסה שוב...';
           loading = false;
         });
       } else {
-        // if (int.parse(currentUserObj.requestId) < 0) {
-        if (currentUserObj == null) {
-          setState(() {
-            loginConfirmationCheck = false;
-            loading = false;
-          });
-        } else {
-          setState(() {
-            loginConfirmationCheck = true;
-            loading = false;
-          });
-          /// Update UserObject.StayConnected
-          currentUserObj.setStayConnected(newStayConnected);
+        setState(() {
+          loginConfirmationCheck = true;
+          loading = false;
+        });
+        /// Update ConnectedUserObject.StayConnected
+        currentConnectedUserObj.setStayConnected(newStayConnected);
 
-          /// Write UserObject with new data [StayConnected] to SharedPreferences
-          await userService.writeUserObjectDataToSharedPreferences(currentUserObj);
+        /// Write UserObject with new data [StayConnected] to SecureStorage
+        await connectedUserService.writeConnectedUserObjectDataToSecureStorage(currentConnectedUserObj);
 
-          openRotaryMainScreen(currentUserObj);
-        }
+        openRotaryMainScreen(currentConnectedUserObj);
       }
     }
   }
 
   ///--- If Login succeeded --->> Open Rotary Main Screen
   ///------------------------------------------------------------------------------
-  void openRotaryMainScreen(UserObject aUserObj) {
-    /// Create ArgDataObject to pass to MessageTrackerRequest Screen
-    ArgDataUserObject argToMainScreen;
-    argToMainScreen = ArgDataUserObject(aUserObj, newLoginObject);
-
+  void openRotaryMainScreen(ConnectedUserObject aConnectedUserObj) {
     /// Navigate to MessageTrackerRequest Screen
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => RotaryMainPageScreen(argDataObject: argToMainScreen),
+        builder: (context) => RotaryMainPageScreen(argLoginObject: newLoginObject),
       ),
     );
   }
@@ -143,15 +119,11 @@ class _LoginScreenState extends State<LoginScreen> {
   ///------>> Open Debug Settings Screen
   ///------------------------------------------------------------------------------
   Future<void> openDebugSettingsScreen() async {
-    /// Create ArgDataObject to pass to DebugSettings Screen
-    ArgDataUserObject argToDebugSettingsScreen;
-    argToDebugSettingsScreen = ArgDataUserObject(newUserObj, newLoginObject);
-
     /// Navigate to DebugSettings Screen
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DebugSettings(argDataObject: argToDebugSettingsScreen),
+        builder: (context) => DebugSettings(argLoginObject: newLoginObject),
       ),
     );
   }
@@ -179,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       buildStayConnectedCheckBox(),
                       SizedBox(height: 20,),
                       buildActionButton('התחבר', performLoginProcess),
-                      buildLoginFailedErrorMessage('שגיאה בנתונים, נסה שוב...', loginConfirmationCheck),
+                      buildLoginFailedErrorMessage(error, loginConfirmationCheck),
                       buildForgotPasswordLabel(),
                       divider(),
                       facebookButton(),
@@ -463,11 +435,11 @@ class _LoginScreenState extends State<LoginScreen> {
     return InkWell(
       onTap: () {
         /// Create ArgDataObject to pass to DebugSettings Screen
-        ArgDataUserObject argToRegisterScreen;
-        argToRegisterScreen = ArgDataUserObject(newUserObj, newLoginObject);
+        // ArgDataConnectedUserObject argToRegisterScreen;
+        // argToRegisterScreen = ArgDataConnectedUserObject(newConnectedUserObj, newLoginObject);
 
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => RegisterScreen(argDataObject: argToRegisterScreen)));
+            context, MaterialPageRoute(builder: (context) => RegisterScreen(argLoginObject: newLoginObject)));
       },
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 20),

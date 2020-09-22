@@ -1,8 +1,9 @@
+import 'dart:convert';
 
 class EventObject {
-  final String eventId;
+  final String eventGuidId;
   final String eventName;
-  final String eventPictureUrl;
+  String eventPictureUrl;
   final String eventDescription;
   DateTime eventStartDateTime;
   DateTime eventEndDateTime;
@@ -10,7 +11,7 @@ class EventObject {
   final String eventManager;
 
   EventObject({
-    this.eventId,
+    this.eventGuidId,
     this.eventName,
     this.eventPictureUrl,
     this.eventDescription,
@@ -20,20 +21,24 @@ class EventObject {
     this.eventManager,
   });
 
-  // Set Event DateTime
-  //=====================================
+  // Set PersonCard Email
+  Future <void> setEventPictureUrl(String aPictureUrl) async {
+    eventPictureUrl = aPictureUrl;
+  }
+
+  //#region Set Event DateTime (Start-End)
+  //========================================
   Future <void> setStartDateTime(DateTime aStartDateTime) async {
     eventStartDateTime = aStartDateTime;
   }
-
-  //=====================================
   Future <void> setEndDateTime(DateTime aEndDateTime) async {
     eventEndDateTime = aEndDateTime;
   }
+  //#endregion
 
   factory EventObject.fromJson(Map<String, dynamic> parsedJson){
     return EventObject(
-        eventId: parsedJson['eventId'],
+        eventGuidId: parsedJson['eventGuidId'],
         eventName: parsedJson['eventName'],
         eventPictureUrl : parsedJson['eventPictureUrl'],
         eventDescription : parsedJson['eventDescription'],
@@ -47,7 +52,7 @@ class EventObject {
   @override
   String toString() {
     return '{'
-        ' ${this.eventId},'
+        ' ${this.eventGuidId},'
         ' ${this.eventName},'
         ' ${this.eventPictureUrl},'
         ' ${this.eventDescription},'
@@ -59,7 +64,7 @@ class EventObject {
   }
 
   Map toJson() => {
-    'eventId': eventId,
+    'eventGuidId': eventGuidId,
     'eventName': eventName,
     'eventPictureUrl': eventPictureUrl,
     'eventDescription': eventDescription,
@@ -68,4 +73,52 @@ class EventObject {
     'eventLocation': eventLocation,
     'eventManager': eventManager,
   };
+
+  /// DataBase: Madel for Event
+  ///----------------------------------------------------
+  EventObject eventFromJson(String str) {
+    final jsonData = json.decode(str);
+    return EventObject.fromMap(jsonData);
+  }
+
+  String eventToJson(EventObject aEvent) {
+    final dyn = aEvent.toMap();
+    return json.encode(dyn);
+  }
+
+  factory EventObject.fromMap(Map<String, dynamic> jsonFromMap)
+  {
+    // DateTime: Convert [String] to [DateTime]
+    DateTime _eventStartDateTime = DateTime.parse(jsonFromMap['eventStartDateTime']);
+    DateTime _eventEndDateTime = DateTime.parse(jsonFromMap['eventEndDateTime']);
+
+    return EventObject(
+          eventGuidId: jsonFromMap['eventGuidId'],
+          eventName: jsonFromMap['eventName'],
+          eventPictureUrl : jsonFromMap['eventPictureUrl'],
+          eventDescription : jsonFromMap['eventDescription'],
+          eventStartDateTime : _eventStartDateTime,
+          eventEndDateTime : _eventEndDateTime,
+          eventLocation : jsonFromMap['eventLocation'],
+          eventManager : jsonFromMap['eventManager']
+      );
+  }
+
+  Map<String, dynamic> toMap()
+  {
+    // DateTime: Convert [DateTime] to [String]
+    String _eventStartDateTime = eventStartDateTime.toIso8601String ();
+    String _eventEndDateTime = eventEndDateTime.toIso8601String ();
+
+    return {
+      'eventGuidId': eventGuidId,
+      'eventName': eventName,
+      'eventPictureUrl': eventPictureUrl,
+      'eventDescription': eventDescription,
+      'eventStartDateTime': _eventStartDateTime,
+      'eventEndDateTime': _eventEndDateTime,
+      'eventLocation': eventLocation,
+      'eventManager': eventManager,
+    };
+  }
 }

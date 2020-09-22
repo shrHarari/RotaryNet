@@ -1,20 +1,28 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
+import 'package:rotary_net/screens/person_card_detail_pages/person_card_detail_page_screen.dart';
 
-class BuildPersonCardTile extends StatelessWidget {
-  const BuildPersonCardTile({Key key, this.argPersonCardObj, this.argFuncOpenPersonCardDetail, this.argIndexOfPersonCardObj})
-      : super(key: key);
+class PersonCardSearchResultPageListTile extends StatelessWidget {
   final PersonCardObject argPersonCardObj;
-  final Function argFuncOpenPersonCardDetail;
-  final int argIndexOfPersonCardObj;
+
+  const PersonCardSearchResultPageListTile({Key key, this.argPersonCardObj}) : super(key: key);
+
+  openPersonCardDetailScreen(BuildContext context) async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PersonCardDetailPageScreen(
+            argPersonCardObject: argPersonCardObj
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-
-    AssetImage personCardImage = AssetImage('assets/images/person_cards/${argPersonCardObj.pictureUrl}');
-
     return Padding(
-      padding: const EdgeInsets.only(left: 15.0, top: 5.0, right: 15.0, bottom: 5.0),
+      padding: const EdgeInsets.only(left: 15.0, top: 0.0, right: 15.0, bottom: 5.0),
       child: GestureDetector(
         child: Container(
           margin: const EdgeInsets.all(2.0),
@@ -34,11 +42,13 @@ class BuildPersonCardTile extends StatelessWidget {
             child: Row(
               textDirection: TextDirection.rtl,
               children: <Widget>[
-                CircleAvatar(
-                  radius: 30.0,
-                  backgroundColor: Colors.blue[900],
-                  backgroundImage: personCardImage,
-                ),
+                (argPersonCardObj.pictureUrl == null) || (argPersonCardObj.pictureUrl == '')
+                    ? buildEmptyPersonCardImageIcon(Icons.person)
+                    : CircleAvatar(
+                      radius: 30.0,
+                      backgroundColor: Colors.blue[900],
+                      backgroundImage: FileImage(File('${argPersonCardObj.pictureUrl}')),
+                    ),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.only(right: 20.0),
@@ -67,9 +77,34 @@ class BuildPersonCardTile extends StatelessWidget {
         ),
         onTap: ()
         {
-          argFuncOpenPersonCardDetail(argPersonCardObj, argIndexOfPersonCardObj);
+          // Hide Keyboard
+          FocusScope.of(context).requestFocus(FocusNode());
+          openPersonCardDetailScreen(context);
         },
       ),
     );
+  }
+
+  Widget buildEmptyPersonCardImageIcon(IconData aIcon, {Function aFunc}) {
+    return Container(
+        height: 60.0,
+        width: 60.0,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Colors.blue[700],
+            style: BorderStyle.solid,
+            width: 1.0,
+          ),
+        ),
+
+        child: Center(
+          child: Icon(aIcon,
+            size: 30.0,
+            color: Colors.grey[700],
+          ),
+        )
+      );
   }
 }
