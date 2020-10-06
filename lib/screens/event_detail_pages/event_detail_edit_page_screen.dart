@@ -30,7 +30,6 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
 
   final EventService eventService = EventService();
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormState>();
 
   //#region Declare Variables
@@ -58,7 +57,7 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
     super.initState();
   }
 
-  //#region Set event Variables
+  //#region Set Event Variables
   Future<void> setEventVariables(EventObject aEvent) async {
     eventImageDefaultAsset = AssetImage('assets/images/events/EventImageDefaultPicture.jpg');
 
@@ -86,11 +85,6 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
     }
   }
   //#endregion
-
-  Future<void> openMenu() async {
-    // Open Menu from Left side
-    _scaffoldKey.currentState.openDrawer();
-  }
 
   //#region Check Validation
   Future<bool> checkValidation() async {
@@ -158,7 +152,7 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
     if (selectedPickStartDateTime == null) selectedPickStartDateTime = DateTime.now();
     if (selectedPickEndDateTime == null) selectedPickEndDateTime = DateTime.now();
 
-    Map datesMapObj = await HebrewFormatSyntax.getHebrewDateTimeLabels(selectedPickStartDateTime, selectedPickEndDateTime);
+    Map datesMapObj = await HebrewFormatSyntax.getHebrewStartEndDateTimeLabels(selectedPickStartDateTime, selectedPickEndDateTime);
 
     final returnDataMapFromPicker = await showDialog(
       context: context,
@@ -224,7 +218,6 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
   Widget build(BuildContext context) {
     return loading ? Loading() :
     Scaffold(
-      key: _scaffoldKey,
       backgroundColor: Colors.blue[50],
 
       drawer: Container(
@@ -249,6 +242,7 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
               color: Colors.lightBlue[400],
               child: SafeArea(
                 child: Stack(
+                  overflow: Overflow.visible,
                   children: <Widget>[
                     /// ----------- Header - First line - Application Logo -----------------
                     Row(
@@ -295,16 +289,7 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        /// Menu Icon
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10.0, top: 10.0, right: 0.0, bottom: 0.0),
-                          child: IconButton(
-                            icon: Icon(Icons.menu, color: Colors.white),
-                            onPressed: () async {await openMenu();},
-                          ),
-                        ),
-
-                        /// Debug Icon --->>> Remove before Production
+                        /// Exit Icon --->>> Close Screen
                         Padding(
                           padding: const EdgeInsets.only(left: 0.0, top: 10.0, right: 10.0, bottom: 0.0),
                           child: IconButton(
@@ -316,6 +301,12 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
                           ),
                         ),
                       ],
+                    ),
+
+                    Positioned(
+                      left: 20.0,
+                      bottom: -25.0,
+                      child: buildUpdateButton(updateEvent),
                     ),
                   ],
                 ),
@@ -363,8 +354,6 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
             ),
           ),
         ),
-
-        buildUpdateButton('עדכון', updateEvent, Icons.update),
         /// ---------------------- Display Error -----------------------
         Text(
           error,
@@ -509,14 +498,11 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
   Widget buildUpdateEventImageButton(Function aFunc) {
     return MaterialButton(
       elevation: 0.0,
-      onPressed: () async {
-        await aFunc();
-      },
+      onPressed: () async {await aFunc();},
       color: Colors.white,
       padding: EdgeInsets.all(10),
       shape: CircleBorder(side: BorderSide(color: Colors.blue)),
-      child:
-      IconTheme(
+      child: IconTheme(
         data: IconThemeData(
           color: Colors.black,
         ),
@@ -531,9 +517,7 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
   Widget buildUpdateDateTimeButton(Function aFunc) {
     return MaterialButton(
       elevation: 0.0,
-      onPressed: () async {
-        await aFunc(context);
-      },
+      onPressed: () async {await aFunc(context);},
       color: Colors.white,
       padding: EdgeInsets.all(10),
       shape: CircleBorder(side: BorderSide(color: Colors.blue)),
@@ -550,7 +534,42 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
     );
   }
 
-  Widget buildUpdateButton(String buttonText, Function aFunc, IconData aIcon) {
+  Widget buildUpdateButton(Function aFunc) {
+
+    final eventsBloc = BlocProvider.of<EventsListBloc>(context);
+
+    return StreamBuilder<List<EventObject>>(
+        stream: eventsBloc.eventsStream,
+        initialData: eventsBloc.eventsList,
+        builder: (context, snapshot) {
+          List<EventObject> currentEventsList =
+          (snapshot.connectionState == ConnectionState.waiting)
+              ? eventsBloc.eventsList
+              : snapshot.data;
+
+          return MaterialButton(
+            elevation: 0.0,
+            onPressed: () async {
+              aFunc(eventsBloc);
+            },
+            color: Colors.white,
+            padding: EdgeInsets.all(10),
+            shape: CircleBorder(side: BorderSide(color: Colors.blue)),
+            child: IconTheme(
+              data: IconThemeData(
+                color: Colors.black,
+              ),
+              child: Icon(
+                Icons.save,
+                size: 20,
+              ),
+            ),
+          );
+        }
+    );
+  }
+
+  Widget buildUpdateButtonOLD(String buttonText, Function aFunc, IconData aIcon) {
 
     final eventsBloc = BlocProvider.of<EventsListBloc>(context);
 

@@ -80,7 +80,7 @@ class _LoginStateMessageScreen extends State<LoginStateMessageScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DebugSettings(argLoginObject: widget.argLoginObject),
+        builder: (context) => DebugSettingsScreen(argLoginObject: widget.argLoginObject),
       ),
     );
   }

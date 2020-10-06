@@ -96,7 +96,7 @@ class _UserDetailEditPageScreenState extends State<UserDetailEditPageScreen> {
           _password, _userType, _stayConnected);
 
       /// 1. Update Database
-      aUserBloc.updateUser(widget.argUserObject, newUserObj);
+      aUserBloc.updateUserByGuidId(widget.argUserObject, newUserObj);
 
       /// If the USER is also the CURRENT user:
       var userGlobal = ConnectedUserGlobal();

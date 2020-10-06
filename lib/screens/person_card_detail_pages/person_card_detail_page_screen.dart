@@ -4,15 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/connected_user_global.dart';
 import 'package:rotary_net/objects/connected_user_object.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
+import 'package:rotary_net/objects/person_card_role_and_hierarchy_object.dart';
+import 'package:rotary_net/objects/rotary_area_object.dart';
+import 'package:rotary_net/objects/rotary_club_object.dart';
+import 'package:rotary_net/objects/rotary_cluster_object.dart';
+import 'package:rotary_net/objects/rotary_role_object.dart';
 import 'package:rotary_net/screens/person_card_detail_pages/person_card_detail_edit_page_screen.dart';
-import 'package:rotary_net/shared/bubbles_box_decoration.dart';
+import 'package:rotary_net/services/rotary_area_service.dart';
+import 'package:rotary_net/services/rotary_club_service.dart';
+import 'package:rotary_net/services/rotary_cluster_service.dart';
+import 'package:rotary_net/services/rotary_role_service.dart';
+import 'package:rotary_net/shared/bubble_box_person_card.dart';
+import 'package:rotary_net/shared/error_message_screen.dart';
 import 'package:rotary_net/shared/loading.dart';
 import 'package:rotary_net/widgets/application_menu_widget.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 import 'package:rotary_net/utils/utils_class.dart';
 
 class PersonCardDetailPageScreen extends StatefulWidget {
-  static const routeName = '/PersonCardDetailScreen';
+  static const routeName = '/PersonCardDetailPageScreen';
   final PersonCardObject argPersonCardObject;
 
   PersonCardDetailPageScreen({Key key, @required this.argPersonCardObject}) : super(key: key);
@@ -28,6 +38,10 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormState>();
 
+  Future<PersonCardRoleAndHierarchyObject> dataRequiredForBuild;
+  PersonCardRoleAndHierarchyObject displayDataRequired;
+  RichText displayPersonCardHierarchyTitle;
+
   bool allowUpdate = false;
   String error = '';
   bool loading = false;
@@ -36,8 +50,47 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
   void initState() {
     displayPersonCardObject = widget.argPersonCardObject;
     allowUpdate = getUpdatePermission();
+
+    dataRequiredForBuild = getAllRequiredDataForBuild();
+
     super.initState();
   }
+
+  //#region Get All Required Data For Build
+  Future<PersonCardRoleAndHierarchyObject> getAllRequiredDataForBuild() async {
+    setState(() {
+      loading = true;
+    });
+
+    RotaryRoleService _rotaryRoleService = RotaryRoleService();
+    RotaryRoleObject _rotaryRoleObj = await _rotaryRoleService.getRotaryRoleByRoleIdFromServer(displayPersonCardObject.roleId);
+
+    RotaryAreaService _rotaryAreaService = RotaryAreaService();
+    RotaryAreaObject _rotaryAreaObj = await _rotaryAreaService.getRotaryAreaByAreaIdFromServer(displayPersonCardObject.areaId);
+
+    RotaryClusterService _rotaryClusterService = RotaryClusterService();
+    RotaryClusterObject _rotaryClusterObj = await _rotaryClusterService.getRotaryAreaByAreaClusterIdFromServer(
+              displayPersonCardObject.areaId, displayPersonCardObject.clusterId);
+
+    RotaryClubService _rotaryClubService = RotaryClubService();
+    RotaryClubObject _rotaryClubObj = await _rotaryClubService.getRotaryClubByAreaClusterClubIdFromServer(
+              displayPersonCardObject.areaId, displayPersonCardObject.clusterId, displayPersonCardObject.clubId);
+
+    displayPersonCardHierarchyTitle = PersonCardRoleAndHierarchyObject.getPersonCardHierarchyTitleRichText(
+              _rotaryRoleObj.roleName, _rotaryAreaObj.areaName, _rotaryClusterObj.clusterName, _rotaryClubObj.clubName);
+
+    setState(() {
+      loading = false;
+    });
+
+    return PersonCardRoleAndHierarchyObject(
+        rotaryRoleObject: _rotaryRoleObj,
+        rotaryAreaObject: _rotaryAreaObj,
+        rotaryClusterObject: _rotaryClusterObj,
+        rotaryClubObject: _rotaryClubObj,
+    );
+  }
+  //#endregion
 
   //#region Get Update Permission
   bool getUpdatePermission()  {
@@ -66,16 +119,24 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
 
   //#region Open Person Card Detail Edit Screen
   openPersonCardDetailEditScreen(PersonCardObject aPersonCardObj) async {
-    final result = await Navigator.push(
+    final resultMap = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PersonCardDetailEditPageScreen(argPersonCardObject: displayPersonCardObject),
+        builder: (context) => PersonCardDetailEditPageScreen(
+            argPersonCardObject: displayPersonCardObject
+        ),
       ),
     );
 
-    if (result != null) {
+    if (resultMap != null) {
+      PersonCardObject _personCardObject = resultMap["PersonCardObject"];
+      // PersonCardRoleAndHierarchyObject _personCardRoleAndHierarchyObject = resultMap["PersonCardRoleAndHierarchyObject"];
+      RichText _personCardHierarchyTitle = resultMap["PersonCardHierarchyTitle"];
+
       setState(() {
-        displayPersonCardObject = result;
+        displayPersonCardObject = _personCardObject;
+        // currentDataRequired = _personCardRoleAndHierarchyObject;
+        displayPersonCardHierarchyTitle = _personCardHierarchyTitle;
       });
     }
   }
@@ -96,11 +157,33 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
           ),
         ),
 
-          body: buildMainScaffoldBody(),
+        body: FutureBuilder<PersonCardRoleAndHierarchyObject>(
+          future: dataRequiredForBuild,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting)
+              return Loading();
+            else
+            if (snapshot.hasError) {
+              return RotaryErrorMessageScreen(
+                errTitle: 'שגיאה בשליפת נתונים',
+                errMsg: 'אנא פנה למנהל המערכת',
+              );
+            } else {
+              if (snapshot.hasData)
+              {
+                displayDataRequired = snapshot.data;
+                  return buildMainScaffoldBody();
+              }
+              else
+                return Center(child: Text('אין תוצאות'));
+            }
+          }
+        ),
     );
   }
 
   Widget buildMainScaffoldBody() {
+
     return Container(
       width: double.infinity,
       child: Column(
@@ -188,7 +271,7 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
 
           Expanded(
               child: Container(
-                padding: EdgeInsets.symmetric(vertical: 30.0, horizontal: 30.0),
+                // padding: EdgeInsets.symmetric(horizontal: 30.0),
                 width: double.infinity,
                 child: buildPersonCardDetailDisplay(displayPersonCardObject),
                 ),
@@ -204,51 +287,65 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
     return Column(
       children: <Widget>[
         /// ------------------- Image + Card Name -------------------------
-        Padding(
-          padding: const EdgeInsets.only(bottom: 20.0),
-          child: Row(
-            textDirection: TextDirection.rtl,
-            children: <Widget>[
-              (aPersonCardObj.pictureUrl == null) || (aPersonCardObj.pictureUrl == '')
-                ? buildEmptyPersonCardImageIcon(Icons.person)
-                : CircleAvatar(
-                    radius: 30.0,
-                    backgroundColor: Colors.blue[900],
-                    backgroundImage: FileImage(File('${aPersonCardObj.pictureUrl}')),
-                  ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 20.0),
-                  child: Column(
-                    textDirection: TextDirection.rtl,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Text(
-                          aPersonCardObj.firstName + " " + aPersonCardObj.lastName,
-                          style: TextStyle(color: Colors.grey[900], fontSize: 20.0, fontWeight: FontWeight.bold),
-                        ),
+        Stack(
+          overflow: Overflow.visible,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 20.0, top: 30.0, right: 20.0, bottom: 20.0),
+              child: Row(
+                textDirection: TextDirection.rtl,
+                children: <Widget>[
+                  (aPersonCardObj.pictureUrl == null) || (aPersonCardObj.pictureUrl == '')
+                    ? buildEmptyPersonCardImageIcon(Icons.person)
+                    : CircleAvatar(
+                        radius: 30.0,
+                        backgroundColor: Colors.blue[900],
+                        backgroundImage: FileImage(File('${aPersonCardObj.pictureUrl}')),
                       ),
-                      Text(
-                        aPersonCardObj.firstNameEng + " " + aPersonCardObj.lastNameEng,
-                        style: TextStyle(color: Colors.grey[900], fontSize: 16.0, fontWeight: FontWeight.w400),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 20.0),
+                      child: Column(
+                        textDirection: TextDirection.rtl,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: Text(
+                              aPersonCardObj.firstName + " " + aPersonCardObj.lastName,
+                              style: TextStyle(color: Colors.grey[900], fontSize: 20.0, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Text(
+                            aPersonCardObj.firstNameEng + " " + aPersonCardObj.lastNameEng,
+                            style: TextStyle(color: Colors.grey[900], fontSize: 16.0, fontWeight: FontWeight.w400),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
+            ),
 
-              if (allowUpdate)
-                Padding(
-                  padding: const EdgeInsets.only(left: 0.0, top: 0.0, right: 10.0, bottom: 0.0),
-                  child: IconButton(
-                    icon: Icon(Icons.mode_edit, color: Colors.grey[900]),
-                    onPressed: () {openPersonCardDetailEditScreen(aPersonCardObj);},
-                  ),
-                ),
+            if (allowUpdate)
+              Positioned(
+                  left: 20.0,
+                  top: -25.0,
+                  child: buildEditPersonCardButton(openPersonCardDetailEditScreen, aPersonCardObj)
+              ),
+          ],
+        ),
 
-            ],
+        Padding(
+          padding: const EdgeInsets.only(left: 0.0, top: 10.0, right: 30.0, bottom: 0.0),
+          child: Directionality(
+            textDirection: TextDirection.rtl,
+            child: Row(
+              children: <Widget>[
+                displayPersonCardHierarchyTitle,
+              ]
+            ),
           ),
         ),
 
@@ -257,13 +354,13 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Container(
-              padding: EdgeInsets.only(left: 0.0, top: 20.0, right: 0.0, bottom: 20.0),
+              padding: EdgeInsets.only(left: 30.0, top: 30.0, right: 30.0, bottom: 20.0),
               child: Column(
                 children: <Widget>[
                   Row(
                     textDirection: TextDirection.rtl,
                     children: <Widget>[
-                      BubblesBoxDecoration(
+                      BubblesBoxPersonCard(
                         aText: aPersonCardObj.cardDescription,
                         bubbleColor: Colors.blue[100],
                         isWithShadow: false,
@@ -282,7 +379,7 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
                       if (aPersonCardObj.phoneNumber != "") buildDetailImageIcon(Icons.sms, aPersonCardObj.phoneNumber, Utils.sendSms),
                       if (aPersonCardObj.address != "") buildDetailImageIcon(Icons.home, aPersonCardObj.address, Utils.launchInMapByAddress),
                       if (aPersonCardObj.internetSiteUrl != "") buildDetailImageIcon(Icons.alternate_email, aPersonCardObj.internetSiteUrl, Utils.launchInBrowser),
-                    ],
+                      ],
                   ),
                 ],
               ),
@@ -355,6 +452,25 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
             ),
           ),
         ]
+    );
+  }
+
+  Widget buildEditPersonCardButton(Function aFunc, PersonCardObject aPersonCardObj) {
+    return MaterialButton(
+      elevation: 0.0,
+      onPressed: () async {await aFunc(aPersonCardObj);},
+      color: Colors.white,
+      padding: EdgeInsets.all(10),
+      shape: CircleBorder(side: BorderSide(color: Colors.blue)),
+      child: IconTheme(
+        data: IconThemeData(
+          color: Colors.black,
+        ),
+        child: Icon(
+          Icons.edit,
+          size: 20,
+        ),
+      ),
     );
   }
 }

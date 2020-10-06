@@ -59,6 +59,7 @@ class _WrapperState extends State<Wrapper> {
 
   Future <ConnectedUserObject> initializeConnectedUserObject() async {
     ConnectedUserObject _currentConnectedUserObj = await connectedUserService.readConnectedUserObjectDataFromSecureStorage();
+    print('Wrapper / _currentConnectedUserObj: $_currentConnectedUserObj');
     var userGlobal = ConnectedUserGlobal();
     userGlobal.setConnectedUserObject(_currentConnectedUserObj);
 
@@ -93,8 +94,7 @@ class _WrapperState extends State<Wrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return
-    Scaffold(
+    return Scaffold(
       body: FutureBuilder<DataRequiredForBuild>(
         future: dataRequiredForBuild,
         builder: (context, snapshot) {
@@ -111,7 +111,8 @@ class _WrapperState extends State<Wrapper> {
               if (snapshot.hasData)
               {
                 currentDataRequired = snapshot.data;
-                return getPageByLoginStatus(currentDataRequired.loginObject,
+                return getPageByLoginStatus(
+                    currentDataRequired.loginObject,
                     currentDataRequired.connectedUserObj);
               }
               else
@@ -123,7 +124,6 @@ class _WrapperState extends State<Wrapper> {
   }
 
   Widget getPageByLoginStatus(LoginObject aLoginObj, ConnectedUserObject aConnectedUserObject) {
-    print ('aConnectedUserObject: $aConnectedUserObject');
     switch (aLoginObj.loginStatus) {
       case Constants.LoginStatusEnum.NoRequest:
         return RegisterScreen(argLoginObject: aLoginObj);

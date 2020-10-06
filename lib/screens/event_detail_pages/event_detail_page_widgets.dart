@@ -14,7 +14,7 @@ class EventDetailWidgets {
         .difference(aEventStartDateTime)
         .inDays;
 
-    Map datesMapObj = await HebrewFormatSyntax.getHebrewDateTimeLabels(
+    Map datesMapObj = await HebrewFormatSyntax.getHebrewStartEndDateTimeLabels(
         aEventStartDateTime, aEventEndDateTime);
 
     if (differenceDates != 0) {

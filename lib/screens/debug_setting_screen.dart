@@ -7,22 +7,30 @@ import 'package:rotary_net/objects/connected_user_global.dart';
 import 'package:rotary_net/objects/connected_user_object.dart';
 import 'package:rotary_net/objects/login_object.dart';
 import 'package:rotary_net/services/connected_user_service.dart';
+import 'package:rotary_net/services/event_service.dart';
 import 'package:rotary_net/services/globals_service.dart';
 import 'package:rotary_net/services/login_service.dart';
+import 'package:rotary_net/services/message_service.dart';
+import 'package:rotary_net/services/person_card_service.dart';
+import 'package:rotary_net/services/rotary_area_service.dart';
+import 'package:rotary_net/services/rotary_club_service.dart';
+import 'package:rotary_net/services/rotary_cluster_service.dart';
+import 'package:rotary_net/services/rotary_role_service.dart';
+import 'package:rotary_net/services/user_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 import 'package:rotary_net/shared/user_type_labled_radio.dart';
 
-class DebugSettings extends StatefulWidget {
-  static const routeName = '/DebugSettings';
+class DebugSettingsScreen extends StatefulWidget {
+  static const routeName = '/DebugSettingsScreen';
   final LoginObject argLoginObject;
 
-  DebugSettings({Key key, @required this.argLoginObject}) : super(key: key);
+  DebugSettingsScreen({Key key, @required this.argLoginObject}) : super(key: key);
 
   @override
-  _DebugSettings createState() => _DebugSettings();
+  _DebugSettingsScreen createState() => _DebugSettingsScreen();
 }
 
-class _DebugSettings extends State<DebugSettings> {
+class _DebugSettingsScreen extends State<DebugSettingsScreen> {
 
   ConnectedUserObject currentConnectedUserObj;
   String appBarTitle = 'Rotary Net';
@@ -300,9 +308,29 @@ class _DebugSettings extends State<DebugSettings> {
                     onPressed: () async {
                       await RotaryDataBaseProvider.rotaryDB.createRotaryDB();
 
-                      await RotaryDataBaseProvider.rotaryDB.insertAllStartedUsersToDb();
-                      await RotaryDataBaseProvider.rotaryDB.insertAllStartedPersonCardsToDb();
-                      await RotaryDataBaseProvider.rotaryDB.insertAllStartedEventsToDb();
+                      UserService _userService = UserService();
+                      await _userService.insertAllStartedUsersToDb();
+
+                      PersonCardService _personCardService = PersonCardService();
+                      await _personCardService.insertAllStartedPersonCardsToDb();
+
+                      EventService _eventService = EventService();
+                      await _eventService.insertAllStartedEventsToDb();
+
+                      MessageService _messageService = MessageService();
+                      await _messageService.insertAllStartedMessagesToDb();
+
+                      RotaryRoleService _rotaryRoleService = RotaryRoleService();
+                      await _rotaryRoleService.insertAllStartedRotaryRoleToDb();
+
+                      RotaryAreaService _rotaryAreaService = RotaryAreaService();
+                      await _rotaryAreaService.insertAllStartedRotaryAreaToDb();
+
+                      RotaryClusterService _rotaryClusterService = RotaryClusterService();
+                      await _rotaryClusterService.insertAllStartedRotaryClusterToDb();
+
+                      RotaryClubService _rotaryClubService = RotaryClubService();
+                      await _rotaryClubService.insertAllStartedRotaryClubToDb();
                     }
                 ),
                 SizedBox(height: 20.0,),

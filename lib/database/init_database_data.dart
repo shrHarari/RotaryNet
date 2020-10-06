@@ -1,7 +1,7 @@
 
 class InitDataBaseData {
 
-  //#region Create Json Rows Users [Data for Debug]
+  //#region Create Json Rows: Users [Data for Debug]
   static String createJsonRowsForUsers() {
 
     String userRowsJson =
@@ -118,9 +118,9 @@ class InitDataBaseData {
 
     return userRowsJson;
   }
-//#endregion
+  //#endregion
 
-  //#region Create Json Rows PersonCard [Data for Debug]
+  //#region Create Json Rows: PersonCard [Data for Debug]
   static String createJsonRowsForPersonCards() {
     final String someText = "\\nשל כרטיס הביקור של אלק באלדווי\\nפירוט נוסף\\nועוד פירוט\\nשורה נונספת ארוכה מאודדדדדדדדדדד דדדדדדדדדדדדד דדדדדדדדדדדד  דדדדד\\nועוד שורה ארררררוככככה יחדגיכחגי דגיכגדי דגכי ידגכי דגכי דגכי דגכי\\nסוף";
 
@@ -140,7 +140,11 @@ class InitDataBaseData {
         '"pictureUrl": "", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של שחר הררי", '
         '"internetSiteUrl": "https://www.google.co.il/", '
-        '"address": "הנשיאים 6, הוד-השרון ישראל" '
+        '"address": "הנשיאים 6, הוד-השרון ישראל", '
+        '"areaId": 1, '
+        '"clusterId": 1, '
+        '"clubId": 1, '
+        '"roleId": 1 '
         '},'
         '{'
         '"userGuidId": "2", '
@@ -154,9 +158,13 @@ class InitDataBaseData {
         '"phoneNumberParse": "521111111", '
         '"phoneNumberCleanLongFormat": "972521111111", '
         '"pictureUrl": "", '
-        '"cardDescription": "כרטיס ביקור של אלכס", '
+        '"cardDescription": "$someText", '
         '"internetSiteUrl": "", '
-        '"address": "ויצמן 32, כפר-סבא ישראל" '
+        '"address": "ויצמן 32, כפר-סבא ישראל", '
+        '"areaId": 1, '
+        '"clusterId": 1, '
+        '"clubId": 1, '
+        '"roleId": 6 '
         '},'
         '{'
         '"userGuidId": "3", '
@@ -172,7 +180,11 @@ class InitDataBaseData {
         '"pictureUrl": "", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של גל גדות", '
         '"internetSiteUrl": "", '
-        '"address": "יפו 32 ירושלים ישראל" '
+        '"address": "יפו 32 ירושלים ישראל", '
+        '"areaId": 1, '
+        '"clusterId": 2, '
+        '"clubId": 1, '
+        '"roleId": 3 '
         '},'
         '{'
         '"userGuidId": "4", '
@@ -188,7 +200,11 @@ class InitDataBaseData {
         '"pictureUrl": "", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של טום קרוז", '
         '"internetSiteUrl": "", '
-        '"address": "הכנסת 1, ירושלים" '
+        '"address": "הכנסת 1, ירושלים", '
+        '"areaId": 1, '
+        '"clusterId": 2, '
+        '"clubId": 1, '
+        '"roleId": 4 '
         '},'
         '{'
         '"userGuidId": "5", '
@@ -204,7 +220,11 @@ class InitDataBaseData {
         '"pictureUrl": "", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של קמרון דיאז", '
         '"internetSiteUrl": "", '
-        '"address": "תל-חי 18, כפר-סבא ישראל" '
+        '"address": "תל-חי 18, כפר-סבא ישראל", '
+        '"areaId": 1, '
+        '"clusterId": 2, '
+        '"clubId": 1, '
+        '"roleId": 5 '
         '},'
         '{'
         '"userGuidId": "6", '
@@ -220,7 +240,11 @@ class InitDataBaseData {
         '"pictureUrl": "", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של האריסון פורד", '
         '"internetSiteUrl": "", '
-        '"address": "סוקולוב 6, נתניה" '
+        '"address": "סוקולוב 6, נתניה", '
+        '"areaId": 1, '
+        '"clusterId": 2, '
+        '"clubId": 1, '
+        '"roleId": 6 '
         '},'
         '{'
         '"userGuidId": "7", '
@@ -236,7 +260,11 @@ class InitDataBaseData {
         '"pictureUrl": "", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של גק ניקולסון", '
         '"internetSiteUrl": "", '
-        '"address": "ויצמן 6, חדרה" '
+        '"address": "ויצמן 6, חדרה", '
+        '"areaId": 1, '
+        '"clusterId": 2, '
+        '"clubId": 1, '
+        '"roleId": 6 '
         '},'
         '{'
         '"userGuidId": "8", '
@@ -252,7 +280,11 @@ class InitDataBaseData {
         '"pictureUrl": "", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של גוליה רוברטס", '
         '"internetSiteUrl": "google.com", '
-        '"address": "סוקולוב 6, רמת-השרון" '
+        '"address": "סוקולוב 6, רמת-השרון", '
+        '"areaId": 1, '
+        '"clusterId": 3, '
+        '"clubId": 1, '
+        '"roleId": 3 '
         '},'
         '{'
         '"userGuidId": "9", '
@@ -268,7 +300,11 @@ class InitDataBaseData {
         '"pictureUrl": "", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של פול ניומן", '
         '"internetSiteUrl": "google.com", '
-        '"address": "וינגייט 56, באר-שבע" '
+        '"address": "וינגייט 56, באר-שבע", '
+        '"areaId": 1, '
+        '"clusterId": 3, '
+        '"clubId": 1, '
+        '"roleId": 6 '
         '},'
         '{'
         '"userGuidId": "10", '
@@ -284,7 +320,11 @@ class InitDataBaseData {
         '"pictureUrl": "", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של רוברט דה-נירו", '
         '"internetSiteUrl": "google.com", '
-        '"address": "הנשיא 6, פתח-תקווה" '
+        '"address": "הנשיא 6, פתח-תקווה", '
+        '"areaId": 2, '
+        '"clusterId": 1, '
+        '"clubId": 1, '
+        '"roleId": 1 '
         '},'
         '{'
         '"userGuidId": "11", '
@@ -300,15 +340,19 @@ class InitDataBaseData {
         '"pictureUrl": "", '
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של אומה תורמן", '
         '"internetSiteUrl": "google.com", '
-        '"address": "6767 Hollywood Blvd, Los Angeles, CA 90028, ארצות הברית" '
+        '"address": "6767 Hollywood Blvd, Los Angeles, CA 90028, ארצות הברית", '
+        '"areaId": 3, '
+        '"clusterId": 1, '
+        '"clubId": 1, '
+        '"roleId": 1 '
         '}'
         ']';
 
     return personCardRowsJson;
   }
-//#endregion
+  //#endregion
 
-  //#region Create Json Rows Events [Data for Debug]
+  //#region Create Json Rows: Events [Data for Debug]
   static String createJsonRowsForEvents() {
 
     String eventsListJson =
@@ -357,6 +401,260 @@ class InitDataBaseData {
 
     return eventsListJson;
   }
-//#endregion
+  //#endregion
 
+  //#region Create Json Rows: Messages [Data for Debug]
+  static String createJsonRowsForMessages() {
+        final String longMessageText = "שלום לכולם, הודעה ארוכה\\nעם כמה שורות\\nשורה שלישית\\nועוד שורה ארוכה עם הרבה מילים שצריכות להיות בכמה שורות";
+        final String extraLongMessageText = "הודעה חשובה וארוכה\\nעם כמה שורות\\nשורה שלישית\\nועוד שורה ארוכה עם הרבה מילים שצריכות להיות בכמה שורות\\n"
+            "עוד טקסט -- ועוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --\\n"
+            "עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --\\n"
+            "עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --"
+            "עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --עוד טקסט --\\n"
+            "שורה חדשה עם טקסט נוסף שאמור לקפוץ שורה לאחר 40 תווים \\n --- עוד טקסט --   עוד טקסט --\\n עוד שורה - שורה אחרונה ";
+
+    String messagesListJson =
+        '['
+        '{'
+        '"messageGuidId": "1", '
+        '"composerGuidId": "1", '
+        '"messageText": "שלום רב, הודעה ראשונה", '
+        '"messageCreatedDateTime": "2019-04-29 09:40:00.000" '
+        '},'
+        '{'
+        '"messageGuidId": "2", '
+        '"composerGuidId": "3", '
+        '"messageText": "שלום רב, הודעה שנייה", '
+        '"messageCreatedDateTime": "2020-04-15 11:30:00.000" '
+        '},'
+        '{'
+        '"messageGuidId": "3", '
+        '"composerGuidId": "1", '
+        '"messageText": "שלום רב, הודעה שלישית", '
+        '"messageCreatedDateTime": "2020-05-22 17:13:00.000" '
+        '},'
+        '{'
+        '"messageGuidId": "4", '
+        '"composerGuidId": "1", '
+        '"messageText": "שלום רב, הודעה רביעית", '
+        '"messageCreatedDateTime": "2020-08-18 08:50:00.000" '
+        '},'
+        '{'
+        '"messageGuidId": "5", '
+        '"composerGuidId": "4", '
+        '"messageText": "שלום רב, הודעה חמישית", '
+        '"messageCreatedDateTime": "2020-05-12 19:45:00.000" '
+        '},'
+        '{'
+        '"messageGuidId": "6", '
+        '"composerGuidId": "4", '
+        '"messageText": "$longMessageText", '
+        '"messageCreatedDateTime": "2020-09-18 10:00:00.000" '
+        '},'
+        '{'
+        '"messageGuidId": "7", '
+        '"composerGuidId": "2", '
+        '"messageText": "$extraLongMessageText", '
+        '"messageCreatedDateTime": "2020-06-03 11:22:13.000" '
+        '}'
+        ']';
+
+    return messagesListJson;
+  }
+  //#endregion
+
+  //#region Create Json Rows: Rotary Role [Data for Debug]
+  static String createJsonRowsForRotaryRole() {
+
+    String rolesListJson =
+        '['
+        '{'
+        '"roleId": 1, '
+        '"roleName": "יושב ראש" '
+        '},'
+        '{'
+        '"roleId": 2, '
+        '"roleName": "גזבר" '
+        '},'
+        '{'
+        '"roleId": 3, '
+        '"roleName": "מזכיר אזור" '
+        '},'
+        '{'
+        '"roleId": 4, '
+        '"roleName": "מזכיר אשכול" '
+        '},'
+        '{'
+        '"roleId": 5, '
+        '"roleName": "מזכיר מועדון" '
+        '},'
+        '{'
+        '"roleId": 6, '
+        '"roleName": "חבר" '
+        '}'
+        ']';
+
+    return rolesListJson;
+  }
+  //#endregion
+
+  //#region Create Json Rows: Rotary Area [Data for Debug]
+  static String createJsonRowsForRotaryArea() {
+
+    String rotaryAreasListJson =
+        '['
+        '{'
+        '"areaId": 1, '
+        '"areaName": "ישראל" '
+        '},'
+        '{'
+        '"areaId": 2, '
+        '"areaName": "ארצות הברית" '
+        '},'
+        '{'
+        '"areaId": 3, '
+        '"areaName": "צרפת" '
+        '}'
+        ']';
+
+    return rotaryAreasListJson;
+  }
+  //#endregion
+
+  //#region Create Json Rows: Rotary Cluster [Data for Debug]
+  static String createJsonRowsForRotaryCluster() {
+
+    String rotaryClusterListJson =
+        '['
+        '{'
+        '"areaId": 1, '
+        '"clusterId": 1, '
+        '"clusterName": "מרכז" '
+        '},'
+        '{'
+        '"areaId": 1, '
+        '"clusterId": 2, '
+        '"clusterName": "שומרון" '
+        '},'
+        '{'
+        '"areaId": 1, '
+        '"clusterId": 3, '
+        '"clusterName": "צפון" '
+        '},'
+        '{'
+        '"areaId": 2, '
+        '"clusterId": 1, '
+        '"clusterName": "מזרח" '
+        '},'
+        '{'
+        '"areaId": 3, '
+        '"clusterId": 1, '
+        '"clusterName": "מרכז" '
+        '}'
+        ']';
+
+    return rotaryClusterListJson;
+  }
+  //#endregion
+
+  //#region Create Json Rows: Rotary Club [Data for Debug]
+  static String createJsonRowsForRotaryClub() {
+
+    String rotaryClubsListJson =
+        '['
+        '{'
+        '"areaId": 1, '
+        '"clusterId": 1, '
+        '"clubId": 1, '
+        '"clubName": "תל-אביב", '
+        '"clubAddress": "תל-אביב, ויצמן 1", '
+        '"clubMail": "tel-aviv@rotary.net", '
+        '"clubManagerGuidId": "1" '
+        '},'
+        '{'
+        '"areaId": 1, '
+        '"clusterId": 1, '
+        '"clubId": 2, '
+        '"clubName": "כפר-סבא", '
+        '"clubAddress": "כפר-סבא, ויצמן 1", '
+        '"clubMail": "kfar-saba@rotary.net", '
+        '"clubManagerGuidId": "1" '
+        '},'
+        '{'
+        '"areaId": 1, '
+        '"clusterId": 2, '
+        '"clubId": 1, '
+        '"clubName": "קיסריה", '
+        '"clubAddress": "קיסריה, ויצמן 1", '
+        '"clubMail": "caesarea@rotary.net", '
+        '"clubManagerGuidId": "2" '
+        '},'
+        '{'
+        '"areaId": 1, '
+        '"clusterId": 2, '
+        '"clubId": 2, '
+        '"clubName": "חדרה", '
+        '"clubAddress": "חדרה, ויצמן 1", '
+        '"clubMail": "hadera@rotary.net", '
+        '"clubManagerGuidId": "2" '
+        '},'
+        '{'
+        '"areaId": 1, '
+        '"clusterId": 2, '
+        '"clubId": 3, '
+        '"clubName": "כפר יונה", '
+        '"clubAddress": "כפר יונה, ויצמן 1", '
+        '"clubMail": "kfar-yona@rotary.net", '
+        '"clubManagerGuidId": "2" '
+        '},'
+        '{'
+        '"areaId": 1, '
+        '"clusterId": 2, '
+        '"clubId": 4, '
+        '"clubName": "פרדס חנה", '
+        '"clubAddress": "פרדס חנה, ויצמן 1", '
+        '"clubMail": "pardes-hana@rotary.net", '
+        '"clubManagerGuidId": "3" '
+        '},'
+        '{'
+        '"areaId": 1, '
+        '"clusterId": 3, '
+        '"clubId": 1, '
+        '"clubName": "חיפה", '
+        '"clubAddress": "חיפה, ויצמן 1", '
+        '"clubMail": "haiffa@rotary.net", '
+        '"clubManagerGuidId": "3" '
+        '},'
+        '{'
+        '"areaId": 1, '
+        '"clusterId": 3, '
+        '"clubId": 2, '
+        '"clubName": "נהריה", '
+        '"clubAddress": "נהריה, ויצמן 1", '
+        '"clubMail": "naharia@rotary.net", '
+        '"clubManagerGuidId": "4" '
+        '},'
+        '{'
+        '"areaId": 2, '
+        '"clusterId": 1, '
+        '"clubId": 1, '
+        '"clubName": "ניו-יורק", '
+        '"clubAddress": "ניו-יורק, השדרה החמישית 99", '
+        '"clubMail": "naharia@rotary.net", '
+        '"clubManagerGuidId": "4" '
+        '},'
+        '{'
+        '"areaId": 3, '
+        '"clusterId": 1, '
+        '"clubId": 1, '
+        '"clubName": "פריז", '
+        '"clubAddress": "פריז, שאנז-אליזה 1", '
+        '"clubMail": "naharia@rotary.net", '
+        '"clubManagerGuidId": "4" '
+        '}'
+        ']';
+
+    return rotaryClubsListJson;
+  }
+  //#endregion
 }

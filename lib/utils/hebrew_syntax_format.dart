@@ -3,7 +3,7 @@ import 'package:intl/intl.dart' as Intl;
 
 class HebrewFormatSyntax {
 
-  static Future<Map> getHebrewDateTimeLabels(DateTime aStartTime, DateTime aEndTime) async {
+  static Future<Map> getHebrewStartEndDateTimeLabels(DateTime aStartTime, DateTime aEndTime) async {
 
     await SymbolData.initializeDateFormatting("he", null);
     var formatterStartDate = Intl.DateFormat.yMMMMEEEEd('he');
@@ -24,6 +24,25 @@ class HebrewFormatSyntax {
       "HebrewEndDate": hebrewEndDate,
       "HebrewStartTime": hebrewStartTime,
       "HebrewEndTime": hebrewEndTime
+    };
+
+    return hebrewDatesMap;
+  }
+
+
+  static Future<Map> getHebrewDateTimeLabel(DateTime aDateTime) async {
+
+    await SymbolData.initializeDateFormatting("he", null);
+    var formatterDate = Intl.DateFormat.yMMMMEEEEd('he');
+    String hebrewDate = formatterDate.format(aDateTime);
+
+    var formatterTime = Intl.DateFormat.Hm('he');
+    String hebrewTime = formatterTime.format(aDateTime);
+
+    /// Return multiple data using MAP
+    final hebrewDatesMap = {
+      "HebrewDate": hebrewDate,
+      "HebrewTime": hebrewTime,
     };
 
     return hebrewDatesMap;

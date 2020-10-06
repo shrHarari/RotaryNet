@@ -18,7 +18,6 @@ class PersonCardsListBloc implements BloC {
 
   // 1. private StreamController is declared that will manage the stream and sink for this BLoC.
   // StreamControllers use generics to tell the type system what kind of object will be emitted from the stream
-  // final _usersController = StreamController<List<UserObject>>();
 
   // In case of multi calling to the stream we use broadcast
   final _personCardsController = StreamController<List<PersonCardObject>>.broadcast();
@@ -33,7 +32,9 @@ class PersonCardsListBloc implements BloC {
     if (_textToSearch == null || _textToSearch.length == 0)
       clearPersonCardsList();
     else
-      _personCardsList = await personCardService.getPersonCardsListBySearchQueryFromServer(_textToSearch);
+      {
+        _personCardsList = await personCardService.getPersonCardsListBySearchQueryFromServer(_textToSearch);
+      }
 
     _personCardsController.sink.add(_personCardsList);
   }
@@ -48,35 +49,37 @@ class PersonCardsListBloc implements BloC {
     _personCardsController.close();
   }
 
-  //#region CRUD: User
+  //#region CRUD: Person Card
 
   Future<void> insertPersonCard(PersonCardObject aPersonCardObj) async {
     if (_personCardsList.contains(aPersonCardObj)) {
       await personCardService.insertPersonCardToDataBase(aPersonCardObj);
 
       _personCardsList.add(aPersonCardObj);
+      _personCardsList.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
       _personCardsController.sink.add(_personCardsList);
     }
   }
 
-  Future<void> updatePersonCard(PersonCardObject aOldPersonCardObj, PersonCardObject aNewPersonCardObj) async {
+  Future<void> updatePersonCardByGuidId(PersonCardObject aOldPersonCardObj, PersonCardObject aNewPersonCardObj) async {
     if (_personCardsList.contains(aOldPersonCardObj)) {
-      await personCardService.updatePersonCardToDataBase(aNewPersonCardObj);
+
+      await personCardService.updatePersonCardByGuidIdToDataBase(aNewPersonCardObj);
 
       _personCardsList.remove(aOldPersonCardObj);
       _personCardsList.add(aNewPersonCardObj);
+      _personCardsList.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
       _personCardsController.sink.add(_personCardsList);
     }
   }
 
-  Future<void> deletePersonCard(PersonCardObject aUsrObj) async {
+  Future<void> deletePersonCardByGuidId(PersonCardObject aUsrObj) async {
     if (_personCardsList.contains(aUsrObj)) {
-      await personCardService.deletePersonCardFromDataBase(aUsrObj);
+      await personCardService.deletePersonCardByGuidIdFromDataBase(aUsrObj);
 
       _personCardsList.remove(aUsrObj);
       _personCardsController.sink.add(_personCardsList);
     }
   }
-//#endregion
-
+  //#endregion
 }

@@ -2,8 +2,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/connected_user_global.dart';
 import 'package:rotary_net/objects/connected_user_object.dart';
+import 'package:rotary_net/screens/event_detail_pages/event_detail_edit_page_screen.dart';
 import 'package:rotary_net/screens/menu_pages/about_screen.dart';
 import 'package:rotary_net/screens/menu_pages/privacy_policy_screen.dart';
+import 'package:rotary_net/screens/message_detail_pages/message_detail_edit_page_screen.dart';
+import 'package:rotary_net/screens/message_detail_pages/message_detail_page_widgets.dart';
 import 'package:rotary_net/screens/personal_area_pages/personal_area_page_screen.dart';
 import 'package:rotary_net/screens/rotary_users_pages/rotary_users_list_page_screen.dart';
 import 'package:rotary_net/services/connected_user_service.dart';
@@ -21,6 +24,7 @@ class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
 
   ConnectedUserObject currentConnectedUserObj;
   bool userHasPermission = false;
+  Widget hebrewMessageCreatedTimeLabel;
 
   @override
   void initState() {
@@ -132,6 +136,50 @@ class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
                   onTap: () => {Navigator.of(context).pop()},
                 ),
                 Divider(),
+
+                if (userHasPermission)
+                  ListTile(
+                    leading: Icon(Icons.event),
+                    title: Text('הוספת אירוע'),
+                    onTap:  () =>
+                    {
+                      Navigator.of(context).pop(),
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                EventDetailEditPageScreen(
+                                  argEventObject: null,
+                                  argHebrewEventTimeLabel: null)
+                        ),
+                      ),
+                    },
+                  ),
+
+                if (userHasPermission)
+                  ListTile(
+                    leading: Icon(Icons.message),
+                    title: Text('הוספת הודעה'),
+                    onTap: () async =>
+                    {
+                      Navigator.of(context).pop(),
+
+                      hebrewMessageCreatedTimeLabel = await MessageDetailWidgets.buildMessageCreatedTimeLabel(DateTime.now()),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                MessageDetailEditPageScreen(
+                                  argMessageWithDescriptionObject: null,
+                                  argHebrewMessageCreatedTimeLabel: hebrewMessageCreatedTimeLabel)
+                        ),
+                      ),
+                    },
+                  ),
+
+                if (userHasPermission) Divider(),
+
                 if (userHasPermission)
                   ListTile(
                     leading: Icon(Icons.verified_user),
@@ -148,8 +196,8 @@ class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
                       ),
                     },
                   ),
-                if (userHasPermission)
-                  Divider(),
+                if (userHasPermission) Divider(),
+
                 ListTile(
                   leading: Icon(Icons.exit_to_app),
                   title: Text('יציאה'),

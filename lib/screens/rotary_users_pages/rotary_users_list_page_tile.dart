@@ -100,7 +100,7 @@ class RotaryUsersListPageTile extends StatelessWidget {
 
         return MaterialButton(
           onPressed: () async {
-            await bloc.deleteUser(argUserObj);
+            await bloc.deleteUserByGuidId(argUserObj);
           },
           color: Colors.white,
           shape: CircleBorder(side: BorderSide(color: Colors.blue)),

@@ -15,6 +15,10 @@ class PersonCardObject {
   String cardDescription;
   String internetSiteUrl;
   String address;
+  int areaId;
+  int clusterId;
+  int clubId;
+  int roleId;
 
   PersonCardObject({
     this.userGuidId,
@@ -31,6 +35,10 @@ class PersonCardObject {
     this.cardDescription,
     this.internetSiteUrl,
     this.address,
+    this.areaId,
+    this.clusterId,
+    this.clubId,
+    this.roleId,
   });
 
   // Set PersonCard Email
@@ -58,7 +66,11 @@ class PersonCardObject {
         pictureUrl : parsedJson['pictureUrl'],
         cardDescription : parsedJson['cardDescription'],
         internetSiteUrl : parsedJson['internetSiteUrl'],
-        address : parsedJson['address']
+        address : parsedJson['address'],
+        areaId : parsedJson['areaId'],
+        clusterId : parsedJson['clusterId'],
+        clubId : parsedJson['clubId'],
+        roleId : parsedJson['roleId'],
     );
   }
 
@@ -79,6 +91,10 @@ class PersonCardObject {
         ' ${this.cardDescription},'
         ' ${this.internetSiteUrl},'
         ' ${this.address},'
+        ' ${this.areaId},'
+        ' ${this.clusterId},'
+        ' ${this.clubId},'
+        ' ${this.roleId},'
         ' }';
   }
 
@@ -97,6 +113,10 @@ class PersonCardObject {
     'cardDescription': cardDescription,
     'internetSiteUrl': internetSiteUrl,
     'address': address,
+    'areaId': areaId,
+    'clusterId': clusterId,
+    'clubId': clubId,
+    'roleId': roleId,
   };
 
   /// DataBase: Madel for Person Card
@@ -126,7 +146,11 @@ class PersonCardObject {
           pictureUrl : jsonFromMap['pictureUrl'],
           cardDescription : jsonFromMap['cardDescription'],
           internetSiteUrl : jsonFromMap['internetSiteUrl'],
-          address : jsonFromMap['address']
+          address : jsonFromMap['address'],
+          areaId : jsonFromMap['areaId'],
+          clusterId : jsonFromMap['clusterId'],
+          clubId : jsonFromMap['clubId'],
+          roleId : jsonFromMap['roleId'],
   );
 
   Map<String, dynamic> toMap() => {
@@ -144,5 +168,9 @@ class PersonCardObject {
     'cardDescription': cardDescription,
     'internetSiteUrl': internetSiteUrl,
     'address': address,
+    'areaId': areaId,
+    'clusterId': clusterId,
+    'clubId': clubId,
+    'roleId': roleId,
   };
 }

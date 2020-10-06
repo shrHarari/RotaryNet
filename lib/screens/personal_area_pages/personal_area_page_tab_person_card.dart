@@ -144,11 +144,12 @@ class _PersonalAreaPageTabPersonCardState extends State<PersonalAreaPageTabPerso
               widget.argConnectedUserGuidId,
               _email, _firstName, _lastName, _firstNameEng, _lastNameEng,
               _phoneNumber, _phoneNumberDialCode, _phoneNumberParse, _phoneNumberCleanLongFormat,
-              _pictureUrl, _cardDescription, _internetSiteUrl, _address);
+              _pictureUrl, _cardDescription, _internetSiteUrl, _address,
+              widget.argPersonCard.roleId, widget.argPersonCard.areaId, widget.argPersonCard.clusterId, widget.argPersonCard.clubId);
 
       int returnVal;
       if (isPersonCardExist)
-        returnVal = await personCardService.updatePersonCardToDataBase(newPersonCardObj);
+        returnVal = await personCardService.updatePersonCardByGuidIdToDataBase(newPersonCardObj);
       else
         returnVal = await personCardService.insertPersonCardToDataBase(newPersonCardObj);
 

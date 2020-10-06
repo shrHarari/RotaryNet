@@ -74,6 +74,20 @@ class UserService {
   }
   //#endregion
 
+  //#region insert All Started Users To DB
+  Future insertAllStartedUsersToDb() async {
+    List<UserObject> starterUsersList;
+    starterUsersList = await initializeUsersTableData();
+    // print('starterUsersList.length: ${starterUsersList.length}');
+
+    starterUsersList.forEach((UserObject userObj) async => await RotaryDataBaseProvider.rotaryDB.insertUser(userObj));
+
+    // List<UserObject> _usersList = await RotaryDataBaseProvider.rotaryDB.getAllUsers();
+    // if (_usersList.isNotEmpty)
+    //   print('>>>>>>>>>> usersList: ${_usersList[4].emailId}');
+  }
+  //#endregion
+
   //#region Get Users List By Search Query From Server [GET]
   // =========================================================
   Future getUsersListBySearchQueryFromServer(String aValueToSearch) async {
@@ -156,48 +170,48 @@ class UserService {
   }
   //#endregion
 
-  //#region Update User To DataBase [WriteToDB]
+  //#region Update User By GuidId To DataBase [WriteToDB]
   //=============================================================================
-  Future updateUserToDataBase(UserObject aUserObj) async {
+  Future updateUserByGuidIdToDataBase(UserObject aUserObj) async {
     try{
       // String jsonToPost = jsonEncode(aUserObj);
 
       //***** for debug *****
       if (GlobalsService.isDebugMode) {
-        var dbResult = await RotaryDataBaseProvider.rotaryDB.updateUser(aUserObj);
+        var dbResult = await RotaryDataBaseProvider.rotaryDB.updateUserByGuidId(aUserObj);
         return dbResult;
         //***** for debug *****
       }
     }
     catch (e) {
-      await LoggerService.log('<UserService> Update User To DataBase >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<UserService> Update User By GuidId To DataBase >>> ERROR: ${e.toString()}');
       developer.log(
-        'updateUserToDataBase',
+        'updateUserByGuidIdToDataBase',
         name: 'UserService',
-        error: 'Update User To DataBase >>> ERROR: ${e.toString()}',
+        error: 'Update User By GuidId To DataBase >>> ERROR: ${e.toString()}',
       );
       return null;
     }
   }
   //#endregion
 
-  //#region Delete User To DataBase [WriteToDB]
+  //#region Delete User By GuidId To DataBase [WriteToDB]
   //=============================================================================
-  Future deleteUserFromDataBase(UserObject aUserObj) async {
+  Future deleteUserByGuidIdFromDataBase(UserObject aUserObj) async {
     try{
       //***** for debug *****
       if (GlobalsService.isDebugMode) {
-        var dbResult = await RotaryDataBaseProvider.rotaryDB.deleteUser(aUserObj);
+        var dbResult = await RotaryDataBaseProvider.rotaryDB.deleteUserByGuidId(aUserObj);
         return dbResult;
         //***** for debug *****
       }
     }
     catch (e) {
-      await LoggerService.log('<UserService> Delete User To DataBase >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<UserService> Delete User By GuidId To DataBase >>> ERROR: ${e.toString()}');
       developer.log(
-        'deleteUserFromDataBase',
+        'deleteUserByGuidIdFromDataBase',
         name: 'UserService',
-        error: 'Delete User To DataBase >>> ERROR: ${e.toString()}',
+        error: 'Delete User By GuidId To DataBase >>> ERROR: ${e.toString()}',
       );
       return null;
     }

@@ -1,19 +1,13 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 
-class RotaryMainPageHeaderTitle implements SliverPersistentHeaderDelegate {
-  final double minExtent;
-  final double maxExtent;
+class RotaryMainPageHeaderTitle extends StatelessWidget {
 
-  RotaryMainPageHeaderTitle({
-    this.minExtent,
-    @required this.maxExtent,
-  });
+  RotaryMainPageHeaderTitle();
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(BuildContext context) {
     return Container(
       // color: Colors.lightBlue[400],
       color: Colors.transparent,
@@ -67,16 +61,5 @@ class RotaryMainPageHeaderTitle implements SliverPersistentHeaderDelegate {
         ),
       ),
     );
-  }
-
-  @override
-  FloatingHeaderSnapConfiguration get snapConfiguration => null;
-
-  @override
-  OverScrollHeaderStretchConfiguration get stretchConfiguration => null;
-
-  @override
-  bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {
-    return true;
   }
 }

@@ -48,26 +48,25 @@ class EventsListBloc implements BloC {
   Future<void> insertEvent(EventObject aEventObj) async {
       await eventService.insertEventToDataBase(aEventObj);
       _eventsList.add(aEventObj);
+      _eventsList.sort((a, b) => a.eventName.toLowerCase().compareTo(b.eventName.toLowerCase()));
       _eventsController.sink.add(_eventsList);
   }
 
   Future<void> updateEvent(EventObject aOldEventObj, EventObject aNewEventObj) async {
-
     if (_eventsList.contains(aOldEventObj)) {
-      print('------------- updateEvent / After / aNewEventObj: $aNewEventObj');
 
-      await eventService.updateEventToDataBase(aNewEventObj);
+      await eventService.updateEventByEventGuidIdToDataBase(aNewEventObj);
 
       _eventsList.remove(aOldEventObj);
       _eventsList.add(aNewEventObj);
+      _eventsList.sort((a, b) => a.eventName.toLowerCase().compareTo(b.eventName.toLowerCase()));
       _eventsController.sink.add(_eventsList);
     }
   }
 
-  Future<void> deleteEvent(EventObject aEventObj) async {
+  Future<void> deleteEventByEventGuidId(EventObject aEventObj) async {
     if (_eventsList.contains(aEventObj)) {
-      await eventService.deleteEventFromDataBase(aEventObj);
-      // await RotaryDataBaseProvider.rotaryDB.deleteUser(aUsrObj);
+      await eventService.deleteEventByEventGuidIdFromDataBase(aEventObj);
 
       _eventsList.remove(aEventObj);
       _eventsController.sink.add(_eventsList);

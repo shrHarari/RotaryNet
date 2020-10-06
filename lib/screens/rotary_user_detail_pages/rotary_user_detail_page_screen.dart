@@ -128,8 +128,8 @@ class _RotaryUserDetailPageScreenState extends State<RotaryUserDetailPageScreen>
                           child: IconButton(
                             icon: Icon(
                               Icons.close, color: Colors.white, size: 26.0,),
-                            onPressed: () {
-                              Navigator.pop(context);
+                              onPressed: () {
+                                Navigator.pop(context);
                             },
                           ),
                         ),
@@ -368,7 +368,7 @@ class _RotaryUserDetailPageScreenState extends State<RotaryUserDetailPageScreen>
 
           return RaisedButton.icon(
             onPressed: () {
-              usersBloc.deleteUser(displayUserObject);
+              usersBloc.deleteUserByGuidId(displayUserObject);
               Navigator.pop(context);
             },
             shape: RoundedRectangleBorder(

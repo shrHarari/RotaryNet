@@ -107,8 +107,8 @@ class EventObject {
   Map<String, dynamic> toMap()
   {
     // DateTime: Convert [DateTime] to [String]
-    String _eventStartDateTime = eventStartDateTime.toIso8601String ();
-    String _eventEndDateTime = eventEndDateTime.toIso8601String ();
+    String _eventStartDateTime = eventStartDateTime.toIso8601String();
+    String _eventEndDateTime = eventEndDateTime.toIso8601String();
 
     return {
       'eventGuidId': eventGuidId,

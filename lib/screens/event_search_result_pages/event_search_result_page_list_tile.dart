@@ -12,6 +12,7 @@ class EventSearchResultPageListTile extends StatelessWidget {
 
   const EventSearchResultPageListTile({Key key, this.argEventObj}) : super(key: key);
 
+  //#region Open Event Detail Screen
   openEventDetailScreen(BuildContext context) async {
     Widget hebrewEventTimeLabel = await EventDetailWidgets.buildEventDateTimeLabel(argEventObj.eventStartDateTime, argEventObj.eventEndDateTime);
 
@@ -25,6 +26,7 @@ class EventSearchResultPageListTile extends StatelessWidget {
       ),
     );
   }
+  //#endregion
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +125,7 @@ class EventSearchResultPageListTile extends StatelessWidget {
 
         return MaterialButton(
           onPressed: () async {
-            await bloc.deleteEvent(argEventObj);
+            await bloc.deleteEventByEventGuidId(argEventObj);
           },
           color: Colors.white,
           shape: CircleBorder(side: BorderSide(color: Colors.blue)),

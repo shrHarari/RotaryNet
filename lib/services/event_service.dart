@@ -49,54 +49,6 @@ class EventService {
   }
   //#endregion
 
-  //#region Update Event Object Data To DataBase [WriteToDB]
-  //=============================================================================
-  Future updateEventObjectDataToDataBase(EventObject aEventObj) async {
-    try{
-      String jsonToPost = jsonEncode(aEventObj);
-//      print('updateEventObjectDataToDataBase / Json: \n$jsonToPost');
-
-      /// *** debug:
-      if(GlobalsService.isDebugMode)
-        return "100";  // >>> Success
-      /// debug***
-
-      Response response = await post(Constants.rotaryEventWriteToDataBaseRequestUrl,
-          headers: Constants.rotaryUrlHeader,
-          body: jsonToPost);
-
-      if (response.statusCode <= 300) {
-        Map<String, String> headers = response.headers;
-        String contentType = headers['content-type'];
-        String jsonResponse = response.body;
-
-        String dbResult = jsonResponse;
-        if (int.parse(dbResult) > 0){
-          await LoggerService.log('<EventService> Event Update >>> OK');
-          return dbResult;
-        } else {
-          await LoggerService.log('<EventService> Event Update >>> Failed');
-          print('<EventService> Event Update >>> Failed');
-          return null;
-        }
-      } else {
-        await LoggerService.log('<EventService> Event Update >>> Failed');
-        print('<EventService> Event Update >>> Failed');
-        return null;
-      }
-    }
-    catch  (e) {
-      await LoggerService.log('<EventService> Write Event Object Data To DataBase >>> ERROR: ${e.toString()}');
-      developer.log(
-        'writeEventObjectDataToDataBase',
-        name: 'EventService',
-        error: 'Write Event Object Data To DataBase >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-  //#endregion
-
   //#region Initialize Events Table Data [INIT Events BY JSON DATA]
   // ========================================================================
   Future initializeEventsTableData() async {
@@ -128,6 +80,21 @@ class EventService {
       );
       return null;
     }
+  }
+  //#endregion
+
+  //#region insert All Started Events To DB
+  Future insertAllStartedEventsToDb() async {
+    List<EventObject> starterEventsList;
+    starterEventsList = await initializeEventsTableData();
+    // print('starterEventsList.length: ${starterEventsList.length}');
+
+    starterEventsList.forEach((EventObject eventObj) async => await RotaryDataBaseProvider.rotaryDB.insertEvent(eventObj));
+    // starterEventsList.forEach((EventObject eventObj) => insertRawEvent(eventObj));
+
+    // List<EventObject> eventsList = await RotaryDataBaseProvider.rotaryDB.getAllEvents();
+    // if (eventsList.isNotEmpty)
+    // print('>>>>>>>>>> eventsList: ${eventsList[0].eventName}');
   }
   //#endregion
 
@@ -216,15 +183,15 @@ class EventService {
   }
   //#endregion
 
-  //#region Update Event To DataBase [WriteToDB]
+  //#region Update Event By EventGuidId To DataBase [WriteToDB]
   //=============================================================================
-  Future updateEventToDataBase(EventObject aEventObj) async {
+  Future updateEventByEventGuidIdToDataBase(EventObject aEventObj) async {
     try{
       String jsonToPost = jsonEncode(aEventObj);
 
       //***** for debug *****
       if (GlobalsService.isDebugMode) {
-        var dbResult = await RotaryDataBaseProvider.rotaryDB.updateEvent(aEventObj);
+        var dbResult = await RotaryDataBaseProvider.rotaryDB.updateEventByEventGuidId(aEventObj);
         return dbResult;
         //***** for debug *****
       }
@@ -241,13 +208,13 @@ class EventService {
   }
   //#endregion
 
-  //#region Delete Event To DataBase [WriteToDB]
+  //#region Delete Event By EventGuidId From DataBase [WriteToDB]
   //=============================================================================
-  Future deleteEventFromDataBase(EventObject aEventObj) async {
+  Future deleteEventByEventGuidIdFromDataBase(EventObject aEventObj) async {
     try{
       //***** for debug *****
       if (GlobalsService.isDebugMode) {
-        var dbResult = await RotaryDataBaseProvider.rotaryDB.deleteEvent(aEventObj);
+        var dbResult = await RotaryDataBaseProvider.rotaryDB.deleteEventByEventGuidId(aEventObj);
         return dbResult;
         //***** for debug *****
       }

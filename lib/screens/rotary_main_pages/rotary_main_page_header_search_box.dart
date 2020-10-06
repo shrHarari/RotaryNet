@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-class RotaryMainPageHeaderSearchBox implements SliverPersistentHeaderDelegate {
-  final double minExtent;
-  final double maxExtent;
-  TextEditingController searchController;
-  Function funcExecuteSearch;
+class RotaryMainPageHeaderSearchBox extends StatelessWidget {
+  final TextEditingController searchController;
+  final Function argExecuteSearchFunc;
 
   RotaryMainPageHeaderSearchBox({
-    this.minExtent,
-    @required this.maxExtent,
     this.searchController,
-    this.funcExecuteSearch,
+    this.argExecuteSearchFunc,
   });
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(BuildContext context) {
 
     return Container(
       // color: Colors.lightBlue[400],
@@ -47,7 +43,7 @@ class RotaryMainPageHeaderSearchBox implements SliverPersistentHeaderDelegate {
                           color: Colors.blue,
                           icon: Icon(Icons.search),
                           onPressed: () async {
-                            funcExecuteSearch(searchController.text);
+                            argExecuteSearchFunc(searchController.text);
                           },
                         ),
                         border: new OutlineInputBorder(
@@ -68,16 +64,5 @@ class RotaryMainPageHeaderSearchBox implements SliverPersistentHeaderDelegate {
         ],
       ),
     );
-  }
-
-  @override
-  FloatingHeaderSnapConfiguration get snapConfiguration => null;
-
-  @override
-  OverScrollHeaderStretchConfiguration get stretchConfiguration => null;
-
-  @override
-  bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {
-    return true;
   }
 }

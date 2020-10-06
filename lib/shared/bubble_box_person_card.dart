@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class BubblesBoxDecoration extends StatelessWidget {
+class BubblesBoxPersonCard extends StatelessWidget {
 
   final String aText;
   final Color bubbleColor;
   final bool isWithShadow;
   final bool isWithGradient;
 
-  const BubblesBoxDecoration({Key key, this.bubbleColor, this.aText, this.isWithShadow, this.isWithGradient});
+  const BubblesBoxPersonCard({Key key, this.bubbleColor, this.aText, this.isWithShadow, this.isWithGradient});
 
   @override
   Widget build(BuildContext context) {

@@ -37,10 +37,10 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
   @override
   void initState() {
     displayEventObject = widget.argEventObject;
-    allowUpdate = getUpdatePermission();
-
     hebrewEventTimeLabel = widget.argHebrewEventTimeLabel;
     eventImageDefaultAsset = AssetImage('assets/images/events/EventImageDefaultPicture.jpg');
+
+    allowUpdate = getUpdatePermission();
 
     super.initState();
   }
@@ -206,18 +206,29 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
     return Column(
       children: <Widget>[
         /// ------------------- Event Image -------------------------
-        Container(
-          height: 200.0,
-          width: double.infinity,
-          clipBehavior: Clip.antiAliasWithSaveLayer,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-                image: (aEventObj.eventPictureUrl == null) || (aEventObj.eventPictureUrl == '')
-                    ? eventImageDefaultAsset
-                    : FileImage(File('${aEventObj.eventPictureUrl}')),
-                fit: BoxFit.cover
+        Stack(
+          overflow: Overflow.visible,
+          children: [
+            Container(
+              height: 200.0,
+              width: double.infinity,
+              // clipBehavior: Clip.antiAliasWithSaveLayer,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: (aEventObj.eventPictureUrl == null) || (aEventObj.eventPictureUrl == '')
+                        ? eventImageDefaultAsset
+                        : FileImage(File('${aEventObj.eventPictureUrl}')),
+                    fit: BoxFit.cover
+                ),
+              ),
             ),
-          ),
+            if (allowUpdate)
+              Positioned(
+                  left: 20.0,
+                  bottom: -25.0,
+                  child: buildEditEventButton(openEventDetailEditScreen, aEventObj)
+              ),
+          ],
         ),
 
         /// ------------------- Image + Event Name -------------------------
@@ -232,11 +243,11 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
                 style: TextStyle(color: Colors.grey[900], fontSize: 20.0, fontWeight: FontWeight.bold),
               ),
 
-              if (allowUpdate)
-                IconButton(
-                  icon: Icon(Icons.mode_edit, color: Colors.grey[900]),
-                  onPressed: () {openEventDetailEditScreen(aEventObj);},
-                ),
+              // if (allowUpdate)
+              //   IconButton(
+              //     icon: Icon(Icons.mode_edit, color: Colors.grey[900]),
+              //     onPressed: () {openEventDetailEditScreen(aEventObj);},
+              //   ),
             ],
           ),
         ),
@@ -369,6 +380,27 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
               ),
             ),
           ]
+      ),
+    );
+  }
+
+  Widget buildEditEventButton(Function aFunc, EventObject aEventObj) {
+    return MaterialButton(
+      elevation: 0.0,
+      onPressed: () async {
+        await aFunc(aEventObj);
+      },
+      color: Colors.white,
+      padding: EdgeInsets.all(10),
+      shape: CircleBorder(side: BorderSide(color: Colors.blue)),
+      child: IconTheme(
+        data: IconThemeData(
+          color: Colors.black,
+        ),
+        child: Icon(
+          Icons.edit,
+          size: 20,
+        ),
       ),
     );
   }

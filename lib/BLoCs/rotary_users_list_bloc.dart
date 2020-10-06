@@ -59,26 +59,27 @@ class RotaryUsersListBloc implements BloC {
   Future<void> insertUser(UserObject aUserObj) async {
     if (_usersList.contains(aUserObj)) {
       await userService.insertUserToDataBase(aUserObj);
-      // await RotaryDataBaseProvider.rotaryDB.insertUser(aUsrObj);
+
       _usersList.add(aUserObj);
+      _usersList.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
       _usersController.sink.add(_usersList);
     }
   }
 
-  Future<void> updateUser(UserObject aOldUserObj, UserObject aNewUserObj) async {
+  Future<void> updateUserByGuidId(UserObject aOldUserObj, UserObject aNewUserObj) async {
     if (_usersList.contains(aOldUserObj)) {
-      await userService.updateUserToDataBase(aNewUserObj);
+      await userService.updateUserByGuidIdToDataBase(aNewUserObj);
 
       _usersList.remove(aOldUserObj);
       _usersList.add(aNewUserObj);
+      _usersList.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
       _usersController.sink.add(_usersList);
     }
   }
 
-  Future<void> deleteUser(UserObject aUsrObj) async {
+  Future<void> deleteUserByGuidId(UserObject aUsrObj) async {
     if (_usersList.contains(aUsrObj)) {
-      await userService.deleteUserFromDataBase(aUsrObj);
-      // await RotaryDataBaseProvider.rotaryDB.deleteUser(aUsrObj);
+      await userService.deleteUserByGuidIdFromDataBase(aUsrObj);
 
       _usersList.remove(aUsrObj);
       _usersController.sink.add(_usersList);

@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:rotary_net/BLoCs/bloc_provider.dart';
+import 'package:rotary_net/BLoCs/messages_list_bloc.dart';
 import 'package:rotary_net/objects/connected_user_global.dart';
 import 'package:rotary_net/objects/connected_user_object.dart';
 import 'package:rotary_net/objects/login_object.dart';
+import 'package:rotary_net/objects/message_with_description_object.dart';
 import 'package:rotary_net/screens/debug_setting_screen.dart';
 import 'package:rotary_net/screens/event_detail_pages/event_detail_edit_page_screen.dart';
 import 'package:rotary_net/screens/event_search_result_pages/event_search_result_page_screen.dart';
+import 'package:rotary_net/screens/message_detail_pages/rotary_main_page_message_list_tile.dart';
 import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_screen.dart';
+import 'package:rotary_net/screens/rotary_main_pages/rotary_main_page_action_image_icons.dart';
 import 'package:rotary_net/screens/rotary_main_pages/rotary_main_page_header_search_box.dart';
 import 'package:rotary_net/screens/rotary_main_pages/rotary_main_page_header_title.dart';
 import 'package:rotary_net/shared/constants.dart';
+import 'package:rotary_net/shared/error_message_screen.dart';
 import 'package:rotary_net/shared/loading.dart';
 import 'package:rotary_net/widgets/application_menu_widget.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
@@ -37,8 +43,14 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
 
   TextEditingController searchController = new TextEditingController();
 
+  MessagesListBloc messagesBloc;
+  List<MessageWithDescriptionObject> currentMessagesList;
+
   @override
   void initState() {
+
+    messagesBloc = BlocProvider.of<MessagesListBloc>(context);
+    messagesBloc.getMessagesListWithDescription();
 
     /// Lock Screen orientation
     SystemChrome.setPreferredOrientations([
@@ -48,6 +60,18 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
 
     userHasPermission = getUserPermission();
     super.initState();
+  }
+
+  @override
+  dispose(){
+    /// UnLock Screen orientation
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    super.dispose();
   }
 
   //#region Get User Permission
@@ -70,25 +94,13 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
   }
   //#endregion
 
-  @override
-  dispose(){
-    /// UnLock Screen orientation
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeRight,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
-    super.dispose();
-  }
-
   //#region Open Debug Settings
   Future<void> openDebugSettings() async {
     // Navigate to DebugSettings Screen
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DebugSettings(argLoginObject: widget.argLoginObject,),
+        builder: (context) => DebugSettingsScreen(argLoginObject: widget.argLoginObject,),
       ),
     );
   }
@@ -149,9 +161,13 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
   //#endregion
 
   //#region Execute Search By Type
-  Future<void> executeSearchByType(String aValueToSearch) async {
+  Future<void> executeSearchByType(String aValueToSearch, SearchTypeEnum aSearchType) async {
     // Hide Keyboard
     FocusScope.of(context).requestFocus(FocusNode());
+
+    setState(() {
+      currentSearchType = aSearchType;
+    });
 
     switch (currentSearchType) {
       case SearchTypeEnum.PersonCard:
@@ -183,6 +199,9 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
 
   //#region Open Event Detail Edit Screen
   openEventDetailEditScreen() async {
+    // Hide Keyboard
+    FocusScope.of(context).requestFocus(FocusNode());
+
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -203,14 +222,16 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
   @override
   Widget build(BuildContext context) {
     return loading ? Loading() :
-    Container(
-      decoration: BoxDecoration(
-          image: DecorationImage(
-              image: AssetImage("assets/background/main_screen.jpg"),
-              fit: BoxFit.cover
-          )
-      ),
-      child: Scaffold(
+      StreamBuilder<List<MessageWithDescriptionObject>>(
+        stream: messagesBloc.messagesWithDescriptionStream,
+        initialData: messagesBloc.messagesListWithDescription,
+        builder: (context, snapshot) {
+          currentMessagesList =
+          (snapshot.connectionState == ConnectionState.waiting)
+              ? messagesBloc.messagesListWithDescription
+              : snapshot.data;
+
+        return Scaffold(
           key: _scaffoldKey,
           backgroundColor: Colors.transparent,
 
@@ -221,100 +242,92 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
             ),
           ),
 
-        body: buildMainScaffoldBody(),
-      ),
-    );
-  }
-
-  Widget buildMainScaffoldBody() {
-    final height = MediaQuery.of(context).size.height;
-
-    return Container(
-      child: Stack(
-        children: <Widget>[
-          /// ----------- Header - Application Logo [Title] & Search Box Area [TextBox] -----------------
-          CustomScrollView(
-            slivers: <Widget>[
-              SliverPersistentHeader(
-                pinned: true,
-                floating: false,
-                delegate: RotaryMainPageHeaderTitle(
-                  minExtent: 140.0,
-                  maxExtent: 140.0,
-                ),
-              ),
-              SliverPersistentHeader(
-                pinned: true,
-                floating: false,
-                delegate: RotaryMainPageHeaderSearchBox(
-                    minExtent: 90.0,
-                    maxExtent: 90.0,
-                    searchController: searchController,
-                    funcExecuteSearch: executeSearchByType
-                ),
-              ),
-
-              SliverToBoxAdapter(
-                child: Container(
-                  // color: Colors.green,
-                  // height: height * .5,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 20.0, top: 80.0, right: 20.0),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Column(
-                            children: [
-                              buildImageIconWithTitle('אירועים', Icons.event, executeSearchByType, SearchTypeEnum.Event, eventsBackgroundColor),
-
-                              // if (currentDataRequired.allowUpdate)
-                                if (userHasPermission)
-                                  buildAddEventImageIconWithTitle('הוסף אירוע', Icons.plus_one, openEventDetailEditScreen, Colors.white),
-                            ],
-                          ),
-                          buildImageIconWithTitle('כרטיס ביקור', Icons.person, executeSearchByType, SearchTypeEnum.PersonCard, personCardBackgroundColor),
-                        ]
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          /// --------------- Application Menu ---------------------
-          SafeArea(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // body: buildMainScaffoldBody(),
+          body: Container(
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage("assets/background/main_screen.jpg"),
+                    fit: BoxFit.cover
+                )
+            ),
+            child: Column(
               children: <Widget>[
-                /// Menu Icon --->>> Open Drawer Menu
-                Padding(
-                  padding: const EdgeInsets.only(left: 10.0, top: 10.0, right: 0.0, bottom: 0.0),
-                  child: IconButton(
-                    icon: Icon(Icons.menu, color: Colors.white),
-                    onPressed: () async {await openMenu();},
+                Container(
+                  child: Stack(
+                    children: <Widget>[
+                      Column(
+                        children: <Widget>[
+                          /// ----------- Header - Application Logo [Title] -----------------
+                          RotaryMainPageHeaderTitle(),
+                          /// ----------- Header - Search Box Area [TextBox] -----------------
+                          RotaryMainPageHeaderSearchBox(
+                            searchController: searchController,
+                            argExecuteSearchFunc: executeSearchByType
+                          ),
+                          /// ----------- Body - Action Image Icons -----------------
+                          RotaryMainPageActionImageIcons(
+                            searchController: searchController,
+                            argExecuteSearchFunc: executeSearchByType,
+                            argOpenEventDetailFunc: openEventDetailEditScreen,
+                            argUserHasPermission: userHasPermission,
+                            argPersonCardBackgroundColor: personCardBackgroundColor,
+                            argEventsBackgroundColor: eventsBackgroundColor,
+                          )
+                        ],
+                      ),
+                      /// ----------- Header - Application Menu -----------------
+                      buildApplicationMenuRow(),
+                    ],
                   ),
                 ),
 
-                /// Back Icon --->>> Back to previous screen
-                Padding(
-                  padding: const EdgeInsets.only(left: 0.0, top: 10.0, right: 10.0, bottom: 0.0),
-                  child: IconButton(
-                    icon: Icon(Icons.build, color: Colors.white),
-                    onPressed: () async {await openDebugSettings();},
+                Expanded(
+                  child: Container(
+                    child: CustomScrollView(
+                      slivers: <Widget>[
+                        /// ----------- Body - Error Message -----------------
+                        (snapshot.hasError) ?
+                        SliverFillRemaining(
+                          child: DisplayErrorTextAndRetryButton(
+                            errorText: 'שגיאה בשליפת כרטיסי הביקור',
+                            buttonText: 'נסה שוב',
+                            onPressed: () {},
+                          ),
+                        ) :
+
+                        /// ----------- Body - Messages List -----------------
+                        (snapshot.hasData) ?
+                        Container(
+                          child: SliverFixedExtentList(
+                            itemExtent: 220.0,
+                            delegate: SliverChildBuilderDelegate((context, index) {
+                                return RotaryMainPageMessageListTile(
+                                  argMessageWithDescriptionObject: currentMessagesList[index],
+                                );
+                              },
+                              childCount: currentMessagesList.length,
+                            ),
+                          ),
+                        ) :
+
+                        SliverFillRemaining(
+                          child: Center(child: Text('אין תוצאות')),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
+          )
+        );
+      }
     );
   }
 
   Widget buildImageIconWithTitle(String aTitle, IconData aIcon, Function aExecuteFunc, SearchTypeEnum aSearchType, Color aButtonColor) {
     return Padding(
-      padding: const EdgeInsets.only(left: 30.0, right: 30.0),
+      padding: const EdgeInsets.only(left: 10.0, right: 10.0),
       child: Column(
           textDirection: TextDirection.rtl,
           children: <Widget>[
@@ -332,13 +345,10 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
     return MaterialButton(
       color: aButtonColor,
       onPressed: () {
-        setState(() {
-          currentSearchType = aSearchType;
-        });
-        aExecuteFunc(searchController.text);
+        aExecuteFunc(searchController.text, aSearchType);
       },
       shape: CircleBorder(side: BorderSide(color: Colors.blue, width: 2.0)),
-      padding: EdgeInsets.all(20),
+      padding: EdgeInsets.all(10),
       child: IconTheme(
         data: IconThemeData(
             color: Colors.blue[500]
@@ -355,7 +365,7 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
     return Text(
       aTitle,
       style: TextStyle(
-          fontSize: 18.0,
+          fontSize: 16.0,
           height: 0.8,
           color: Colors.blue,
           fontWeight: FontWeight.bold
@@ -365,17 +375,17 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
 
   Widget buildAddEventImageIconWithTitle(String aTitle, IconData aIcon, Function aFunc, Color aButtonColor) {
     return Padding(
-      padding: const EdgeInsets.only(top: 40.0, left: 30.0, right: 30.0),
+      padding: const EdgeInsets.only(top: 0.0, left: 10.0, right: 10.0),
       child: Column(
           textDirection: TextDirection.rtl,
           children: <Widget>[
             MaterialButton(
-            color: aButtonColor,
+              color: aButtonColor,
               onPressed: () {
                 aFunc();
               },
               shape: CircleBorder(side: BorderSide(color: Colors.blue, width: 2.0)),
-              padding: EdgeInsets.all(20),
+              padding: EdgeInsets.all(10),
               child: IconTheme(
                 data: IconThemeData(
                     color: Colors.blue[500]
@@ -391,7 +401,7 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
               child: Text(
                 aTitle,
                 style: TextStyle(
-                    fontSize: 18.0,
+                    fontSize: 16.0,
                     height: 0.8,
                     color: Colors.blue,
                     fontWeight: FontWeight.bold
@@ -399,6 +409,34 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
               ),
             ),
           ]
+      ),
+    );
+  }
+
+  Widget buildApplicationMenuRow() {
+    /// ----------- Header - Application Menu -----------------
+    return SafeArea(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          /// Menu Icon --->>> Open Drawer Menu
+          Padding(
+            padding: const EdgeInsets.only(left: 10.0, top: 10.0, right: 0.0, bottom: 0.0),
+            child: IconButton(
+              icon: Icon(Icons.menu, color: Colors.white),
+              onPressed: () async {await openMenu();},
+            ),
+          ),
+
+          /// Back Icon --->>> Back to previous screen
+          Padding(
+            padding: const EdgeInsets.only(left: 0.0, top: 10.0, right: 10.0, bottom: 0.0),
+            child: IconButton(
+              icon: Icon(Icons.build, color: Colors.white),
+              onPressed: () async {await openDebugSettings();},
+            ),
+          ),
+        ],
       ),
     );
   }
