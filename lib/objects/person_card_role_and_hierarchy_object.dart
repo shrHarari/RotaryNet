@@ -77,3 +77,17 @@ class PersonCardRoleAndHierarchyObject {
   }
   //#endregion
 }
+
+class PersonCardRoleAndHierarchyListObject {
+  List<RotaryRoleObject> rotaryRoleObjectList;
+  List<RotaryAreaObject> rotaryAreaObjectList;
+  List<RotaryClusterObject> rotaryClusterObjectList;
+  List<RotaryClubObject> rotaryClubObjectList;
+
+  PersonCardRoleAndHierarchyListObject({
+    this.rotaryRoleObjectList,
+    this.rotaryAreaObjectList,
+    this.rotaryClusterObjectList,
+    this.rotaryClubObjectList,
+  });
+}

@@ -14,6 +14,7 @@ import 'package:rotary_net/services/rotary_area_service.dart';
 import 'package:rotary_net/services/rotary_club_service.dart';
 import 'package:rotary_net/services/rotary_cluster_service.dart';
 import 'package:rotary_net/services/rotary_role_service.dart';
+import 'package:rotary_net/shared/constants.dart';
 import 'package:rotary_net/shared/decoration_style.dart';
 import 'package:rotary_net/shared/error_message_screen.dart';
 import 'package:rotary_net/shared/loading.dart';
@@ -38,8 +39,8 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
 
   final formKey = GlobalKey<FormState>();
 
-  Future<DataRequiredForBuild> dataRequiredForBuild;
-  DataRequiredForBuild currentDataRequired;
+  Future<PersonCardRoleAndHierarchyListObject> personCardRoleAndHierarchyListObjectForBuild;
+  PersonCardRoleAndHierarchyListObject displayPersonCardRoleAndHierarchyListObject;
 
   //#region Declare Variables
   String currentPersonCardImage;
@@ -64,13 +65,13 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
   @override
   void initState() {
     setPersonCardVariables(widget.argPersonCardObject);
-    dataRequiredForBuild = getAllRequiredDataForBuild();
+    personCardRoleAndHierarchyListObjectForBuild = getPersonCardRoleAndHierarchyListForBuild();
 
     super.initState();
   }
 
-  //#region Get All Required Data For Build
-  Future<DataRequiredForBuild> getAllRequiredDataForBuild() async {
+  //#region Get PersonCard Role And Hierarchy List For Build
+  Future<PersonCardRoleAndHierarchyListObject> getPersonCardRoleAndHierarchyListForBuild() async {
     setState(() {
       loading = true;
     });
@@ -95,7 +96,7 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
       loading = false;
     });
 
-    return DataRequiredForBuild(
+    return PersonCardRoleAndHierarchyListObject(
       rotaryRoleObjectList: _rotaryRoleObjList,
       rotaryAreaObjectList: _rotaryAreaObjList,
       rotaryClusterObjectList: _rotaryClusterObjList,
@@ -130,8 +131,9 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
 
     // Find the RoleObject Element in a RoleList By roleId ===>>> Set DropDown Initial Value
     int _initialListIndex;
+    RotaryRolesEnum _rotaryRolesEnum;
     if (widget.argPersonCardObject.roleId != null) {
-      _initialListIndex = aRotaryRoleObjectsList.indexWhere((listElement) => listElement.roleId == widget.argPersonCardObject.roleId);
+      _initialListIndex = aRotaryRoleObjectsList.indexWhere((listElement) =>  listElement.roleId == widget.argPersonCardObject.roleId.value);
       selectedRotaryRoleObj = dropdownRotaryRoleItems[_initialListIndex].value;
     } else {
       _initialListIndex = null;
@@ -140,6 +142,7 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
   }
 
   onChangeDropdownRotaryRoleItem(RotaryRoleObject aSelectedRotaryRoleObject) {
+    FocusScope.of(context).requestFocus(FocusNode());
     setState(() {
       selectedRotaryRoleObj = aSelectedRotaryRoleObject;
     });
@@ -187,6 +190,7 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
   }
 
   onChangeDropdownRotaryAreaItem(RotaryAreaObject aSelectedRotaryAreaObject) {
+    FocusScope.of(context).requestFocus(FocusNode());
     setState(() {
       selectedRotaryAreaObj = aSelectedRotaryAreaObject;
       filterRotaryClusterDropdownMenuItems(selectedRotaryAreaObj.areaId, null);
@@ -240,6 +244,7 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
   }
 
   onChangeDropdownRotaryClusterItem(RotaryClusterObject aSelectedRotaryClusterObject) {
+    FocusScope.of(context).requestFocus(FocusNode());
     setState(() {
       selectedRotaryClusterObj = aSelectedRotaryClusterObject;
       filterRotaryClubDropdownMenuItems(selectedRotaryAreaObj.areaId, selectedRotaryClusterObj.clusterId, null);
@@ -301,6 +306,7 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
   }
 
   onChangeDropdownRotaryClubItem(RotaryClubObject aSelectedRotaryClubObject) {
+    FocusScope.of(context).requestFocus(FocusNode());
     setState(() {
       selectedRotaryClubObj = aSelectedRotaryClubObject;
     });
@@ -363,13 +369,14 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
       if (currentPersonCardImage != null)
         _pictureUrl = currentPersonCardImage;
 
+      RotaryRolesEnum _rotaryRolesEnum;
       PersonCardObject _newPersonCardObj = personCardService.createPersonCardAsObject(
-          widget.argPersonCardObject.userGuidId,
+          widget.argPersonCardObject.personCardGuidId,
           _email, _firstName, _lastName, _firstNameEng, _lastNameEng,
           _phoneNumber, _phoneNumberDialCode, _phoneNumberParse, _phoneNumberCleanLongFormat,
           _pictureUrl, _cardDescription, _internetSiteUrl, _address,
-          selectedRotaryRoleObj.roleId, selectedRotaryAreaObj.areaId,
-          selectedRotaryClusterObj.clusterId, selectedRotaryClubObj.clubId);
+          _rotaryRolesEnum.convertToEnum(selectedRotaryRoleObj.roleId),
+          selectedRotaryAreaObj.areaId, selectedRotaryClusterObj.clusterId, selectedRotaryClubObj.clubId);
 
       RichText _personCardHierarchyTitle = PersonCardRoleAndHierarchyObject.getPersonCardHierarchyTitleRichText(
           selectedRotaryRoleObj.roleName, selectedRotaryAreaObj.areaName,
@@ -438,8 +445,8 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
         ),
       ),
 
-      body: FutureBuilder<DataRequiredForBuild>(
-          future: dataRequiredForBuild,
+      body: FutureBuilder<PersonCardRoleAndHierarchyListObject>(
+          future: personCardRoleAndHierarchyListObjectForBuild,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting)
               return Loading();
@@ -452,7 +459,7 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
             } else {
               if (snapshot.hasData)
               {
-                currentDataRequired = snapshot.data;
+                displayPersonCardRoleAndHierarchyListObject = snapshot.data;
                 return buildMainScaffoldBody();
               }
               else
@@ -535,11 +542,11 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
                       ],
                     ),
 
-                    Positioned(
-                      left: 20.0,
-                      bottom: -25.0,
-                      child: buildUpdateButton(updatePersonCard),
-                    ),
+                    // Positioned(
+                    //   left: 20.0,
+                    //   bottom: -25.0,
+                    //   child: buildUpdateCircleButton(updatePersonCard),
+                    // ),
                   ],
                 ),
               ),
@@ -571,14 +578,14 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
                     buildEnabledDoubleTextInputWithImageIcon(
                         firstNameController, 'שם פרטי',
                         lastNameController, 'שם משפחה',
-                        Icons.person, aValidator: true),
+                        Icons.person, aValidation: true),
                     buildEnabledDoubleTextInputWithImageIcon(
                         firstNameEngController, 'שם פרטי באנגלית',
                         lastNameEngController, 'שם משפחה באנגלית',
-                        Icons.person_outline, aValidator: true),
-                    buildEnabledTextInputWithImageIcon(eMailController, 'דוא"ל', Icons.mail_outline, aValidator: true),
+                        Icons.person_outline, aValidation: true),
+                    buildEnabledTextInputWithImageIcon(eMailController, 'דוא"ל', Icons.mail_outline, aValidation: true),
                     buildEnabledTextInputWithImageIcon(addressController, 'כתובת', Icons.home),
-                    buildEnabledTextInputWithImageIcon(phoneNumberController, 'מספר טלפון', Icons.phone, aValidator: true),
+                    buildEnabledTextInputWithImageIcon(phoneNumberController, 'מספר טלפון', Icons.phone, aValidation: true),
                     buildEnabledTextInputWithImageIcon(cardDescriptionController, 'תיאור כרטיס ביקור', Icons.description, aMultiLine: true),
                     buildEnabledTextInputWithImageIcon(internetSiteUrlController, 'כתובת אתר אינטרנט', Icons.alternate_email),
 
@@ -589,6 +596,8 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
             ),
           ),
         ),
+
+        buildUpdateButtonRectangleWithIcon("עדכן", updatePersonCard, Icons.update),
 
         /// ---------------------- Display Error -----------------------
         Text(
@@ -656,7 +665,7 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
   //#region buildEnabledTextInputWithImageIcon
   Widget buildEnabledTextInputWithImageIcon(
             TextEditingController aController, String textInputName,
-            IconData aIcon, {bool aMultiLine = false, bool aEnabled = true, bool aValidator = false}) {
+            IconData aIcon, {bool aMultiLine = false, bool aEnabled = true, bool aValidation = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0),
       child: Row(
@@ -673,7 +682,7 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
               child:
               Container(
                 child: buildTextFormField(aController, textInputName,
-                            aMultiLine: aMultiLine, aEnabled: aEnabled, aValidator: aValidator),
+                            aMultiLine: aMultiLine, aEnabled: aEnabled, aValidation: aValidation),
               ),
             ),
           ]
@@ -686,7 +695,7 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
   Widget buildEnabledDoubleTextInputWithImageIcon(
       TextEditingController aController1, String textInputName1,
       TextEditingController aController2, String textInputName2,
-      IconData aIcon, {bool aMultiLine = false, bool aEnabled = true, bool aValidator = false}) {
+      IconData aIcon, {bool aMultiLine = false, bool aEnabled = true, bool aValidation = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0),
       child: Row(
@@ -705,7 +714,7 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
                 child: Padding(
                   padding: const EdgeInsets.only(left: 5.0),
                   child: buildTextFormField(aController1, textInputName1,
-                              aMultiLine: aMultiLine, aEnabled: aEnabled, aValidator: aValidator),
+                              aMultiLine: aMultiLine, aEnabled: aEnabled, aValidation: aValidation),
                 ),
               ),
             ),
@@ -717,7 +726,7 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
                 child: Padding(
                   padding: const EdgeInsets.only(right: 5.0),
                   child: buildTextFormField(aController2, textInputName2,
-                              aMultiLine: aMultiLine, aEnabled: aEnabled, aValidator: aValidator),
+                              aMultiLine: aMultiLine, aEnabled: aEnabled, aValidation: aValidation),
                 ),
               ),
             ),
@@ -756,7 +765,7 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
   TextFormField buildTextFormField(
       TextEditingController aController,
       String textInputName,
-      {bool aMultiLine = false, bool aEnabled = true, bool aValidator = false}) {
+      {bool aMultiLine = false, bool aEnabled = true, bool aValidation = false}) {
     return TextFormField(
       keyboardType: aMultiLine ? TextInputType.multiline : null,
       maxLines: aMultiLine ? null : 1,
@@ -772,87 +781,13 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
                 hintText: textInputName,
                 hintStyle: TextStyle(fontSize: 14.0)
             ), // Disabled Field
-      validator: aValidator
+      validator: aValidation
         ? ((val) => val.isEmpty ? 'הקלד $textInputName' : null)
         : null
     );
   }
   //#endregion
 
-  //#endregion
-
-  //#region UPDATE Button
-  Widget buildUpdateButton(Function aFunc) {
-
-    final personCardsBloc = BlocProvider.of<PersonCardsListBloc>(context);
-
-    return StreamBuilder<List<PersonCardObject>>(
-        stream: personCardsBloc.personCardsStream,
-        initialData: personCardsBloc.personCardsList,
-        builder: (context, snapshot) {
-          List<PersonCardObject> currentPersonCardsList =
-          (snapshot.connectionState == ConnectionState.waiting)
-              ? personCardsBloc.personCardsList
-              : snapshot.data;
-
-          return MaterialButton(
-            elevation: 0.0,
-            onPressed: () async {
-              aFunc(personCardsBloc);
-            },
-            color: Colors.white,
-            padding: EdgeInsets.all(10),
-            shape: CircleBorder(side: BorderSide(color: Colors.blue)),
-            child: IconTheme(
-              data: IconThemeData(
-                color: Colors.black,
-              ),
-              child: Icon(
-                Icons.save,
-                size: 20,
-              ),
-            ),
-          );
-        }
-    );
-  }
-
-  Widget buildUpdateButtonRectangleWithIcon(String buttonText, Function aFunc, IconData aIcon) {
-
-    final personCardsBloc = BlocProvider.of<PersonCardsListBloc>(context);
-
-    return StreamBuilder<List<PersonCardObject>>(
-        stream: personCardsBloc.personCardsStream,
-        initialData: personCardsBloc.personCardsList,
-        builder: (context, snapshot) {
-          List<PersonCardObject> currentPersonCardsList =
-          (snapshot.connectionState == ConnectionState.waiting)
-              ? personCardsBloc.personCardsList
-              : snapshot.data;
-
-          return RaisedButton.icon(
-            onPressed: () {
-              aFunc(personCardsBloc);
-            },
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(5.0))
-            ),
-            label: Text(
-              buttonText,
-              style: TextStyle(
-                  color: Colors.white,fontSize: 16.0
-              ),
-            ),
-            icon: Icon(
-              aIcon,
-              color:Colors.white,
-            ),
-            textColor: Colors.white,
-            color: Colors.blue[400],
-          );
-        }
-    );
-  }
   //#endregion
 
   //#region DROP DOWN Section
@@ -990,7 +925,6 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
           borderRadius: BorderRadius.circular(5.0)
       ),
       child: DropdownButtonFormField(
-
         value: selectedRotaryClubObj,
         items: dropdownRotaryClubFilteredItems,
         onChanged: onChangeDropdownRotaryClubItem,
@@ -1003,19 +937,79 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
   }
   //#endregion
 
-//#endregion
-}
+  //#endregion
 
-class DataRequiredForBuild {
-  List<RotaryRoleObject> rotaryRoleObjectList;
-  List<RotaryAreaObject> rotaryAreaObjectList;
-  List<RotaryClusterObject> rotaryClusterObjectList;
-  List<RotaryClubObject> rotaryClubObjectList;
+  //#region UPDATE Button
+  Widget buildUpdateCircleButton(Function aFunc) {
 
-  DataRequiredForBuild({
-    this.rotaryRoleObjectList,
-    this.rotaryAreaObjectList,
-    this.rotaryClusterObjectList,
-    this.rotaryClubObjectList,
-  });
+    final personCardsBloc = BlocProvider.of<PersonCardsListBloc>(context);
+
+    return StreamBuilder<List<PersonCardObject>>(
+        stream: personCardsBloc.personCardsStream,
+        initialData: personCardsBloc.personCardsList,
+        builder: (context, snapshot) {
+          List<PersonCardObject> currentPersonCardsList =
+          (snapshot.connectionState == ConnectionState.waiting)
+              ? personCardsBloc.personCardsList
+              : snapshot.data;
+
+          return MaterialButton(
+            elevation: 0.0,
+            onPressed: () async {
+              aFunc(personCardsBloc);
+            },
+            color: Colors.white,
+            padding: EdgeInsets.all(10),
+            shape: CircleBorder(side: BorderSide(color: Colors.blue)),
+            child: IconTheme(
+              data: IconThemeData(
+                color: Colors.black,
+              ),
+              child: Icon(
+                Icons.save,
+                size: 20,
+              ),
+            ),
+          );
+        }
+    );
+  }
+
+  Widget buildUpdateButtonRectangleWithIcon(String buttonText, Function aFunc, IconData aIcon) {
+
+    final personCardsBloc = BlocProvider.of<PersonCardsListBloc>(context);
+
+    return StreamBuilder<List<PersonCardObject>>(
+        stream: personCardsBloc.personCardsStream,
+        initialData: personCardsBloc.personCardsList,
+        builder: (context, snapshot) {
+          List<PersonCardObject> currentPersonCardsList =
+          (snapshot.connectionState == ConnectionState.waiting)
+              ? personCardsBloc.personCardsList
+              : snapshot.data;
+
+          return RaisedButton.icon(
+            onPressed: () {
+              aFunc(personCardsBloc);
+            },
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(5.0))
+            ),
+            label: Text(
+              buttonText,
+              style: TextStyle(
+                  color: Colors.white,fontSize: 16.0
+              ),
+            ),
+            icon: Icon(
+              aIcon,
+              color:Colors.white,
+            ),
+            textColor: Colors.white,
+            color: Colors.blue[400],
+          );
+        }
+    );
+  }
+  //#endregion
 }

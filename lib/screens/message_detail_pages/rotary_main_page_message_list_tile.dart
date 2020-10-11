@@ -1,19 +1,27 @@
+import 'dart:async';
 import 'dart:ui';
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:rotary_net/BLoCs/bloc_provider.dart';
+import 'package:rotary_net/BLoCs/messages_list_bloc.dart';
+import 'package:rotary_net/objects/message_object.dart';
+import 'package:rotary_net/objects/message_queue_object.dart';
 import 'package:rotary_net/objects/message_with_description_object.dart';
 import 'package:rotary_net/screens/message_detail_pages/message_detail_page_screen.dart';
 import 'package:rotary_net/screens/message_detail_pages/message_detail_page_widgets.dart';
 import 'package:rotary_net/shared/bubble_box_rotary_message.dart';
 import 'package:intl/date_symbol_data_local.dart' as SymbolData;
 import 'package:intl/intl.dart' as Intl;
+import 'package:rotary_net/widgets/message_dialog_widget.dart';
 import 'package:rotary_net/widgets/message_paragraph_painter.dart';
 
 class RotaryMainPageMessageListTile extends StatelessWidget {
   final MessageWithDescriptionObject argMessageWithDescriptionObject;
 
   const RotaryMainPageMessageListTile({Key key, this.argMessageWithDescriptionObject}) : super(key: key);
+
+  //#region Message Content
 
   static const MAX_LINES = 4;
   static const MAX_LENGTH_DISPLAY_LAST_LINE = 15;
@@ -42,30 +50,6 @@ class RotaryMainPageMessageListTile extends StatelessWidget {
       text: TextSpan(
         text: '[${argMessageWithDescriptionObject.composerFirstName} ${argMessageWithDescriptionObject.composerLastName}]: ',
         style: messageTextSpanStyle,
-      ),
-    );
-  }
-  //#endregion
-
-  //#region Get Hebrew Message Created DateTime
-  RichText getHebrewMessageCreatedDateTime() {
-    SymbolData.initializeDateFormatting("he", null);
-    var formatterStartDate = Intl.DateFormat.yMMMMEEEEd('he');
-    String hebrewMessageCreatedDateTime = formatterStartDate.format(argMessageWithDescriptionObject.messageCreatedDateTime);
-
-    return RichText(
-      textDirection: TextDirection.rtl,
-      text: TextSpan(
-        children: [
-          TextSpan(
-            text: '\n[תאריך]: ',
-            style: messageTextSpanStyle,
-          ),
-          TextSpan(
-            text: hebrewMessageCreatedDateTime,
-            style: messageTextSpanStyle,
-          ),
-        ],
       ),
     );
   }
@@ -131,6 +115,30 @@ class RotaryMainPageMessageListTile extends StatelessWidget {
   }
   //#endregion
 
+  //#region Get Hebrew Message Created DateTime
+  RichText getHebrewMessageCreatedDateTime() {
+    SymbolData.initializeDateFormatting("he", null);
+    var formatterStartDate = Intl.DateFormat.yMMMMEEEEd('he');
+    String hebrewMessageCreatedDateTime = formatterStartDate.format(argMessageWithDescriptionObject.messageCreatedDateTime);
+
+    return RichText(
+      textDirection: TextDirection.rtl,
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text: '\n[תאריך]: ',
+            style: messageTextSpanStyle,
+          ),
+          TextSpan(
+            text: hebrewMessageCreatedDateTime,
+            style: messageTextSpanStyle,
+          ),
+        ],
+      ),
+    );
+  }
+  //#endregion
+
   //#region Get Message Content
   Widget getMessageContent(String aText, TextStyle aTextStyle) {
     return Directionality(
@@ -159,6 +167,8 @@ class RotaryMainPageMessageListTile extends StatelessWidget {
   }
   //#endregion
 
+  //#endregion
+
   //#region Open Message Detail Screen
   openMessageDetailScreen(BuildContext context) async {
 
@@ -178,21 +188,215 @@ class RotaryMainPageMessageListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    //#region Remove Message From List
+    void removeMessageFromList(MessageWithDescriptionObject aMessageWithDescriptionObject) async {
+
+      final messagesBloc = BlocProvider.of<MessagesListBloc>(context);
+
+      MessageObject _messageObj = await MessageObject.getMessageObjectFromMessageWithDescriptionObject(aMessageWithDescriptionObject);
+
+      await messagesBloc.deleteMessageQueueByMessageAndPersonGuidIdFromDataBase(_messageObj, aMessageWithDescriptionObject);
+    }
+    //#endregion
+
+    //#region Undo And Add Message Back To List
+    void undoAndAddMessageBackToList(MessageWithDescriptionObject aMessageWithDescriptionObject) async {
+
+      final messagesBloc = BlocProvider.of<MessagesListBloc>(context);
+
+      MessageObject _messageObj = await MessageObject.getMessageObjectFromMessageWithDescriptionObject(aMessageWithDescriptionObject);
+      MessageQueueObject _messageQueueObj = await MessageQueueObject.getMessageQueueObjectFromMessageWithDescriptionObject(aMessageWithDescriptionObject);
+
+      await messagesBloc.insertMessageQueue(_messageObj, aMessageWithDescriptionObject, _messageQueueObj);
+    }
+    //#endregion
+
+    //#region Handle Dismiss
+    handleDismiss() {
+      // Get a reference to the swiped item
+      final copiedMessageWithDescriptionObject = MessageWithDescriptionObject.copy(argMessageWithDescriptionObject);
+      // Remove it from the list
+      removeMessageFromList(argMessageWithDescriptionObject);
+
+      final scaffold = Scaffold.of(context);
+      scaffold.showSnackBar(
+        SnackBar(
+          duration: Duration(seconds: 3),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                textDirection: TextDirection.rtl,
+                children: [
+                  Text('ההודעה של ' +
+                      argMessageWithDescriptionObject.composerFirstName + " " +
+                      argMessageWithDescriptionObject.composerLastName + " נמחקה",
+                    style: TextStyle(color: Colors.white, fontSize: 14.0, ),
+                    textDirection: TextDirection.rtl,
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  FlatButton(
+                    child: Text('אשר',
+                      style: TextStyle(color: Colors.blue, fontSize: 14.0),
+                    ),
+                    onPressed: () {
+                      Scaffold.of(context).hideCurrentSnackBar(reason: SnackBarClosedReason.action);
+                    },
+                  ),
+                  FlatButton(
+                    child: Text('בטל פעולה',
+                      style: TextStyle(color: Colors.blue, fontSize: 14.0),
+                    ),
+                    onPressed: () {
+                      // Undo ===>>> Insert Back Message
+                      undoAndAddMessageBackToList(copiedMessageWithDescriptionObject);
+                      Scaffold.of(context).hideCurrentSnackBar(reason: SnackBarClosedReason.action);
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          // action: SnackBarAction(
+          //     label: "בטל פעולה",
+          //     textColor: Colors.yellow,
+          //     onPressed: () {
+          //       // Undo ===>>> Insert Back Message
+          //       undoAndAddMessageBackToList(copiedMessageWithDescriptionObject);
+          //     }),
+        ),
+      )
+          .closed
+          .then((reason) {
+          if (reason != SnackBarClosedReason.action) {
+            // The SnackBar was dismissed by some other means
+            // that's not clicking of action button
+            // Make API call to backend
+          }
+        }
+      );
+    }
+    //#endregion
+
+    //#region Open Message Dialog To Confirm Deleting [--->>> Option]
+    Future<bool> openMessageDialogToConfirmDeleting() async {
+
+      return await showDialog(
+          context: context,
+          builder: (context) {
+            return MessageDialogWidget(
+              argDialogTitle: Text("האם להסיר את ההודעה ?"),
+              argDialogActions: <MessageDialogActionObject>[
+                MessageDialogActionObject(title: "אישור", onPressed:(){return Navigator.of(context).pop(true);}),
+                MessageDialogActionObject(title: "ביטול פעולה", onPressed:(){return Navigator.of(context).pop(false);})
+              ],
+            );
+          }
+      ) ?? false;
+    }
+    //#endregion
+
     return Padding(
       padding: const EdgeInsets.only(left: 15.0, top: 15.0, right: 15.0, bottom:10.0),
-      child: GestureDetector(
-        child: BubblesBoxRotaryMessage(
-          argContent: getMessageContent(argMessageWithDescriptionObject.messageText, messageTextSpanStyleBold),
-          argBubbleBackgroundColor: Colors.white,
-          argBubbleBorderColor: Colors.amber,
+      child: Dismissible(
+        key: ObjectKey(argMessageWithDescriptionObject),
+        direction: DismissDirection.startToEnd,
+        confirmDismiss: (_) => openMessageDialogToConfirmDeleting(),
+        child: GestureDetector(
+          child: BubblesBoxRotaryMessage(
+            argContent: getMessageContent(argMessageWithDescriptionObject.messageText, messageTextSpanStyleBold),
+            argBubbleBackgroundColor: Colors.white,
+            argBubbleBorderColor: Colors.amber,
+          ),
+          onTap: ()
+          {
+            FocusScope.of(context).requestFocus(FocusNode());
+            openMessageDetailScreen(context);
+          },
         ),
-        onTap: ()
-        {
-          // Hide Keyboard
-          FocusScope.of(context).requestFocus(FocusNode());
-          openMessageDetailScreen(context);
+
+        onDismissed: (DismissDirection direction) {
+          handleDismiss();
         },
+
+        background: BubblesBoxRotaryMessage(
+          argContent: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+
+            children: [
+              Icon(Icons.delete, color: Colors.red, size: 36.0),
+            ],
+          ),
+          argBubbleBackgroundColor: Colors.grey[300],
+          argBubbleBorderColor: Colors.red,
+          displayPin: false,
+        ),
+
+        secondaryBackground: Container(
+            color: const Color.fromRGBO(0, 96, 100, 0.8),
+            child: const ListTile(
+                trailing: const Icon(Icons.favorite,
+                    color: Colors.white, size: 36.0)
+            )
+        ),
       ),
     );
   }
+
+  //#region Build Background ListItem
+  Widget buildBackgroundListItem(BuildContext context, Completer<bool> aCompleter) {
+    return Container(
+      // color: const Color.fromRGBO(183, 28, 28, 0.8),
+      color: Colors.white,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            textDirection: TextDirection.rtl,
+            children: [
+              Text('האם למחוק את ההודעה של ' +
+                  argMessageWithDescriptionObject.composerFirstName + " " +
+                  argMessageWithDescriptionObject.composerLastName + " ?",
+                style: TextStyle(color: Colors.red, fontSize: 14.0, ),
+                textDirection: TextDirection.rtl,
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            textDirection: TextDirection.rtl,
+            children: [
+              FlatButton(
+                child: Text('מחיקה',
+                  style: TextStyle(color: Colors.blue, fontSize: 14.0),
+                ),
+                onPressed: () {
+                  // removeMessageFromList(context, MessageWithDescriptionObject.copy(argMessageWithDescriptionObject));
+                  // removeMessageFromList(context, argMessageWithDescriptionObject);
+                  aCompleter.complete(true);
+                },
+              ),
+              FlatButton(
+                child: Text('ביטול',
+                  style: TextStyle(color: Colors.blue, fontSize: 14.0),
+                ),
+                onPressed: () {
+                  aCompleter.complete(false);
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+  //#endregion
 }

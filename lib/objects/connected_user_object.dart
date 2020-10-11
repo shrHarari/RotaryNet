@@ -52,26 +52,26 @@ class ConnectedUserObject {
   String toString() {
     return
       '{'
-          ' ${this.userGuidId},'
-          ' ${this.email},'
-          ' ${this.firstName},'
-          ' ${this.lastName},'
-          ' ${this.password},'
-          ' ${this.userType},'
-          ' ${this.stayConnected},'
-          '}';
+        ' ${this.userGuidId},'
+        ' ${this.email},'
+        ' ${this.firstName},'
+        ' ${this.lastName},'
+        ' ${this.password},'
+        ' ${this.userType},'
+        ' ${this.stayConnected},'
+      '}';
   }
 
-  /// Used for jsonDecode Function
-  Map toJson() => {
-    'userGuidId': userGuidId,
-    'email': email,
-    'firstName': firstName,
-    'lastName': lastName,
-    'password': password,
-    'userType': userType,
-    'stayConnected': stayConnected,
-  };
+  // /// Used for jsonDecode Function
+  // Map toJson() => {
+  //   'userGuidId': userGuidId,
+  //   'email': email,
+  //   'firstName': firstName,
+  //   'lastName': lastName,
+  //   'password': password,
+  //   'userType': userType,
+  //   'stayConnected': stayConnected,
+  // };
 
   factory ConnectedUserObject.fromJson(Map<String, dynamic> parsedJson){
     /// Deserialize the parsedJson string to UserObject

@@ -4,17 +4,18 @@ class BubblesBoxRotaryMessage extends StatelessWidget {
   final Widget argContent;
   final Color argBubbleBackgroundColor;
   final Color argBubbleBorderColor;
+  final bool displayPin;
 
   const BubblesBoxRotaryMessage({Key key,
-    this.argContent,
-    this.argBubbleBackgroundColor,
-    this.argBubbleBorderColor,});
+    @required this.argContent,
+    @required this.argBubbleBackgroundColor,
+    @required this.argBubbleBorderColor,
+    this.displayPin = true});
 
   @override
   Widget build(BuildContext context) {
 
     return Stack(
-      // alignment: Alignment.topRight,
       children: <Widget>[
         Container(
           decoration: BoxDecoration(
@@ -36,27 +37,33 @@ class BubblesBoxRotaryMessage extends StatelessWidget {
               bottomRight: Radius.circular(8.0),
             ),
           ),
+        ),
 
+        Container(
+          margin: const EdgeInsets.all(2.0),
           child: argContent,
         ),
 
-        Positioned(
-          top: 0.0,
-          right: 0.0,
-          child: CustomPaint(
-            painter: BubblesBoxDecorationPinBorder(argBubbleBorderColor: argBubbleBorderColor),
-          ),
-        ),
-        Positioned(
-          top: 0.0,
-          right: 0.0,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 2.0, left: 2.0, right: 2.0),
+        if (displayPin)
+          Positioned(
+            top: 0.0,
+            right: 0.0,
             child: CustomPaint(
-              painter: BubblesBoxDecorationPin(argBubbleBackgroundColor: argBubbleBackgroundColor),
+              painter: BubblesBoxDecorationPinBorder(argBubbleBorderColor: argBubbleBorderColor),
             ),
           ),
-        ),
+
+        if (displayPin)
+          Positioned(
+            top: 0.0,
+            right: 0.0,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 2.0, left: 2.0, right: 2.0),
+              child: CustomPaint(
+                painter: BubblesBoxDecorationPin(argBubbleBackgroundColor: argBubbleBackgroundColor),
+              ),
+            ),
+          ),
       ],
     );
   }

@@ -30,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
   ConnectedUserObject newConnectedUserObj;
   LoginObject newLoginObject;
 
-  /// Fields Param
+  //#region Fields Param
   TextEditingController eMailController;
   TextEditingController passwordController;
 
@@ -41,6 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool loginConfirmationCheck;
   String error = '';
   bool loading = false;
+  //#endregion
 
   @override
   void initState() {
@@ -64,6 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
     newPassword = aPassword;
   }
 
+  //#region Perform Login Process
   Future performLoginProcess() async {
     if (formKey.currentState.validate()){
       setState(() {
@@ -93,20 +95,31 @@ class _LoginScreenState extends State<LoginScreen> {
           loginConfirmationCheck = true;
           loading = false;
         });
+
+        /// Login Status --->>> Accepted --->>> Update And write to Secure Storage
+        Constants.LoginStatusEnum _loginStatus = Constants.LoginStatusEnum.Accepted;
+        await LoginService.writeLoginObjectDataToSecureStorage(_loginStatus);
+        LoginObject _loginObject = LoginService.createLoginAsObject(_loginStatus);
+        await LoginService.setLogin(_loginObject);
+
         /// Update ConnectedUserObject.StayConnected
-        currentConnectedUserObj.setStayConnected(newStayConnected);
+        await currentConnectedUserObj.setStayConnected(newStayConnected);
 
         /// Write UserObject with new data [StayConnected] to SecureStorage
         await connectedUserService.writeConnectedUserObjectDataToSecureStorage(currentConnectedUserObj);
 
-        openRotaryMainScreen(currentConnectedUserObj);
+        print('LoginScreen . performLoginProcess / currentConnectedUserObj: $currentConnectedUserObj');
+        var userGlobal = ConnectedUserGlobal();
+        userGlobal.setConnectedUserObject(currentConnectedUserObj);
+
+        openRotaryMainScreen();
       }
     }
   }
+  //#endregion
 
-  ///--- If Login succeeded --->> Open Rotary Main Screen
-  ///------------------------------------------------------------------------------
-  void openRotaryMainScreen(ConnectedUserObject aConnectedUserObj) {
+  //#region --- If Login succeeded --->> Open Rotary Main Screen
+  void openRotaryMainScreen() {
     /// Navigate to MessageTrackerRequest Screen
     Navigator.pushReplacement(
       context,
@@ -115,9 +128,9 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+  //#endregion
 
-  ///------>> Open Debug Settings Screen
-  ///------------------------------------------------------------------------------
+  //#region Open Debug Settings Screen
   Future<void> openDebugSettingsScreen() async {
     /// Navigate to DebugSettings Screen
     Navigator.push(
@@ -127,6 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+  //#endregion
 
   /// ============================== Main Screen ==============================
   @override
@@ -170,6 +184,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   ///------>> Build All Page Widgets
   ///==============================================================================
+
+  //#region Open Debug Button
   Widget openDebugButton() {
     return InkWell(
       onTap: () async{await openDebugSettingsScreen();},
@@ -186,7 +202,9 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+  //#endregion
 
+  //#region Exit Button
   Widget exitButton() {
     return InkWell(
       onTap: () {exit(0);},
@@ -205,7 +223,9 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+  //#endregion
 
+  //#region Divider
   Widget emailPasswordWidget() {
     return Form(
       key: formKey,
@@ -217,7 +237,9 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+  //#endregion
 
+  //#region Build Enabled Text Edit Field
   Widget buildEnabledTextEditField(TextEditingController aController, String title, TextDirection aTextDirection, Function setValFunc, {bool isPassword = false}) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
@@ -256,7 +278,9 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+  //#endregion
 
+  //#region Build Stay Connected CheckBox
   Widget buildStayConnectedCheckBox() {
     return InkWell(
       onTap: () {
@@ -296,7 +320,9 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+  //#endregion
 
+  //#region Build Forgot Password Label
   Widget buildForgotPasswordLabel() {
     return InkWell(
       onTap: () {
@@ -315,8 +341,9 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+  //#endregion
 
-  ///------>> Build ActionButton: Login [התחבר]
+  //#region Build ActionButton: Login [התחבר]
   ///------------------------------------------------------------------------------
   Widget buildActionButton(String label, Function aButtonFunc) {
     return GestureDetector(
@@ -333,7 +360,9 @@ class _LoginScreenState extends State<LoginScreen> {
       onTap: () => aButtonFunc(),
     );
   }
+  //#endregion
 
+  //#region Login Failed Error Message
   Widget buildLoginFailedErrorMessage(String errorMessage, bool aLoginConfirmationCheck) {
     return aLoginConfirmationCheck ? Container() :
     Directionality(
@@ -351,7 +380,9 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+  //#endregion
 
+  //#region Divider
   Widget divider() {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
@@ -382,7 +413,9 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+  //#endregion
 
+  //#region Facebook Button
   Widget facebookButton() {
     return Container(
       height: 50,
@@ -430,7 +463,9 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+  //#endregion
 
+  //#region create Account Label
   Widget createAccountLabel() {
     return InkWell(
       onTap: () {
@@ -466,4 +501,5 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+//#endregion
 }

@@ -287,13 +287,14 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
 
                     /// --------------- Application Menu ---------------------
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
                         /// Exit Icon --->>> Close Screen
                         Padding(
                           padding: const EdgeInsets.only(left: 0.0, top: 10.0, right: 10.0, bottom: 0.0),
                           child: IconButton(
-                            icon: Icon(Icons.arrow_forward, color: Colors.white),
+                            icon: Icon(
+                              Icons.close, color: Colors.white, size: 26.0,),
                             onPressed: () {
                               FocusScope.of(context).requestFocus(FocusNode()); // Hide Keyboard
                               Navigator.pop(context);
@@ -303,11 +304,11 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
                       ],
                     ),
 
-                    Positioned(
-                      left: 20.0,
-                      bottom: -25.0,
-                      child: buildUpdateButton(updateEvent),
-                    ),
+                    // Positioned(
+                    //   left: 20.0,
+                    //   bottom: -25.0,
+                    //   child: buildUpdateCircleButton(updateEvent),
+                    // ),
                   ],
                 ),
               ),
@@ -324,7 +325,7 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
   /// ====================== Event All Fields ==========================
   Widget buildEventDetailDisplay() {
     return Column(
-      children: [
+      children: <Widget>[
         Expanded(
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
@@ -354,6 +355,9 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
             ),
           ),
         ),
+
+        buildUpdateButtonRectangleWithIcon("עדכן", updateEvent, Icons.update),
+
         /// ---------------------- Display Error -----------------------
         Text(
           error,
@@ -365,6 +369,7 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
     );
   }
 
+  //#region Build Event Image
   Widget buildEventImage() {
     return Stack(
       children: <Widget>[
@@ -388,7 +393,9 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
       ]
     );
   }
+  //#endregion
 
+  //#region Build Enabled TextInput With Image Icon
   Widget buildEnabledTextInputWithImageIcon(TextEditingController aController, String textInputName, IconData aIcon, bool aMultiLine) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0),
@@ -412,7 +419,9 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
       ),
     );
   }
+  //#endregion
 
+  //#region Build ImageIcon For TextField
   MaterialButton buildImageIconForTextField(IconData aIcon) {
     return MaterialButton(
       elevation: 0.0,
@@ -434,7 +443,9 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
       ),
     );
   }
+  //#endregion
 
+  //#region Build Text Form Field
   TextFormField buildTextFormField(
       TextEditingController aController,
       String textInputName,
@@ -452,7 +463,9 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
       validator: (val) => val.isEmpty ? 'הקלד $textInputName' : null,
     );
   }
+  //#endregion
 
+  //#region Build Event Detail Image Icon
   Widget buildEventDetailImageIcon(IconData aIcon, Widget aDisplayWidgetDate, Function aFunc) {
     return Row(
         textDirection: TextDirection.rtl,
@@ -494,7 +507,9 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
         ]
     );
   }
+  //#endregion
 
+  //#region Build Update Event Image Button
   Widget buildUpdateEventImageButton(Function aFunc) {
     return MaterialButton(
       elevation: 0.0,
@@ -513,7 +528,9 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
       ),
     );
   }
+  //#endregion
 
+  //#region Build Update DateTime Button
   Widget buildUpdateDateTimeButton(Function aFunc) {
     return MaterialButton(
       elevation: 0.0,
@@ -533,8 +550,10 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
       ),
     );
   }
+  //#endregion
 
-  Widget buildUpdateButton(Function aFunc) {
+  //#region Build Update Circle Button
+  Widget buildUpdateCircleButton(Function aFunc) {
 
     final eventsBloc = BlocProvider.of<EventsListBloc>(context);
 
@@ -568,8 +587,10 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
         }
     );
   }
+  //#endregion
 
-  Widget buildUpdateButtonOLD(String buttonText, Function aFunc, IconData aIcon) {
+  //#region Build Update Rectangle Button
+  Widget buildUpdateButtonRectangleWithIcon(String buttonText, Function aFunc, IconData aIcon) {
 
     final eventsBloc = BlocProvider.of<EventsListBloc>(context);
 
@@ -605,4 +626,5 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
       }
     );
   }
+  //#endregion
 }

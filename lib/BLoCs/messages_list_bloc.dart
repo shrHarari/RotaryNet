@@ -1,5 +1,6 @@
 import 'package:rotary_net/BLoCs/bloc.dart';
 import 'package:rotary_net/objects/message_object.dart';
+import 'package:rotary_net/objects/message_queue_object.dart';
 import 'package:rotary_net/objects/message_with_description_object.dart';
 import 'package:rotary_net/services/message_service.dart';
 import 'dart:async';
@@ -30,12 +31,12 @@ class MessagesListBloc implements BloC {
 
   // 3. represents the input for the BLoC
   void getMessagesList() async {
-    _messagesList = await messageService.getMessagesListFromServer();
+    _messagesList = await messageService.getMessagesListUsingMessageQueueFromServer();
     _messagesController.sink.add(_messagesList);
   }
 
   void getMessagesListWithDescription() async {
-    _messagesListWithDescription = await messageService.getMessagesListWithDescriptionFromServer();
+    _messagesListWithDescription = await messageService.getMessagesListWithDescriptionUsingMessageQueueFromServer();
     _messagesWithDescriptionController.sink.add(_messagesListWithDescription);
   }
 
@@ -53,11 +54,12 @@ class MessagesListBloc implements BloC {
 
   //#region CRUD: Message
 
-  Future<void> insertMessage(
+  Future insertMessage(
       MessageObject aMessageObj,
       MessageWithDescriptionObject aMessageWithDescriptionObj) async {
 
-    await messageService.insertMessageToDataBase(aMessageObj);
+    // InsertMessage ===>>> One Transaction: Insert to MessageTable AND to MessageQueueTable
+    var dbResult = await messageService.insertMessageAndMessageQueueByHierarchyPermissionToDataBase(aMessageObj, aMessageWithDescriptionObj);
 
     _messagesList.add(aMessageObj);
     _messagesList.sort((a, b) => b.messageCreatedDateTime.compareTo(a.messageCreatedDateTime));
@@ -66,6 +68,8 @@ class MessagesListBloc implements BloC {
     _messagesListWithDescription.add(aMessageWithDescriptionObj);
     _messagesListWithDescription.sort((a, b) => b.messageCreatedDateTime.compareTo(a.messageCreatedDateTime));
     _messagesWithDescriptionController.sink.add(_messagesListWithDescription);
+
+    return dbResult;
   }
 
   Future<void> updateMessage(
@@ -95,6 +99,39 @@ class MessagesListBloc implements BloC {
 
     if (_messagesListWithDescription.contains(aMessageWithDescriptionObj)) {
       await messageService.deleteMessageByMessageGuidIdFromDataBase(aMessageObj);
+
+      _messagesList.remove(aMessageObj);
+      _messagesController.sink.add(_messagesList);
+
+      _messagesListWithDescription.remove(aMessageWithDescriptionObj);
+      _messagesWithDescriptionController.sink.add(_messagesListWithDescription);
+    }
+  }
+
+  Future insertMessageQueue(
+      MessageObject aMessageObj,
+      MessageWithDescriptionObject aMessageWithDescriptionObj,
+      MessageQueueObject aMessageQueueObj) async {
+
+    var dbResult = await messageService.insertMessageQueueToDataBase(aMessageQueueObj);
+
+    _messagesList.add(aMessageObj);
+    _messagesList.sort((a, b) => b.messageCreatedDateTime.compareTo(a.messageCreatedDateTime));
+    _messagesController.sink.add(_messagesList);
+
+    _messagesListWithDescription.add(aMessageWithDescriptionObj);
+    _messagesListWithDescription.sort((a, b) => b.messageCreatedDateTime.compareTo(a.messageCreatedDateTime));
+    _messagesWithDescriptionController.sink.add(_messagesListWithDescription);
+
+    return dbResult;
+  }
+
+  Future<void> deleteMessageQueueByMessageAndPersonGuidIdFromDataBase(
+      MessageObject aMessageObj,
+      MessageWithDescriptionObject aMessageWithDescriptionObj) async {
+
+    if (_messagesListWithDescription.contains(aMessageWithDescriptionObj)) {
+      await messageService.deleteMessageQueueByMessageAndPersonGuidIdFromDataBase(aMessageObj, aMessageWithDescriptionObj);
 
       _messagesList.remove(aMessageObj);
       _messagesController.sink.add(_messagesList);

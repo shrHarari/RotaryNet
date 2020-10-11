@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class MessageWithDescriptionObject {
   final String messageGuidId;
@@ -8,7 +9,7 @@ class MessageWithDescriptionObject {
   final String composerEmail;
   final String messageText;
   final DateTime messageCreatedDateTime;
-  final int roleId;
+  Constants.RotaryRolesEnum roleId;
   final String roleName;
   final int areaId;
   final String areaName;
@@ -41,6 +42,26 @@ class MessageWithDescriptionObject {
     this.clubManagerGuidId,
   });
 
+  MessageWithDescriptionObject.copy(MessageWithDescriptionObject uniqueObject) :
+        messageGuidId = uniqueObject.messageGuidId,
+        composerGuidId = uniqueObject.composerGuidId,
+        composerFirstName = uniqueObject.composerFirstName,
+        composerLastName = uniqueObject.composerLastName,
+        composerEmail = uniqueObject.composerEmail,
+        messageText = uniqueObject.messageText,
+        messageCreatedDateTime = uniqueObject.messageCreatedDateTime,
+        roleId = uniqueObject.roleId,
+        roleName = uniqueObject.roleName,
+        areaId = uniqueObject.areaId,
+        areaName = uniqueObject.areaName,
+        clusterId = uniqueObject.clusterId,
+        clusterName = uniqueObject.clusterName,
+        clubId = uniqueObject.clubId,
+        clubName = uniqueObject.clubName,
+        clubAddress = uniqueObject.clubAddress,
+        clubMail = uniqueObject.clubMail,
+        clubManagerGuidId = uniqueObject.clubManagerGuidId;
+
   /// Convert JsonStringStructure to String
   @override
   String toString() {
@@ -67,31 +88,35 @@ class MessageWithDescriptionObject {
       '}';
   }
 
-  /// Used for jsonDecode Function
-  Map toJson() => {
-    'messageGuidId': messageGuidId,
-    'composerGuidId': composerGuidId,
-    'composerFirstName': composerFirstName,
-    'composerLastName': composerLastName,
-    'composerEmail': composerEmail,
-    'messageText': messageText,
-    'messageCreatedDateTime': messageCreatedDateTime.toString(),
-    'roleId': roleId,
-    'roleName': roleName,
-    'areaId': areaId,
-    'areaName': areaName,
-    'clusterId': clusterId,
-    'clusterName': clusterName,
-    'clubId': clubId,
-    'clubName': clubName,
-    'clubAddress': clubAddress,
-    'clubMail': clubMail,
-    'clubManagerGuidId': clubManagerGuidId,
-  };
+  // /// Used for jsonDecode Function
+  // Map toJson() => {
+  //   'messageGuidId': messageGuidId,
+  //   'composerGuidId': composerGuidId,
+  //   'composerFirstName': composerFirstName,
+  //   'composerLastName': composerLastName,
+  //   'composerEmail': composerEmail,
+  //   'messageText': messageText,
+  //   'messageCreatedDateTime': messageCreatedDateTime.toString(),
+  //   'roleId': roleId,
+  //   'roleName': roleName,
+  //   'areaId': areaId,
+  //   'areaName': areaName,
+  //   'clusterId': clusterId,
+  //   'clusterName': clusterName,
+  //   'clubId': clubId,
+  //   'clubName': clubName,
+  //   'clubAddress': clubAddress,
+  //   'clubMail': clubMail,
+  //   'clubManagerGuidId': clubManagerGuidId,
+  // };
 
   factory MessageWithDescriptionObject.fromJson(Map<String, dynamic> parsedJson){
     // DateTime: Convert [String] to [DateTime]
     DateTime _messageCreatedDateTime = DateTime.parse(parsedJson['messageCreatedDateTime']);
+
+    // RoleId: Convert [int] to [Enum]
+    Constants.RotaryRolesEnum _roleEnum;
+    Constants.RotaryRolesEnum _roleEnumValue = _roleEnum.convertToEnum(parsedJson['roleId']);
 
     return MessageWithDescriptionObject(
       messageGuidId: parsedJson['messageGuidId'],
@@ -101,7 +126,7 @@ class MessageWithDescriptionObject {
       composerEmail: parsedJson['composerEmail'],
       messageText: parsedJson['messageText'],
       messageCreatedDateTime: _messageCreatedDateTime,
-      roleId: parsedJson['roleId'],
+      roleId : _roleEnumValue,
       roleName: parsedJson['roleName'],
       areaId: parsedJson['areaId'],
       areaName: parsedJson['areaName'],
@@ -131,6 +156,10 @@ class MessageWithDescriptionObject {
     // DateTime: Convert [String] to [DateTime]
     DateTime _messageCreatedDateTime = DateTime.parse(jsonFromMap['messageCreatedDateTime']);
 
+    // RoleId: Convert [int] to [Enum]
+    Constants.RotaryRolesEnum _roleEnum;
+    Constants.RotaryRolesEnum _roleEnumValue = _roleEnum.convertToEnum(jsonFromMap['roleId']);
+
     return MessageWithDescriptionObject(
         messageGuidId: jsonFromMap['messageGuidId'],
         composerGuidId: jsonFromMap['composerGuidId'],
@@ -139,7 +168,7 @@ class MessageWithDescriptionObject {
         composerEmail: jsonFromMap['composerEmail'],
         messageText: jsonFromMap['messageText'],
         messageCreatedDateTime: _messageCreatedDateTime,
-        roleId: jsonFromMap['roleId'],
+        roleId: _roleEnumValue,
         roleName: jsonFromMap['roleName'],
         areaId: jsonFromMap['areaId'],
         areaName: jsonFromMap['areaName'],
@@ -157,6 +186,10 @@ class MessageWithDescriptionObject {
     // DateTime: Convert [DateTime] to [String]
     String _messageCreatedDateTime = messageCreatedDateTime.toIso8601String();
 
+    // RoleEnum: Convert [Enum] to [int]
+    Constants.RotaryRolesEnum _roleEnum = roleId;
+    int _roleEnumValue = _roleEnum.value;
+
     return {
       'messageGuidId': messageGuidId,
       'composerGuidId': composerGuidId,
@@ -165,7 +198,7 @@ class MessageWithDescriptionObject {
       'composerEmail': composerEmail,
       'messageText': messageText,
       'messageCreatedDateTime': _messageCreatedDateTime,
-      'roleId': roleId,
+      'roleId': _roleEnumValue,
       'roleName': roleName,
       'areaId': areaId,
       'areaName': areaName,

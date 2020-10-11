@@ -13,11 +13,8 @@ import 'package:rotary_net/services/person_card_service.dart';
 import 'package:rotary_net/shared/decoration_style.dart';
 import 'package:rotary_net/shared/error_message_screen.dart';
 import 'package:rotary_net/shared/loading.dart';
-import 'package:rotary_net/utils/hebrew_syntax_format.dart';
-import 'package:rotary_net/widgets/application_menu_widget.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 import 'package:rotary_net/utils/utils_class.dart';
-import 'package:path/path.dart' as Path;
 
 class MessageDetailEditPageScreen extends StatefulWidget {
   static const routeName = '/MessageDetailEditPageScreen';
@@ -67,14 +64,14 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
     ConnectedUserObject _connectedUserObj = ConnectedUserGlobal.currentConnectedUserObject;
 
     PersonCardService _personCardService = PersonCardService();
-    String _userGuidId;
+    String _personCardGuidId;
     if (widget.argMessageWithDescriptionObject == null)
-      _userGuidId = _connectedUserObj.userGuidId;
+      _personCardGuidId = _connectedUserObj.userGuidId;
     else
-      _userGuidId = widget.argMessageWithDescriptionObject.composerGuidId;
+      _personCardGuidId = widget.argMessageWithDescriptionObject.composerGuidId;
 
     PersonCardWithDescriptionObject _personCardWithDescriptionObject =
-              await _personCardService.getPersonCardWithDescriptionByGuidIdFromServer(_userGuidId);
+              await _personCardService.getPersonCardWithDescriptionByGuidIdFromServer(_personCardGuidId);
 
     setState(() {
       loading = false;
@@ -172,13 +169,13 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
         DateTime _messageCreatedDateTime = DateTime.now();
         _newMessageObj = messageService.createMessageAsObject(
             _messageGuidId,
-            currentDataRequired.personCardWithDescriptionObject.userGuidId,
+            currentDataRequired.personCardWithDescriptionObject.personCardGuidId,
             _messageText,
             _messageCreatedDateTime,
         );
         _newMessageWithDescriptionObj = messageService.createMessageWithDescriptionAsObject(
             _messageGuidId,
-            currentDataRequired.personCardWithDescriptionObject.userGuidId,
+            currentDataRequired.personCardWithDescriptionObject.personCardGuidId,
             currentDataRequired.personCardWithDescriptionObject.firstName,
             currentDataRequired.personCardWithDescriptionObject.lastName,
             currentDataRequired.personCardWithDescriptionObject.email,
@@ -197,7 +194,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
             currentDataRequired.personCardWithDescriptionObject.clubManagerGuidId
         );
 
-        await aMessageBloc.insertMessage(_newMessageObj, _newMessageWithDescriptionObj);
+        var dbResult = await aMessageBloc.insertMessage(_newMessageObj, _newMessageWithDescriptionObj);
       }
 
       // Hide Keyboard
@@ -328,21 +325,18 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
                       ],
                     ),
 
-                    Positioned(
-                        left: 20.0,
-                        bottom: -25.0,
-                        child: buildUpdateButton(updateMessage),
-                    ),
+                    // Positioned(
+                    //     left: 20.0,
+                    //     bottom: -25.0,
+                    //     child: buildUpdateButton(updateMessage),
+                    // ),
                   ],
                 ),
               ),
             ),
 
             Expanded(
-              child: Container(
-                  width: double.infinity,
-                  child: buildMessageDetailDisplay(currentDataRequired.personCardWithDescriptionObject)
-              ),
+              child: buildMessageDetailDisplay(currentDataRequired.personCardWithDescriptionObject),
             ),
           ]
       ),
@@ -352,21 +346,20 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
   /// ====================== Message All Fields ==========================
   Widget buildMessageDetailDisplay(PersonCardWithDescriptionObject aPersonCardWithDescriptionObj) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      // mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        SizedBox(),
+
         /// ---------------- Message Content ----------------------
         Expanded(
-          flex: 2,
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Container(
               child: Column(
                 children: <Widget>[
+                  /// --------------- MessageWithDescriptionObj Details [Metadata]---------------------
+                  buildComposerDetailSection(aPersonCardWithDescriptionObj),
+
                   Padding(
-                    padding: const EdgeInsets.only(top: 0.0, left: 30.0, right: 30.0, bottom: 0.0),
+                    padding: const EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0, bottom: 0.0),
                     child: Form(
                       key: formKey,
                       child: Column(
@@ -386,41 +379,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
           ),
         ),
 
-        /// --------------- MessageWithDescriptionObj Details [Metadata]---------------------
-        Flexible(
-          fit: FlexFit.loose,
-          child: Container(
-            // color: Colors.grey[200],
-            padding: const EdgeInsets.only(top: 20.0, left: 20.0, right: 10.0),
-
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              border: Border(
-                top: BorderSide(
-                  color: Colors.amber,
-                  width: 2.0,
-                ),
-              ),
-            ),
-
-            child: Directionality(
-              textDirection: TextDirection.rtl,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                textDirection: TextDirection.rtl,
-                children: <Widget>[
-                  if (aPersonCardWithDescriptionObj.firstName != "")
-                    buildComposerDetailName(Icons.person, aPersonCardWithDescriptionObj, openComposerPersonCardDetailScreen),
-
-                  if (aPersonCardWithDescriptionObj.areaName != "")
-                    buildComposerDetailAreaClusterClub(Icons.location_on, aPersonCardWithDescriptionObj, Utils.launchInMapByAddress),
-                ],
-              ),
-            ),
-          ),
-        ),
+        buildUpdateButtonRectangleWithIcon("עדכן", updateMessage, Icons.update),
 
         /// ---------------------- Display Error -----------------------
         if (error.length > 0)
@@ -434,6 +393,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
     );
   }
 
+  //#region Build Message Text Input
   Widget buildMessageTextInput(TextEditingController aController, String textInputName) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0),
@@ -460,7 +420,45 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
       ),
     );
   }
+  //#endregion
 
+  //#region Build Composer Detail Section
+  Widget buildComposerDetailSection(PersonCardWithDescriptionObject aPersonCardWithDescriptionObj) {
+
+    return Container(
+      // color: Colors.grey[200],
+      padding: const EdgeInsets.only(top: 20.0, left: 20.0, right: 10.0),
+
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.amber,
+            width: 2.0,
+          ),
+        ),
+      ),
+
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          textDirection: TextDirection.rtl,
+          children: <Widget>[
+            if (aPersonCardWithDescriptionObj.firstName != "")
+              buildComposerDetailName(Icons.person, aPersonCardWithDescriptionObj, openComposerPersonCardDetailScreen),
+
+            if (aPersonCardWithDescriptionObj.areaName != "")
+              buildComposerDetailAreaClusterClub(Icons.location_on, aPersonCardWithDescriptionObj, Utils.launchInMapByAddress),
+          ],
+        ),
+      ),
+    );
+  }
+
+  //#region Build Composer Detail Name
   Widget buildComposerDetailName(IconData aIcon, PersonCardWithDescriptionObject aPersonCardWithDescriptionObj, Function aFunc) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 5.0),
@@ -472,7 +470,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
             MaterialButton(
               elevation: 0.0,
               onPressed: () {
-                aFunc(aPersonCardWithDescriptionObj.userGuidId);
+                aFunc(aPersonCardWithDescriptionObj.personCardGuidId);
               },
               color: Colors.blue[10],
               child:
@@ -507,7 +505,9 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
       ),
     );
   }
+  //#endregion
 
+  //#region Build Composer Detail Area Cluster Club
   Widget buildComposerDetailAreaClusterClub(IconData aIcon, PersonCardWithDescriptionObject aPersonCardWithDescriptionObj, Function aFunc) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
@@ -595,8 +595,12 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
       ),
     );
   }
+  //#endregion
 
-  Widget buildUpdateButton(Function aFunc) {
+  //#endregion
+
+  //#region Build Update Circle Button
+  Widget buildUpdateCircleButton(Function aFunc) {
 
     final messagesBloc = BlocProvider.of<MessagesListBloc>(context);
 
@@ -630,8 +634,10 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
       }
     );
   }
+  //#endregion
 
-  Widget buildUpdateButtonOLD(String buttonText, Function aFunc, IconData aIcon) {
+  //#region Build Update Rectangle Button
+  Widget buildUpdateButtonRectangleWithIcon(String buttonText, Function aFunc, IconData aIcon) {
 
     final messagesBloc = BlocProvider.of<MessagesListBloc>(context);
 
@@ -667,6 +673,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
         }
     );
   }
+  //#endregion
 }
 
 class DataRequiredForBuild {

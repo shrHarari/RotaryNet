@@ -3,6 +3,7 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:rotary_net/objects/connected_user_object.dart';
 import 'package:rotary_net/objects/event_object.dart';
 import 'package:rotary_net/objects/message_object.dart';
+import 'package:rotary_net/objects/message_queue_object.dart';
 import 'package:rotary_net/objects/message_with_description_object.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
 import 'package:rotary_net/objects/person_card_with_description_object.dart';
@@ -11,6 +12,7 @@ import 'package:rotary_net/objects/rotary_club_object.dart';
 import 'package:rotary_net/objects/rotary_cluster_object.dart';
 import 'package:rotary_net/objects/rotary_role_object.dart';
 import 'package:rotary_net/objects/user_object.dart';
+import 'package:rotary_net/shared/constants.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:rotary_net/database/create_db_tables_syntax.dart';
@@ -46,10 +48,12 @@ class RotaryDataBaseProvider {
           await db.execute(CreateDbTablesSyntax.createPersonCardsTable());
           await db.execute(CreateDbTablesSyntax.createEventsTable());
           await db.execute(CreateDbTablesSyntax.createMessagesTable());
+          await db.execute(CreateDbTablesSyntax.createMessageQueueTable());
           await db.execute(CreateDbTablesSyntax.createRotaryRoleTable());
           await db.execute(CreateDbTablesSyntax.createRotaryAreaTable());
           await db.execute(CreateDbTablesSyntax.createRotaryClusterTable());
           await db.execute(CreateDbTablesSyntax.createRotaryClubTable());
+
           print('+++ <RotaryDataBaseProvider> Rotary Database was Created');
         },
         version: 1
@@ -248,21 +252,21 @@ class RotaryDataBaseProvider {
   //#endregion
 
   //#region get PersonCard By GuidId
-  Future getPersonCardByGuidId(String aUserGuidId) async {
+  Future getPersonCardByGuidId(String aPersonCardGuidId) async {
     final db = await database;
-    var result = await  db.query("PersonCards", where: "userGuidId = ?", whereArgs: [aUserGuidId]);
+    var result = await  db.query("PersonCards", where: "personCardGuidId = ?", whereArgs: [aPersonCardGuidId]);
     return result.isNotEmpty ? PersonCardObject.fromMap(result.first) : null ;
   }
   //#endregion
 
   //#region get PersonCard With Description By GuidId
-  Future <PersonCardWithDescriptionObject> getPersonCardWithDescriptionByGuidId(String aUserGuidId) async {
+  Future <PersonCardWithDescriptionObject> getPersonCardWithDescriptionByGuidId(String aPersonCardGuidId) async {
     final db = await database;
 
     if (db == null) return null;
       final result = await db.rawQuery(
         "SELECT "
-            "PersonCards.userGuidId AS userGuidId, "
+            "PersonCards.personCardGuidId AS personCardGuidId, "
             "PersonCards.email AS email, "
             "PersonCards.firstName AS firstName, "
             "PersonCards.lastName AS lastName, "
@@ -299,7 +303,7 @@ class RotaryDataBaseProvider {
               "PersonCards.areaId = RotaryClub.areaId AND "
               "PersonCards.clusterId = RotaryClub.clusterId AND "
               "PersonCards.clubId = RotaryClub.clubId "
-        "WHERE PersonCards.userGuidId = '$aUserGuidId'"
+        "WHERE PersonCards.personCardGuidId = '$aPersonCardGuidId'"
     );
 
     return result.isNotEmpty ? PersonCardWithDescriptionObject.fromMap(result.first) : null ;
@@ -328,7 +332,7 @@ class RotaryDataBaseProvider {
     final db = await database;
     var result = await db.rawInsert(
         "INSERT Into PersonCards ("
-            "userGuidId, "
+            "personCardGuidId, "
             "email, "
             "firstName, "
             "lastName, "
@@ -348,7 +352,7 @@ class RotaryDataBaseProvider {
             "roleId,"
             ") "
         "VALUES ("
-            "${aPersonCard.userGuidId}, "
+            "${aPersonCard.personCardGuidId}, "
             "${aPersonCard.email}, "
             "${aPersonCard.firstName}, "
             "${aPersonCard.lastName}, "
@@ -390,8 +394,8 @@ class RotaryDataBaseProvider {
     var result = await db.update(
         "PersonCards",
         aPersonCard.toMap(),
-        where: "userGuidId = ?",
-        whereArgs: [aPersonCard.userGuidId]
+        where: "personCardGuidId = ?",
+        whereArgs: [aPersonCard.personCardGuidId]
     );
 
     return result;
@@ -404,11 +408,11 @@ class RotaryDataBaseProvider {
       final db = await database;
       db.delete(
           "PersonCards",
-          where: "userGuidId = ?",
-          whereArgs: [aPersonCard.userGuidId]
+          where: "personCardGuidId = ?",
+          whereArgs: [aPersonCard.personCardGuidId]
       );
     } catch (ex) {
-      print('Delete PersonCard [${aPersonCard.userGuidId} / ${aPersonCard.email}] >>> ERROR: ${ex.toString()}');
+      print('Delete PersonCard [${aPersonCard.personCardGuidId} / ${aPersonCard.email}] >>> ERROR: ${ex.toString()}');
     }
   }
   //#endregion
@@ -558,9 +562,38 @@ class RotaryDataBaseProvider {
     if (db == null) return null;
 
     final List<Map<String, dynamic>> mapMessages = await db.query('Messages');
+    // print(">>>>>>>> getAllMessages / mapMessages: $mapMessages");
 
     List<MessageObject> messagesList = List.generate(mapMessages.length, (_message) {
       return MessageObject.fromMap(mapMessages[_message]);
+    });
+
+    return messagesList;
+  }
+  //#endregion
+
+  //#region get All Messages Using MessageQueue
+  Future <List<MessageObject>> getAllMessagesUsingMessageQueue(String aUserGuidId) async {
+
+    final db = await database;
+    if (db == null) return null;
+
+    String selectClause =
+        "SELECT "
+            "Messages.messageGuidId AS messageGuidId, "
+            "Messages.composerGuidId AS composerGuidId, "
+            "Messages.messageText AS messageText, "
+            "Messages.messageCreatedDateTime AS messageCreatedDateTime "
+        "FROM MessageQueue "
+        "INNER JOIN Messages ON "
+            "MessageQueue.messageGuidId = Messages.messageGuidId ";
+
+    String selectWhereClause = "WHERE (MessageQueue.personCardGuidId = '$aUserGuidId' )";
+
+    final List<Map<String, dynamic>> mapMessageQueue = await db.rawQuery(selectClause + selectWhereClause);
+
+    List<MessageObject> messagesList = List.generate(mapMessageQueue.length, (_message) {
+      return MessageObject.fromMap(mapMessageQueue[_message]);
     });
 
     return messagesList;
@@ -595,7 +628,7 @@ class RotaryDataBaseProvider {
             "RotaryClub.clubManagerGuidId AS clubManagerGuidId "
         "FROM PersonCards "
         "INNER JOIN Messages ON "
-            "PersonCards.userGuidId = Messages.composerGuidId "
+            "PersonCards.personCardGuidId = Messages.composerGuidId "
         "INNER JOIN RotaryRole ON "
             "PersonCards.roleId = RotaryRole.roleId "
         "INNER JOIN RotaryArea ON "
@@ -611,6 +644,60 @@ class RotaryDataBaseProvider {
 
     List<MessageWithDescriptionObject> messagesList = List.generate(mapMessages.length, (_message) {
       return MessageWithDescriptionObject.fromMap(mapMessages[_message]);
+    });
+
+    return messagesList;
+  }
+  //#endregion
+
+  //#region get All Messages With Description Using MessageQueue
+  Future <List<MessageWithDescriptionObject>> getAllMessagesWithDescriptionUsingMessageQueue(String aUserGuidId) async {
+    final db = await database;
+    if (db == null) return null;
+
+    String selectClause =
+        "SELECT "
+            "Messages.messageGuidId AS messageGuidId, "
+            "Messages.composerGuidId AS composerGuidId, "
+            "PersonCards.firstName AS composerFirstName, "
+            "PersonCards.lastName AS composerLastName, "
+            "PersonCards.email AS composerEmail, "
+            "Messages.messageText AS messageText, "
+            "Messages.messageCreatedDateTime AS messageCreatedDateTime, "
+            "RotaryRole.roleId AS roleId, "
+            "RotaryRole.roleName AS roleName, "
+            "RotaryArea.areaId AS areaId, "
+            "RotaryArea.areaName AS areaName, "
+            "RotaryCluster.clusterId AS clusterId, "
+            "RotaryCluster.clusterName AS clusterName, "
+            "RotaryClub.clubId AS clubId, "
+            "RotaryClub.clubName AS clubName, "
+            "RotaryClub.clubAddress AS clubAddress, "
+            "RotaryClub.clubMail AS clubMail, "
+            "RotaryClub.clubManagerGuidId AS clubManagerGuidId "
+        "FROM MessageQueue "
+          "INNER JOIN Messages ON "
+              "MessageQueue.messageGuidId = Messages.messageGuidId "
+          "INNER JOIN PersonCards ON "
+              "Messages.composerGuidId = PersonCards.personCardGuidId "
+          "INNER JOIN RotaryRole ON "
+              "PersonCards.roleId = RotaryRole.roleId "
+          "INNER JOIN RotaryArea ON "
+              "PersonCards.areaId = RotaryArea.areaId "
+          "INNER JOIN RotaryCluster ON "
+              "PersonCards.areaId = RotaryCluster.areaId AND "
+              "PersonCards.clusterId = RotaryCluster.clusterId "
+          "INNER JOIN RotaryClub ON "
+              "PersonCards.areaId = RotaryClub.areaId AND "
+              "PersonCards.clusterId = RotaryClub.clusterId AND "
+              "PersonCards.clubId = RotaryClub.clubId ";
+
+    String selectWhereClause = "WHERE (MessageQueue.personCardGuidId = '$aUserGuidId' )";
+
+    final List<Map<String, dynamic>> mapMessageQueue = await db.rawQuery(selectClause + selectWhereClause);
+
+    List<MessageWithDescriptionObject> messagesList = List.generate(mapMessageQueue.length, (_message) {
+      return MessageWithDescriptionObject.fromMap(mapMessageQueue[_message]);
     });
 
     return messagesList;
@@ -703,7 +790,7 @@ class RotaryDataBaseProvider {
           whereArgs: [aMessage.messageGuidId]
       );
     } catch (ex) {
-      print('Delete Event [${aMessage.messageGuidId} / ${aMessage.messageText}] >>> ERROR: ${ex.toString()}');
+      print('Delete Message [${aMessage.messageGuidId} / ${aMessage.messageText}] >>> ERROR: ${ex.toString()}');
     }
   }
   //#endregion
@@ -712,6 +799,122 @@ class RotaryDataBaseProvider {
   Future<void> deleteAllMessages() async {
     final db = await database;
     db.rawDelete('Delete * from Messages');
+  }
+  //#endregion
+
+  //#endregion
+
+  //#region CRUD: Message Queue
+
+  //#region insertRawMessageQueue [----------- Not in use...]
+  Future insertRawMessageQueue(MessageQueueObject aMessageQueueObject) async {
+    final db = await database;
+
+    var result = await db.rawInsert(
+        "INSERT Into MessageQueue ("
+            "messageGuidId, "
+            "personCardGuidId, "
+            "_messageReadStatus) "
+        "VALUES ("
+            "${aMessageQueueObject.messageGuidId}, "
+            "${aMessageQueueObject.personCardGuidId}, "
+            "${aMessageQueueObject.messageReadStatus} "
+        ")"
+    );
+    return result;
+  }
+  //#endregion
+
+  //#region delete MessageQueue By MessageGuidId
+  Future<void> deleteMessageQueueByMessageGuidId(MessageQueueObject aMessageQueueObject) async {
+    try {
+      final db = await database;
+      db.delete(
+          "MessageQueue",
+          where: "messageGuidId = ?",
+          whereArgs: [aMessageQueueObject.messageGuidId]
+      );
+    } catch (ex) {
+      print('Delete MessageQueue By MessageGuidId [${aMessageQueueObject.messageGuidId}] >>> ERROR: ${ex.toString()}');
+    }
+  }
+  //#endregion
+
+  //#region delete MessageQueue By MessageAndPerson GuidId
+  Future<void> deleteMessageQueueByMessageAndPersonGuidId(MessageQueueObject aMessageQueueObject) async {
+    try {
+      final db = await database;
+      db.delete(
+          "MessageQueue",
+          where: "messageGuidId = ? AND personCardGuidId = ?",
+          whereArgs: [aMessageQueueObject.messageGuidId, aMessageQueueObject.personCardGuidId]
+      );
+    } catch (ex) {
+      print('Delete MessageQueue By MessageAndPersonGuidId [${aMessageQueueObject.messageGuidId}] >>> ERROR: ${ex.toString()}');
+    }
+  }
+  //#endregion
+
+  //#region insertMessageQueueByHierarchyPermission
+  Future insertMessageQueueByHierarchyPermission(MessageWithDescriptionObject aMessageWithDescriptionObject) async {
+    final db = await database;
+    String selectWhereClause;
+
+    String insertClause =
+        "INSERT Into MessageQueue ("
+            "messageGuidId, "
+            "personCardGuidId, "
+            "messageReadStatus) ";
+    String selectClause =
+        "SELECT "
+            "'${aMessageWithDescriptionObject.messageGuidId}', "
+            "PersonCards.personCardGuidId, "
+            "1 "
+        "FROM PersonCards ";
+
+    switch (aMessageWithDescriptionObject.roleId) {
+      case (RotaryRolesEnum.RotaryManager):
+        selectWhereClause = "";
+        break;
+      case (RotaryRolesEnum.AreaManager):
+        selectWhereClause = "WHERE "
+                  "(PersonCards.areaId = ${aMessageWithDescriptionObject.areaId})";
+        break;
+      case (RotaryRolesEnum.ClusterManager):
+        selectWhereClause = "WHERE "
+                  "(PersonCards.areaId = ${aMessageWithDescriptionObject.areaId}) AND "
+                  "(PersonCards.clusterId = ${aMessageWithDescriptionObject.clusterId})";
+        break;
+      case (RotaryRolesEnum.ClubManager):
+        selectWhereClause = "WHERE "
+                  "(PersonCards.areaId = ${aMessageWithDescriptionObject.areaId}) AND "
+                  "(PersonCards.clusterId = ${aMessageWithDescriptionObject.clusterId}) AND "
+                  "(PersonCards.clubId = ${aMessageWithDescriptionObject.clubId}) ";
+        break;
+      default:
+        return 0;
+    }
+
+
+    // print(">>>>>>>>> insertMessageQueueUsingHierarchyPermission / sqlClause: ${selectClause + selectWhereClause}");
+    // final List<Map<String, dynamic>> mapMessageQueue = await db.rawQuery(selectClause + selectWhereClause);
+    // print(">>>>>>>>> insertMessageQueueUsingHierarchyPermission / mapMessageQueue: ${mapMessageQueue.length}");
+
+    String sqlClause = insertClause + selectClause + selectWhereClause;
+    var result = await db.rawInsert(sqlClause);
+    return result;
+  }
+  //#endregion
+
+  //#region insert MessageQueue
+  Future insertMessageQueue(MessageQueueObject aMessageQueueObject) async {
+    final db = await database;
+    var result = await db.insert(
+        "MessageQueue",
+        aMessageQueueObject.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace
+    );
+    return result;
   }
   //#endregion
 

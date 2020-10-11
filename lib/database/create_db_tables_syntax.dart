@@ -20,7 +20,7 @@ class CreateDbTablesSyntax {
   static String createPersonCardsTable(){
     return
       "CREATE TABLE IF NOT EXISTS PersonCards ("
-          "userGuidId TEXT PRIMARY KEY, "
+          "personCardGuidId TEXT PRIMARY KEY, "
           "email TEXT, "
           "firstName TEXT, "
           "lastName TEXT,"
@@ -74,7 +74,19 @@ class CreateDbTablesSyntax {
           "messageCreatedDateTime TEXT "
       ")";
   }
-//#endregion
+  //#endregion
+
+  //#region Create MessageQueue Table
+  static String createMessageQueueTable(){
+    return
+      "CREATE TABLE IF NOT EXISTS MessageQueue ("
+          "messageGuidId TEXT, "
+          "personCardGuidId TEXT, "
+          "messageReadStatus BIT, "
+          "PRIMARY KEY(messageGuidId, personCardGuidId)"
+      ")";
+  }
+  //#endregion
 
   /// ============= Code TABLES ================
 

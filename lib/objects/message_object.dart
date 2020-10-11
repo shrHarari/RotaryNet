@@ -28,22 +28,24 @@ class MessageObject {
   /// Convert JsonStringStructure to String
   @override
   String toString() {
+    // DateTime: Convert [DateTime] to [String]
+    String _messageCreatedDateTime = this.messageCreatedDateTime.toIso8601String();
     return
       '{'
           ' ${this.messageGuidId},'
           ' ${this.composerGuidId},'
           ' ${this.messageText},'
-          ' ${this.messageCreatedDateTime},'
+          ' $_messageCreatedDateTime,'
           '}';
   }
 
-  /// Used for jsonDecode Function
-  Map toJson() => {
-    'messageGuidId': messageGuidId,
-    'composerGuidId': composerGuidId,
-    'messageText': messageText,
-    'messageCreatedDateTime': messageCreatedDateTime.toString(),
-  };
+  // /// Used for jsonDecode Function
+  // Map toJson() => {
+  //   'messageGuidId': messageGuidId,
+  //   'composerGuidId': composerGuidId,
+  //   'messageText': messageText,
+  //   'messageCreatedDateTime': messageCreatedDateTime.toString(),
+  // };
 
   factory MessageObject.fromJson(Map<String, dynamic> parsedJson){
     // DateTime: Convert [String] to [DateTime]

@@ -206,9 +206,9 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
     return Column(
       children: <Widget>[
         /// ------------------- Event Image -------------------------
-        Stack(
-          overflow: Overflow.visible,
-          children: [
+        // Stack(
+        //   overflow: Overflow.visible,
+        //   children: [
             Container(
               height: 200.0,
               width: double.infinity,
@@ -222,14 +222,14 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
                 ),
               ),
             ),
-            if (allowUpdate)
-              Positioned(
-                  left: 20.0,
-                  bottom: -25.0,
-                  child: buildEditEventButton(openEventDetailEditScreen, aEventObj)
-              ),
-          ],
-        ),
+            // if (allowUpdate)
+            //   Positioned(
+            //       left: 20.0,
+            //       bottom: -25.0,
+            //       child: buildEditEventButton(openEventDetailEditScreen, aEventObj)
+            //   ),
+        //   ],
+        // ),
 
         /// ------------------- Image + Event Name -------------------------
         Padding(
@@ -243,11 +243,8 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
                 style: TextStyle(color: Colors.grey[900], fontSize: 20.0, fontWeight: FontWeight.bold),
               ),
 
-              // if (allowUpdate)
-              //   IconButton(
-              //     icon: Icon(Icons.mode_edit, color: Colors.grey[900]),
-              //     onPressed: () {openEventDetailEditScreen(aEventObj);},
-              //   ),
+              if (allowUpdate)
+                buildEditEventButton(openEventDetailEditScreen, aEventObj),
             ],
           ),
         ),
@@ -302,6 +299,7 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
     );
   }
 
+  //#region Build Detail Image Icon
   Widget buildDetailImageIcon(IconData aIcon, String aTitle, Function aFunc) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
@@ -343,7 +341,9 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
       ),
     );
   }
+  //#endregion
 
+  //#region Build Event Detail Image Icon
   Widget buildEventDetailImageIcon(IconData aIcon, EventObject aEventObj, Function aFunc) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
@@ -383,7 +383,9 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
       ),
     );
   }
+  //#endregion
 
+  //#region Build Edit Event Button
   Widget buildEditEventButton(Function aFunc, EventObject aEventObj) {
     return MaterialButton(
       elevation: 0.0,
@@ -404,4 +406,5 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
       ),
     );
   }
+  //#endregion
 }

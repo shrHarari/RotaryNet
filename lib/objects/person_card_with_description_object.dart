@@ -1,7 +1,8 @@
 import 'dart:convert';
+import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class PersonCardWithDescriptionObject {
-  final String userGuidId;
+  final String personCardGuidId;
   final String email;
   final String firstName;
   final String lastName;
@@ -15,7 +16,7 @@ class PersonCardWithDescriptionObject {
   final String cardDescription;
   final String internetSiteUrl;
   final String address;
-  final int roleId;
+  Constants.RotaryRolesEnum roleId;
   final String roleName;
   final int areaId;
   final String areaName;
@@ -28,7 +29,7 @@ class PersonCardWithDescriptionObject {
   final String clubManagerGuidId;
 
   PersonCardWithDescriptionObject({
-    this.userGuidId,
+    this.personCardGuidId,
     this.email,
     this.firstName,
     this.lastName,
@@ -60,7 +61,7 @@ class PersonCardWithDescriptionObject {
   String toString() {
     return
       '{'
-          ' ${this.userGuidId},'
+          ' ${this.personCardGuidId},'
           ' ${this.email},'
           ' ${this.firstName},'
           ' ${this.lastName},'
@@ -88,39 +89,42 @@ class PersonCardWithDescriptionObject {
           '}';
   }
 
-  /// Used for jsonDecode Function
-  Map toJson() => {
-    'userGuidId': userGuidId,
-    'email': email,
-    'firstName': firstName,
-    'lastName': lastName,
-    'firstNameEng': firstNameEng,
-    'lastNameEng': lastNameEng,
-    'phoneNumber': phoneNumber,
-    'phoneNumberDialCode': phoneNumberDialCode,
-    'phoneNumberParse': phoneNumberParse,
-    'phoneNumberCleanLongFormat': phoneNumberCleanLongFormat,
-    'pictureUrl': pictureUrl,
-    'cardDescription': cardDescription,
-    'internetSiteUrl': internetSiteUrl,
-    'address': address,
-    'roleId': roleId,
-    'roleName': roleName,
-    'areaId': areaId,
-    'areaName': areaName,
-    'clusterId': clusterId,
-    'clusterName': clusterName,
-    'clubId': clubId,
-    'clubName': clubName,
-    'clubAddress': clubAddress,
-    'clubMail': clubMail,
-    'clubManagerGuidId': clubManagerGuidId,
-  };
+  // /// Used for jsonDecode Function
+  // Map toJson() => {
+  //   'personCardGuidId': personCardGuidId,
+  //   'email': email,
+  //   'firstName': firstName,
+  //   'lastName': lastName,
+  //   'firstNameEng': firstNameEng,
+  //   'lastNameEng': lastNameEng,
+  //   'phoneNumber': phoneNumber,
+  //   'phoneNumberDialCode': phoneNumberDialCode,
+  //   'phoneNumberParse': phoneNumberParse,
+  //   'phoneNumberCleanLongFormat': phoneNumberCleanLongFormat,
+  //   'pictureUrl': pictureUrl,
+  //   'cardDescription': cardDescription,
+  //   'internetSiteUrl': internetSiteUrl,
+  //   'address': address,
+  //   'roleId': roleId,
+  //   'roleName': roleName,
+  //   'areaId': areaId,
+  //   'areaName': areaName,
+  //   'clusterId': clusterId,
+  //   'clusterName': clusterName,
+  //   'clubId': clubId,
+  //   'clubName': clubName,
+  //   'clubAddress': clubAddress,
+  //   'clubMail': clubMail,
+  //   'clubManagerGuidId': clubManagerGuidId,
+  // };
 
   factory PersonCardWithDescriptionObject.fromJson(Map<String, dynamic> parsedJson){
+    // RoleId: Convert [int] to [Enum]
+    Constants.RotaryRolesEnum _roleEnum;
+    Constants.RotaryRolesEnum _roleEnumValue = _roleEnum.convertToEnum(parsedJson['roleId']);
 
     return PersonCardWithDescriptionObject(
-      userGuidId: parsedJson['userGuidId'],
+      personCardGuidId: parsedJson['personCardGuidId'],
       email: parsedJson['email'],
       firstName: parsedJson['firstName'],
       lastName: parsedJson['lastName'],
@@ -134,7 +138,7 @@ class PersonCardWithDescriptionObject {
       cardDescription: parsedJson['cardDescription'],
       internetSiteUrl: parsedJson['internetSiteUrl'],
       address: parsedJson['address'],
-      roleId: parsedJson['roleId'],
+      roleId : _roleEnumValue,
       roleName: parsedJson['roleName'],
       areaId: parsedJson['areaId'],
       areaName: parsedJson['areaName'],
@@ -162,8 +166,12 @@ class PersonCardWithDescriptionObject {
 
   factory PersonCardWithDescriptionObject.fromMap(Map<String, dynamic> jsonFromMap) {
 
+    // RoleId: Convert [int] to [Enum]
+    Constants.RotaryRolesEnum _roleEnum;
+    Constants.RotaryRolesEnum _roleEnumValue = _roleEnum.convertToEnum(jsonFromMap['roleId']);
+
     return PersonCardWithDescriptionObject(
-      userGuidId: jsonFromMap['userGuidId'],
+      personCardGuidId: jsonFromMap['personCardGuidId'],
       email: jsonFromMap['email'],
       firstName: jsonFromMap['firstName'],
       lastName: jsonFromMap['lastName'],
@@ -177,7 +185,7 @@ class PersonCardWithDescriptionObject {
       cardDescription: jsonFromMap['cardDescription'],
       internetSiteUrl: jsonFromMap['internetSiteUrl'],
       address: jsonFromMap['address'],
-      roleId: jsonFromMap['roleId'],
+      roleId: _roleEnumValue,
       roleName: jsonFromMap['roleName'],
       areaId: jsonFromMap['areaId'],
       areaName: jsonFromMap['areaName'],
@@ -193,8 +201,12 @@ class PersonCardWithDescriptionObject {
 
   Map<String, dynamic> toMap() {
 
+    // RoleEnum: Convert [Enum] to [int]
+    Constants.RotaryRolesEnum _roleEnum = roleId;
+    int _roleEnumValue = _roleEnum.value;
+
     return {
-      'userGuidId': userGuidId,
+      'personCardGuidId': personCardGuidId,
       'email': email,
       'firstName': firstName,
       'lastName': lastName,
@@ -208,7 +220,7 @@ class PersonCardWithDescriptionObject {
       'cardDescription': cardDescription,
       'internetSiteUrl': internetSiteUrl,
       'address': address,
-      'roleId': roleId,
+      'roleId': _roleEnumValue,
       'roleName': roleName,
       'areaId': areaId,
       'areaName': areaName,

@@ -38,8 +38,8 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormState>();
 
-  Future<PersonCardRoleAndHierarchyObject> dataRequiredForBuild;
-  PersonCardRoleAndHierarchyObject displayDataRequired;
+  Future<PersonCardRoleAndHierarchyObject> personCardRoleAndHierarchyObjectForBuild;
+  PersonCardRoleAndHierarchyObject displayPersonCardRoleAndHierarchyObject;
   RichText displayPersonCardHierarchyTitle;
 
   bool allowUpdate = false;
@@ -51,19 +51,19 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
     displayPersonCardObject = widget.argPersonCardObject;
     allowUpdate = getUpdatePermission();
 
-    dataRequiredForBuild = getAllRequiredDataForBuild();
+    personCardRoleAndHierarchyObjectForBuild = getPersonCardRoleAndHierarchyForBuild();
 
     super.initState();
   }
 
-  //#region Get All Required Data For Build
-  Future<PersonCardRoleAndHierarchyObject> getAllRequiredDataForBuild() async {
+  //#region Get PersonCard Role And Hierarchy For Build
+  Future<PersonCardRoleAndHierarchyObject> getPersonCardRoleAndHierarchyForBuild() async {
     setState(() {
       loading = true;
     });
 
     RotaryRoleService _rotaryRoleService = RotaryRoleService();
-    RotaryRoleObject _rotaryRoleObj = await _rotaryRoleService.getRotaryRoleByRoleIdFromServer(displayPersonCardObject.roleId);
+    RotaryRoleObject _rotaryRoleObj = await _rotaryRoleService.getRotaryRoleByRoleIdFromServer(displayPersonCardObject.roleId.value);
 
     RotaryAreaService _rotaryAreaService = RotaryAreaService();
     RotaryAreaObject _rotaryAreaObj = await _rotaryAreaService.getRotaryAreaByAreaIdFromServer(displayPersonCardObject.areaId);
@@ -102,7 +102,7 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
         _allowUpdate = true;
         break;
       case  Constants.UserTypeEnum.RotaryMember:
-        if (_connectedUserObj.userGuidId == displayPersonCardObject.userGuidId)
+        if (_connectedUserObj.userGuidId == displayPersonCardObject.personCardGuidId)
           _allowUpdate = true;
         break;
       case  Constants.UserTypeEnum.Guest:
@@ -158,7 +158,7 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
         ),
 
         body: FutureBuilder<PersonCardRoleAndHierarchyObject>(
-          future: dataRequiredForBuild,
+          future: personCardRoleAndHierarchyObjectForBuild,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting)
               return Loading();
@@ -171,7 +171,7 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
             } else {
               if (snapshot.hasData)
               {
-                displayDataRequired = snapshot.data;
+                displayPersonCardRoleAndHierarchyObject = snapshot.data;
                   return buildMainScaffoldBody();
               }
               else
@@ -287,9 +287,9 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
     return Column(
       children: <Widget>[
         /// ------------------- Image + Card Name -------------------------
-        Stack(
-          overflow: Overflow.visible,
-          children: [
+        // Stack(
+        //   overflow: Overflow.visible,
+        //   children: [
             Padding(
               padding: const EdgeInsets.only(left: 20.0, top: 30.0, right: 20.0, bottom: 20.0),
               child: Row(
@@ -324,18 +324,20 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
                       ),
                     ),
                   ),
+                  if (allowUpdate)
+                    buildEditPersonCardButton(openPersonCardDetailEditScreen, aPersonCardObj),
                 ],
               ),
             ),
 
-            if (allowUpdate)
-              Positioned(
-                  left: 20.0,
-                  top: -25.0,
-                  child: buildEditPersonCardButton(openPersonCardDetailEditScreen, aPersonCardObj)
-              ),
-          ],
-        ),
+            // if (allowUpdate)
+            //   Positioned(
+            //       left: 20.0,
+            //       top: -25.0,
+            //       child: buildEditPersonCardButton(openPersonCardDetailEditScreen, aPersonCardObj)
+            //   ),
+        //   ],
+        // ),
 
         Padding(
           padding: const EdgeInsets.only(left: 0.0, top: 10.0, right: 30.0, bottom: 0.0),
@@ -390,6 +392,7 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
     );
   }
 
+  //#region Build Empty PersonCard Image Icon
   Widget buildEmptyPersonCardImageIcon(IconData aIcon, {Function aFunc}) {
     return Container(
         height: 60.0,
@@ -412,7 +415,9 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
         )
     );
   }
+  //#endregion
 
+  //#region Build Detail Image Icon
   Row buildDetailImageIcon(IconData aIcon, String aTitle, Function aFunc) {
     return Row(
         textDirection: TextDirection.rtl,
@@ -454,7 +459,9 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
         ]
     );
   }
+  //#endregion
 
+  //#region Build Edit PersonCard Button
   Widget buildEditPersonCardButton(Function aFunc, PersonCardObject aPersonCardObj) {
     return MaterialButton(
       elevation: 0.0,
@@ -473,4 +480,5 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
       ),
     );
   }
+  //#endregion
 }

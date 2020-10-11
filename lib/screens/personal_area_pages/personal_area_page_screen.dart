@@ -138,7 +138,7 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
                           children: [
                             /// --------------- TAB: PersonCard ---------------------
                             if (allowDisplayPersonCard) PersonalAreaPageTabPersonCard(
-                                argPersonCard: currentPersonCard,
+                                argPersonCardObject: currentPersonCard,
                                 argConnectedUserGuidId: currentConnectedUserObj.userGuidId
                             ),
 

@@ -57,3 +57,73 @@ enum UserTypeEnum{SystemAdmin, RotaryMember, Guest}
 // ==============================================================
 enum SearchTypeEnum{PersonCard, Event}
 //#endregion
+
+//#region RotaryRoles [Key Name]+[Enum]
+// ==============================================================
+enum RotaryRolesEnum{RotaryManager, Gizbar, AreaManager, ClusterManager, ClubManager, Member}
+
+extension RotaryRolesEnumExtension on RotaryRolesEnum {
+
+  int get value {
+    switch (this) {
+      case RotaryRolesEnum.RotaryManager:
+        return 1;
+      case RotaryRolesEnum.Gizbar:
+        return 2;
+      case RotaryRolesEnum.AreaManager:
+        return 3;
+      case RotaryRolesEnum.ClusterManager:
+        return 4;
+      case RotaryRolesEnum.ClubManager:
+        return 5;
+      case RotaryRolesEnum.Member:
+        return 6;
+      default:
+        return null;
+    }
+  }
+
+  String get description {
+    switch (this) {
+      case RotaryRolesEnum.RotaryManager:
+        return "יושב ראש";
+      case RotaryRolesEnum.Gizbar:
+        return "גזבר";
+      case RotaryRolesEnum.AreaManager:
+        return "מזכיר אזור";
+      case RotaryRolesEnum.ClusterManager:
+        return "מזכיר אשכול";
+      case RotaryRolesEnum.ClubManager:
+        return "מזכיר מועדון";
+      case RotaryRolesEnum.Member:
+        return "חבר";
+      default:
+        return null;
+    }
+  }
+
+  RotaryRolesEnum convertToEnum(int aValue) {
+    switch (aValue) {
+      case 1:
+        return RotaryRolesEnum.RotaryManager;
+      case 2:
+        return RotaryRolesEnum.Gizbar;
+      case 3:
+        return RotaryRolesEnum.AreaManager;
+      case 4:
+        return  RotaryRolesEnum.ClusterManager;
+      case 5:
+        return   RotaryRolesEnum.ClubManager;
+      case 6:
+        return  RotaryRolesEnum.Member;
+      default:
+        return null;
+    }
+  }
+
+  /////////////// How to Use: /////////////////////
+  // RotaryRolesEnum rotaryRolesEnum = RotaryRolesEnum.RotaryManager;
+  // String roleDescription = rotaryRolesEnum.description;
+  // rotaryRolesEnum.display();
+}
+//#endregion

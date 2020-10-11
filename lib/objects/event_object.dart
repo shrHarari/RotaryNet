@@ -60,19 +60,19 @@ class EventObject {
         ' ${this.eventEndDateTime},'
         ' ${this.eventLocation},'
         ' ${this.eventManager},'
-        ' }';
+    ' }';
   }
 
-  Map toJson() => {
-    'eventGuidId': eventGuidId,
-    'eventName': eventName,
-    'eventPictureUrl': eventPictureUrl,
-    'eventDescription': eventDescription,
-    'eventStartDateTime': eventStartDateTime.toString(),
-    'eventEndDateTime': eventEndDateTime.toString(),
-    'eventLocation': eventLocation,
-    'eventManager': eventManager,
-  };
+  // Map toJson() => {
+  //   'eventGuidId': eventGuidId,
+  //   'eventName': eventName,
+  //   'eventPictureUrl': eventPictureUrl,
+  //   'eventDescription': eventDescription,
+  //   'eventStartDateTime': eventStartDateTime.toString(),
+  //   'eventEndDateTime': eventEndDateTime.toString(),
+  //   'eventLocation': eventLocation,
+  //   'eventManager': eventManager,
+  // };
 
   /// DataBase: Madel for Event
   ///----------------------------------------------------
