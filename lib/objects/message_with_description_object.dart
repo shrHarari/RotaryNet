@@ -88,28 +88,6 @@ class MessageWithDescriptionObject {
       '}';
   }
 
-  // /// Used for jsonDecode Function
-  // Map toJson() => {
-  //   'messageGuidId': messageGuidId,
-  //   'composerGuidId': composerGuidId,
-  //   'composerFirstName': composerFirstName,
-  //   'composerLastName': composerLastName,
-  //   'composerEmail': composerEmail,
-  //   'messageText': messageText,
-  //   'messageCreatedDateTime': messageCreatedDateTime.toString(),
-  //   'roleId': roleId,
-  //   'roleName': roleName,
-  //   'areaId': areaId,
-  //   'areaName': areaName,
-  //   'clusterId': clusterId,
-  //   'clusterName': clusterName,
-  //   'clubId': clubId,
-  //   'clubName': clubName,
-  //   'clubAddress': clubAddress,
-  //   'clubMail': clubMail,
-  //   'clubManagerGuidId': clubManagerGuidId,
-  // };
-
   factory MessageWithDescriptionObject.fromJson(Map<String, dynamic> parsedJson){
     // DateTime: Convert [String] to [DateTime]
     DateTime _messageCreatedDateTime = DateTime.parse(parsedJson['messageCreatedDateTime']);

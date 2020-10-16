@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
-import 'package:rotary_net/database/init_database_data.dart';
 import 'package:rotary_net/database/rotary_database_provider.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
 import 'package:rotary_net/objects/person_card_with_description_object.dart';
@@ -129,54 +128,6 @@ class PersonCardService {
   }
   //#endregion
 
-  //#region Initialize PersonCards Table Data [INIT PersonCard BY JSON DATA]
-  // ========================================================================
-  Future initializePersonCardsTableData() async {
-    try {
-
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-      if (GlobalsService.isDebugMode) {
-        String initializePersonCardsJsonForDebug = InitDataBaseData.createJsonRowsForPersonCards();
-        // print('initializeUsersJsonForDebug: initializeUsersJsonForDebug');
-
-        //// Using JSON
-        var initializePersonCardsListForDebug = jsonDecode(initializePersonCardsJsonForDebug) as List;    // List of Users to display;
-        List<PersonCardObject> personCardObjListForDebug = initializePersonCardsListForDebug.map((personJsonDebug) => PersonCardObject.fromJson(personJsonDebug)).toList();
-        // print('personCardObjListForDebug.length: ${personCardObjListForDebug.length}');
-
-        personCardObjListForDebug.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
-        return personCardObjListForDebug;
-      }
-      //***** for debug *****
-
-    }
-    catch (e) {
-      await LoggerService.log('<PersonCardService> Get PersonCards List From Server >>> ERROR: ${e.toString()}');
-      developer.log(
-        'initializePersonCardsTableData',
-        name: 'PersonCardService',
-        error: 'PersonCards List >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-  //#endregion
-
-  //#region insert All Started PersonCards To DB
-  Future insertAllStartedPersonCardsToDb() async {
-    List<PersonCardObject> starterPersonCardsList;
-    starterPersonCardsList = await initializePersonCardsTableData();
-    // print('starterPersonCardsList.length: ${starterPersonCardsList.length}');
-
-    starterPersonCardsList.forEach((PersonCardObject personCardObj) async => await RotaryDataBaseProvider.rotaryDB.insertPersonCard(personCardObj));
-
-    // List<PersonCardObject> personCardsList = await RotaryDataBaseProvider.rotaryDB.getAllPersonCards();
-    // if (personCardsList.isNotEmpty)
-    //   print('>>>>>>>>>> personCardsList: ${personCardsList[0].emailId}');
-  }
-  //#endregion
-
   //#region Get All PersonCards List From Server [GET]  --------->  [Not in Use]
   // =========================================================
   Future getAllPersonCardsListFromServer() async {
@@ -258,7 +209,7 @@ class PersonCardService {
       //***** for debug *****
 
       /// UserListUrl: 'http://.......'
-      Response response = await get(Constants.rotaryGetUserListUrl);
+      Response response = await get(Constants.rotaryGetUsersUrl);
 
       if (response.statusCode <= 300) {
         Map<String, String> headers = response.headers;

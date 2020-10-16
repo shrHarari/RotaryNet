@@ -18,7 +18,6 @@ class LoginScreen extends StatefulWidget {
 
   LoginScreen({Key key, @required this.argLoginObject}) : super(key: key);
 
-
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -108,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
         /// Write UserObject with new data [StayConnected] to SecureStorage
         await connectedUserService.writeConnectedUserObjectDataToSecureStorage(currentConnectedUserObj);
 
-        print('LoginScreen . performLoginProcess / currentConnectedUserObj: $currentConnectedUserObj');
+        print('LoginScreen / performLoginProcess / currentConnectedUserObj: $currentConnectedUserObj');
         var userGlobal = ConnectedUserGlobal();
         userGlobal.setConnectedUserObject(currentConnectedUserObj);
 

@@ -62,17 +62,6 @@ class ConnectedUserObject {
       '}';
   }
 
-  // /// Used for jsonDecode Function
-  // Map toJson() => {
-  //   'userGuidId': userGuidId,
-  //   'email': email,
-  //   'firstName': firstName,
-  //   'lastName': lastName,
-  //   'password': password,
-  //   'userType': userType,
-  //   'stayConnected': stayConnected,
-  // };
-
   factory ConnectedUserObject.fromJson(Map<String, dynamic> parsedJson){
     /// Deserialize the parsedJson string to UserObject
     // UserType: Convert [String] to [Enum]
@@ -96,13 +85,13 @@ class ConnectedUserObject {
 
   /// DataBase: Madel for User
   ///----------------------------------------------------
-  ConnectedUserObject userFromJson(String str) {
+  ConnectedUserObject connectedUserFromJson(String str) {
     final jsonData = json.decode(str);
     return ConnectedUserObject.fromMap(jsonData);
   }
 
-  String userToJson(ConnectedUserObject aUser) {
-    final dyn = aUser.toMap();
+  String connectedUserToJson(ConnectedUserObject aConnectedUser) {
+    final dyn = aConnectedUser.toMap();
     return json.encode(dyn);
   }
 

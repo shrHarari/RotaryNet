@@ -17,10 +17,15 @@ const String rotaryLoggerFileName = 'Rotary_Log.txt';
 //#region Server URL
 // ==============================================================
 const Map<String, String> rotaryUrlHeader = {"Content-type": "application/json"};
+
 const String rotaryUserRegistrationUrl = 'http://159.89.225.231:7775/api/registration/';
 const String rotaryUserLoginUrl = 'http://159.89.225.231:7775/api/login/';
+
+// const String rotaryGetUsersUrl = 'http://localhost:3000/api/user/';
+/////// ----------------------- localhost = 10.100.102.6 [using ipconfig <command on cmd>]
+const String rotaryGetUsersUrl = 'http://10.100.102.6:3000/api/user';
+
 const String rotaryGetPersonCardListUrl = 'http://159.89.225.231:7775/api/registration/';
-const String rotaryGetUserListUrl = 'http://159.89.225.231:7775/api/registration/';
 const String rotaryPersonCardWriteToDataBaseRequestUrl = 'http://159.89.225.231:7775/api/registration/';
 const String rotaryEventWriteToDataBaseRequestUrl = 'http://159.89.225.231:7775/api/registration/';
 //#endregion

@@ -6,9 +6,11 @@ import 'package:rotary_net/screens/rotary_user_detail_pages/rotary_user_detail_p
 
 class RotaryUsersListPageTile extends StatelessWidget {
   final UserObject argUserObj;
+  final String argSearchText;
 
-  RotaryUsersListPageTile({Key key, this.argUserObj}) : super(key: key);
+  RotaryUsersListPageTile({Key key, this.argUserObj, this.argSearchText}) : super(key: key);
 
+  //#region Open User Detail Screen
   openUserDetailScreen(BuildContext context) async {
 
     Navigator.of(context).push(
@@ -20,6 +22,7 @@ class RotaryUsersListPageTile extends StatelessWidget {
       ),
     );
   }
+  //#endregion
 
   @override
   Widget build(BuildContext context) {
@@ -56,11 +59,13 @@ class RotaryUsersListPageTile extends StatelessWidget {
                     children: <Widget>[
                       Padding(
                         padding: const EdgeInsets.only(top: 20.0, bottom: 8.0),
-                        child: Text(
-                          argUserObj.firstName + " " + argUserObj.lastName,
-                          style: TextStyle(color: Colors.grey[900], fontSize: 20.0, fontWeight: FontWeight.bold),
+                        child: RichText(
+                            text: TextSpan(
+                              children: highlightOccurrences(argUserObj.firstName + " " + argUserObj.lastName, argSearchText),
+                              style: TextStyle(color: Colors.grey[900], fontSize: 20.0, fontWeight: FontWeight.bold),
+                            ),
+                          ),
                         ),
-                      ),
                       Text(
                         argUserObj.email,
                         style: TextStyle(color: Colors.grey[900], fontSize: 12.0, fontWeight: FontWeight.w400),
@@ -71,10 +76,11 @@ class RotaryUsersListPageTile extends StatelessWidget {
               ],
             ),
           ),
+
           Positioned(
               bottom: 20.0,
-              child: _buildDeleteUserButton(context)
-          ),
+              child: buildDeleteUserButton(context)
+            ),
           ],
         ),
         onTap: ()
@@ -87,13 +93,50 @@ class RotaryUsersListPageTile extends StatelessWidget {
     );
   }
 
-  Widget _buildDeleteUserButton(BuildContext context) {
+  //#region Highlight Occurrences
+  List<TextSpan> highlightOccurrences(String source, String query) {
+    if (query == null || query.isEmpty || !source.toLowerCase().contains(query.toLowerCase())) {
+      return [ TextSpan(text: source) ];
+    }
+    final matches = query.toLowerCase().allMatches(source.toLowerCase());
+
+    int lastMatchEnd = 0;
+
+    final List<TextSpan> children = [];
+    for (var i = 0; i < matches.length; i++) {
+      final match = matches.elementAt(i);
+
+      if (match.start != lastMatchEnd) {
+        children.add(TextSpan(
+          text: source.substring(lastMatchEnd, match.start),
+        ));
+      }
+
+      children.add(TextSpan(
+        text: source.substring(match.start, match.end),
+        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+      ));
+
+      if (i == matches.length - 1 && match.end != source.length) {
+        children.add(TextSpan(
+          text: source.substring(match.end, source.length),
+        ));
+      }
+
+      lastMatchEnd = match.end;
+    }
+    return children;
+  }
+  //#endregion
+
+  //#region Build Delete User Button
+  Widget buildDeleteUserButton(BuildContext context) {
     final bloc = BlocProvider.of<RotaryUsersListBloc>(context);
     return StreamBuilder<List<UserObject>>(
       stream: bloc.usersStream,
       initialData: bloc.usersList,
       builder: (context, snapshot) {
-        List<UserObject> users =
+        List<UserObject> currentUsersList =
         (snapshot.connectionState == ConnectionState.waiting)
             ? bloc.usersList
             : snapshot.data;
@@ -118,4 +161,5 @@ class RotaryUsersListPageTile extends StatelessWidget {
       },
     );
   }
+  //#endregion
 }

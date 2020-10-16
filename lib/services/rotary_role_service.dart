@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-import 'package:rotary_net/database/init_database_data.dart';
 import 'package:rotary_net/database/rotary_database_provider.dart';
 import 'package:rotary_net/objects/rotary_role_object.dart';
 import 'package:rotary_net/services/logger_service.dart';
@@ -26,55 +24,6 @@ class RotaryRoleService {
         roleId: aRoleId,
         roleName: aRoleName,
       );
-  }
-  //#endregion
-
-  //#region Initialize Rotary Role Table Data [INIT Area BY JSON DATA]
-  // ========================================================================
-  Future initializeRotaryRoleTableData() async {
-    try {
-
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-      if (GlobalsService.isDebugMode) {
-        String initializeRotaryRoleJsonForDebug = InitDataBaseData.createJsonRowsForRotaryRole();
-        // print('initializeEventsJsonForDebug: initializeEventsJsonForDebug');
-
-        //// Using JSON
-        var initializeRotaryRoleListForDebug = jsonDecode(initializeRotaryRoleJsonForDebug) as List;
-        List<RotaryRoleObject> rotaryRoleObjListForDebug = initializeRotaryRoleListForDebug.map((roleJsonDebug) =>
-                RotaryRoleObject.fromJson(roleJsonDebug)).toList();
-
-        rotaryRoleObjListForDebug.sort((a, b) => a.roleName.toLowerCase().compareTo(b.roleName.toLowerCase()));
-        return rotaryRoleObjListForDebug;
-      }
-      //***** for debug *****
-
-    }
-    catch (e) {
-      await LoggerService.log('<RotaryRoleService> Initialize RotaryRole Table Data >>> ERROR: ${e.toString()}');
-      developer.log(
-        'initializeRotaryRoleTableData',
-        name: 'RotaryRoleService',
-        error: 'Initialize RotaryRole Table Data >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-  //#endregion
-
-  //#region insert All Started RotaryRole To DB
-  Future insertAllStartedRotaryRoleToDb() async {
-    List<RotaryRoleObject> starterRotaryRoleList;
-    starterRotaryRoleList = await initializeRotaryRoleTableData();
-    print('starterRotaryRoleList.length: ${starterRotaryRoleList.length}');
-
-    starterRotaryRoleList.forEach((RotaryRoleObject rotaryRoleObj) async =>
-            await RotaryDataBaseProvider.rotaryDB.insertRotaryRole(rotaryRoleObj));
-
-    List<RotaryRoleObject> _rotaryRoleList = await RotaryDataBaseProvider.rotaryDB.getAllRotaryRole();
-    if (_rotaryRoleList.isNotEmpty)
-      print('>>>>>>>>>> _rotaryRoleList: ${_rotaryRoleList[1].roleName}');
   }
   //#endregion
 
@@ -181,8 +130,6 @@ class RotaryRoleService {
   //=============================================================================
   Future updateRotaryRoleByRoleIdToDataBase(RotaryRoleObject aRotaryRoleObj) async {
     try{
-      String jsonToPost = jsonEncode(aRotaryRoleObj);
-
       //***** for debug *****
       if (GlobalsService.isDebugMode) {
         var dbResult = await RotaryDataBaseProvider.rotaryDB.updateRotaryRoleByRoleId(aRotaryRoleObj);

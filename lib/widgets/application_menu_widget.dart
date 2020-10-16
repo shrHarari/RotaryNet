@@ -51,6 +51,7 @@ class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
   }
   //#endregion
 
+  //#region Open Personal Area Screen
   openPersonalAreaScreen() async {
     // Drawer --> Close the drawer
     Navigator.of(context).pop();
@@ -62,7 +63,9 @@ class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
       ),
     );
   }
+  //#endregion
 
+  //#region Exit From App
   void exitFromApp() async {
     /// Update SecureStorage [Remove StayConnected]
     final ConnectedUserService connectedUserService = ConnectedUserService();
@@ -70,6 +73,7 @@ class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
 
     exit(0);
   }
+  //#endregion
 
   @override
   Widget build(BuildContext context) {
@@ -213,6 +217,7 @@ class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
     );
   }
 
+  //#region Build Personal Area Icon
   Widget buildPersonalAreaIcon ()
   {
     return Padding(
@@ -230,7 +235,9 @@ class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
       ),
     );
   }
+  //#endregion
 
+  //#region Build User Welcome Title
   Widget buildUserWelcomeTitle ()
   {
     String userTitle = 'אורח';
@@ -262,7 +269,9 @@ class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
       ),
     );
   }
+  //#endregion
 
+  //#region Build Personal Area Title
   Widget buildPersonalAreaTitle (BuildContext context)
   {
     return InkWell(
@@ -276,4 +285,5 @@ class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
       ),
     );
   }
+  //#endregion
 }

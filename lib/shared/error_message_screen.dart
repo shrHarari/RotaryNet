@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+//#region Rotary Error Message Screen
 class RotaryErrorMessageScreen extends StatelessWidget {
   final String errTitle;
   final String errMsg;
@@ -35,10 +36,13 @@ class RotaryErrorMessageScreen extends StatelessWidget {
     );
   }
 }
+//#endregion
 
+//#region Display Error Text
 class DisplayErrorText extends StatelessWidget {
-  const DisplayErrorText({Key key, this.errorText}) : super(key: key);
   final String errorText;
+
+  const DisplayErrorText({Key key, this.errorText}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -49,20 +53,23 @@ class DisplayErrorText extends StatelessWidget {
         children: <Widget>[
           Text(
             errorText,
-            style: Theme.of(context).textTheme.headline,
+            style: Theme.of(context).textTheme.headline5
           ),
         ],
       ),
     );
   }
 }
+//#endregion
 
+//#region Display Error Text And Retry Button
 class DisplayErrorTextAndRetryButton extends StatelessWidget {
-  const DisplayErrorTextAndRetryButton({Key key, this.errorText, this.buttonText, this.onPressed})
-      : super(key: key);
   final String errorText;
   final String buttonText;
   final VoidCallback onPressed;
+
+  const DisplayErrorTextAndRetryButton({Key key, this.errorText, this.buttonText, this.onPressed})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -73,14 +80,14 @@ class DisplayErrorTextAndRetryButton extends StatelessWidget {
         children: <Widget>[
           Text(
             errorText,
-            style: Theme.of(context).textTheme.headline,
+            style: Theme.of(context).textTheme.headline5,
           ),
           RaisedButton(
             color: Theme.of(context).primaryColor,
             child: Text(buttonText,
                 style: Theme.of(context)
                     .textTheme
-                    .headline
+                    .headline5
                     .copyWith(color: Colors.white)),
             onPressed: onPressed,
           ),
@@ -89,3 +96,4 @@ class DisplayErrorTextAndRetryButton extends StatelessWidget {
     );
   }
 }
+//#endregion

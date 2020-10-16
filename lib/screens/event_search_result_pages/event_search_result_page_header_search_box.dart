@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:path/path.dart';
 import 'package:rotary_net/BLoCs/events_list_bloc.dart';
 import 'package:rotary_net/screens/event_detail_pages/event_detail_edit_page_screen.dart';
 
@@ -19,7 +18,7 @@ class EventSearchResultPageHeaderSearchBox implements SliverPersistentHeaderDele
 
   //#region Open Event Detail Edit Screen
   openEventDetailEditScreen(BuildContext context) async {
-    final result = await Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => EventDetailEditPageScreen(
@@ -119,4 +118,9 @@ class EventSearchResultPageHeaderSearchBox implements SliverPersistentHeaderDele
     );
   }
 
+  @override
+  PersistentHeaderShowOnScreenConfiguration get showOnScreenConfiguration => null;
+
+  @override
+  TickerProvider get vsync => null;
 }

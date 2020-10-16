@@ -56,7 +56,21 @@ class _WrapperState extends State<Wrapper> {
       loginObject: _loginObject,
     );
   }
+  //#endregion
 
+  //#region Initialize Global Values
+  Future <bool> initializeGlobalValues() async {
+    await LoggerService.initializeLogging();
+    await LoggerService.log('<${this.runtimeType}> Logger was initiated');
+
+    bool _debugMode = await GlobalsService.getDebugMode();
+    await GlobalsService.setDebugMode(_debugMode);
+
+    return _debugMode;
+  }
+  //#endregion
+
+  //#region Initialize Connected UserObject
   Future <ConnectedUserObject> initializeConnectedUserObject() async {
     ConnectedUserObject _currentConnectedUserObj = await connectedUserService.readConnectedUserObjectDataFromSecureStorage();
     print('Wrapper / _currentConnectedUserObj: $_currentConnectedUserObj');
@@ -65,7 +79,9 @@ class _WrapperState extends State<Wrapper> {
 
     return _currentConnectedUserObj;
   }
+  //#endregion
 
+  //#region Initialize Connected LoginObject
   Future <LoginObject> initializeLoginObject(ConnectedUserObject aConnectedUserObj) async {
     LoginObject _loginObject = await LoginService.readLoginObjectDataFromSecureStorage();
     await LoginService.setLogin(_loginObject);
@@ -79,16 +95,6 @@ class _WrapperState extends State<Wrapper> {
       _loginObject = await registrationService.getRequestStatusFromServer(aConnectedUserObj, _loginObject);
     }
     return _loginObject;
-  }
-
-  Future <bool> initializeGlobalValues() async {
-    await LoggerService.initializeLogging();
-    await LoggerService.log('<${this.runtimeType}> Logger was initiated');
-
-    bool _debugMode = await GlobalsService.getDebugMode();
-    await GlobalsService.setDebugMode(_debugMode);
-
-    return _debugMode;
   }
   //#endregion
 
@@ -123,6 +129,7 @@ class _WrapperState extends State<Wrapper> {
     );
   }
 
+  //#region Get Page By Login Status
   Widget getPageByLoginStatus(LoginObject aLoginObj, ConnectedUserObject aConnectedUserObject) {
     switch (aLoginObj.loginStatus) {
       case Constants.LoginStatusEnum.NoRequest:
@@ -157,6 +164,7 @@ class _WrapperState extends State<Wrapper> {
         break;
     }
   }
+  //#endregion
 }
 
 class DataRequiredForBuild {

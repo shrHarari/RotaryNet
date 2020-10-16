@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-import 'package:rotary_net/database/init_database_data.dart';
 import 'package:rotary_net/database/rotary_database_provider.dart';
 import 'package:rotary_net/objects/connected_user_object.dart';
 import 'package:rotary_net/objects/message_object.dart';
@@ -105,57 +103,6 @@ class MessageService {
         clubMail: aClubMail,
         clubManagerGuidId: aClubManagerGuidId,
       );
-  }
-  //#endregion
-
-  //#region Initialize Messages Table Data [INIT Events BY JSON DATA]
-  // ========================================================================
-  Future initializeMessagesTableData() async {
-    try {
-
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-      if (GlobalsService.isDebugMode) {
-        String initializeMessagesJsonForDebug = InitDataBaseData.createJsonRowsForMessages();
-        // print('initializeEventsJsonForDebug: initializeEventsJsonForDebug');
-
-        //// Using JSON
-        var initializeMessagesListForDebug = jsonDecode(initializeMessagesJsonForDebug) as List;    // List of Users to display;
-        List<MessageObject> messageObjListForDebug = initializeMessagesListForDebug.map((messageJsonDebug) => 
-                MessageObject.fromJson(messageJsonDebug)).toList();
-        // print('eventObjListForDebug.length: ${eventObjListForDebug.length}');
-
-        messageObjListForDebug.sort((a, b) => a.messageCreatedDateTime.compareTo(b.messageCreatedDateTime));
-        return messageObjListForDebug;
-      }
-      //***** for debug *****
-
-    }
-    catch (e) {
-      await LoggerService.log('<MessageService> Get Messages List From Server >>> ERROR: ${e.toString()}');
-      developer.log(
-        'initializeMessagesTableData',
-        name: 'MessageService',
-        error: 'Messages List >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-  //#endregion
-
-  //#region insert All Started Messages To DB
-  Future insertAllStartedMessagesToDb() async {
-    List<MessageObject> starterMessagesList;
-    
-    starterMessagesList = await initializeMessagesTableData();
-    // print('starterEventsList.length: ${starterEventsList.length}');
-
-    starterMessagesList.forEach((MessageObject messageObj) async => await RotaryDataBaseProvider.rotaryDB.insertMessage(messageObj));
-    // starterEventsList.forEach((EventObject eventObj) => insertRawEvent(eventObj));
-
-    // List<EventObject> eventsList = await RotaryDataBaseProvider.rotaryDB.getAllEvents();
-    // if (eventsList.isNotEmpty)
-    // print('>>>>>>>>>> eventsList: ${eventsList[0].eventName}');
   }
   //#endregion
 
@@ -422,10 +369,11 @@ class MessageService {
   //=============================================================================
   Future updateMessageByMessageGuidIdToDataBase(MessageObject aMessageObj) async {
     try{
-      String jsonToPost = jsonEncode(aMessageObj);
+      // String jsonToPost = jsonEncode(aMessageObj);
 
       //***** for debug *****
       if (GlobalsService.isDebugMode) {
+        // print(">>>>>>>>>>>BLOC / _newMessageObj: $aMessageObj");
         var dbResult = await RotaryDataBaseProvider.rotaryDB.updateMessageByMessageGuidId(aMessageObj);
         return dbResult;
         //***** for debug *****

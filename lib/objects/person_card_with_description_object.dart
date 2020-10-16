@@ -61,63 +61,33 @@ class PersonCardWithDescriptionObject {
   String toString() {
     return
       '{'
-          ' ${this.personCardGuidId},'
-          ' ${this.email},'
-          ' ${this.firstName},'
-          ' ${this.lastName},'
-          ' ${this.firstNameEng},'
-          ' ${this.lastNameEng},'
-          ' ${this.phoneNumber},'
-          ' ${this.phoneNumberDialCode},'
-          ' ${this.phoneNumberParse},'
-          ' ${this.phoneNumberCleanLongFormat},'
-          ' ${this.pictureUrl},'
-          ' ${this.cardDescription},'
-          ' ${this.internetSiteUrl},'
-          ' ${this.address},'
-          ' ${this.roleId},'
-          ' ${this.roleName},'
-          ' ${this.areaId},'
-          ' ${this.areaName},'
-          ' ${this.clusterId},'
-          ' ${this.clusterName},'
-          ' ${this.clubId},'
-          ' ${this.clubName},'
-          ' ${this.clubAddress},'
-          ' ${this.clubMail},'
-          ' ${this.clubManagerGuidId},'
-          '}';
+        ' ${this.personCardGuidId},'
+        ' ${this.email},'
+        ' ${this.firstName},'
+        ' ${this.lastName},'
+        ' ${this.firstNameEng},'
+        ' ${this.lastNameEng},'
+        ' ${this.phoneNumber},'
+        ' ${this.phoneNumberDialCode},'
+        ' ${this.phoneNumberParse},'
+        ' ${this.phoneNumberCleanLongFormat},'
+        ' ${this.pictureUrl},'
+        ' ${this.cardDescription},'
+        ' ${this.internetSiteUrl},'
+        ' ${this.address},'
+        ' ${this.roleId},'
+        ' ${this.roleName},'
+        ' ${this.areaId},'
+        ' ${this.areaName},'
+        ' ${this.clusterId},'
+        ' ${this.clusterName},'
+        ' ${this.clubId},'
+        ' ${this.clubName},'
+        ' ${this.clubAddress},'
+        ' ${this.clubMail},'
+        ' ${this.clubManagerGuidId},'
+      '}';
   }
-
-  // /// Used for jsonDecode Function
-  // Map toJson() => {
-  //   'personCardGuidId': personCardGuidId,
-  //   'email': email,
-  //   'firstName': firstName,
-  //   'lastName': lastName,
-  //   'firstNameEng': firstNameEng,
-  //   'lastNameEng': lastNameEng,
-  //   'phoneNumber': phoneNumber,
-  //   'phoneNumberDialCode': phoneNumberDialCode,
-  //   'phoneNumberParse': phoneNumberParse,
-  //   'phoneNumberCleanLongFormat': phoneNumberCleanLongFormat,
-  //   'pictureUrl': pictureUrl,
-  //   'cardDescription': cardDescription,
-  //   'internetSiteUrl': internetSiteUrl,
-  //   'address': address,
-  //   'roleId': roleId,
-  //   'roleName': roleName,
-  //   'areaId': areaId,
-  //   'areaName': areaName,
-  //   'clusterId': clusterId,
-  //   'clusterName': clusterName,
-  //   'clubId': clubId,
-  //   'clubName': clubName,
-  //   'clubAddress': clubAddress,
-  //   'clubMail': clubMail,
-  //   'clubManagerGuidId': clubManagerGuidId,
-  // };
-
   factory PersonCardWithDescriptionObject.fromJson(Map<String, dynamic> parsedJson){
     // RoleId: Convert [int] to [Enum]
     Constants.RotaryRolesEnum _roleEnum;

@@ -77,7 +77,7 @@ class _PersonalAreaPageTabUserState extends State<PersonalAreaPageTabUser> {
           widget.argConnectedUser.userType, newStayConnected);
 
       /// SAVE ConnectedUser:
-      /// 1. Secure Storage: Write to storage
+      /// 1. Secure Storage: Write to SecureStorage
       await connectedUserService.writeConnectedUserObjectDataToSecureStorage(newConnectedUserObj);
 
       /// 2. App Global: Update Global Current Connected User

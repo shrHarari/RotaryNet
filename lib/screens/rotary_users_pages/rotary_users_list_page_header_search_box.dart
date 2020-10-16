@@ -6,14 +6,17 @@ class RotaryUsersListPageHeaderSearchBox implements SliverPersistentHeaderDelega
   final double minExtent;
   final double maxExtent;
   RotaryUsersListBloc usersBloc;
+  Function argSearchTextFunction;
 
   RotaryUsersListPageHeaderSearchBox({
     this.minExtent,
     @required this.maxExtent,
     @required this.usersBloc,
+    this.argSearchTextFunction,
   });
 
   TextEditingController searchController;
+  String _searchText;
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
@@ -33,25 +36,33 @@ class RotaryUsersListPageHeaderSearchBox implements SliverPersistentHeaderDelega
                 height: 0.8,
                 color: Colors.black
             ),
-            //onSubmitted: (value) async {await executeSearch(value);},
-            onChanged: (searchText) {usersBloc.getUsersListBySearchQuery(searchText);},
+            onSubmitted: (aSearchValue) async {
+              usersBloc.getUsersListBySearchQuery(aSearchValue);
+              argSearchTextFunction(aSearchValue);
+            },
+            onChanged: (aSearchValue) {
+              _searchText = aSearchValue;
+              usersBloc.getUsersListBySearchQuery(aSearchValue);
+              argSearchTextFunction(aSearchValue);
+            },
             decoration: InputDecoration(
-                prefixIcon: IconButton(
-                  color: Colors.blue,
-                  icon: Icon(Icons.search),
-                  onPressed: () async {
-                    usersBloc.getUsersListBySearchQuery(searchController.text);
-                  },
+              prefixIcon: IconButton(
+                color: Colors.blue,
+                icon: Icon(Icons.search),
+                onPressed: () async {
+                  usersBloc.getUsersListBySearchQuery(_searchText);
+                  argSearchTextFunction(_searchText);
+                },
+              ),
+              border: new OutlineInputBorder(
+                borderRadius: const BorderRadius.all(
+                  const Radius.circular(30.0),
                 ),
-                border: new OutlineInputBorder(
-                  borderRadius: const BorderRadius.all(
-                    const Radius.circular(30.0),
-                  ),
-                ),
-                filled: true,
-                hintStyle: TextStyle(color: Colors.grey[800]),
-                hintText: "הקלד שם משתמש",
-                fillColor: Colors.white
+              ),
+              filled: true,
+              hintStyle: TextStyle(color: Colors.grey[800]),
+              hintText: "הקלד שם משתמש",
+              fillColor: Colors.white
             ),
           ),
         ),
@@ -69,4 +80,10 @@ class RotaryUsersListPageHeaderSearchBox implements SliverPersistentHeaderDelega
   bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {
     return true;
   }
+
+  @override
+  PersistentHeaderShowOnScreenConfiguration get showOnScreenConfiguration => null;
+
+  @override
+  TickerProvider get vsync => null;
 }

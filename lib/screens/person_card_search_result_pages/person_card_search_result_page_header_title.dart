@@ -82,4 +82,10 @@ class PersonCardSearchResultPageHeaderTitle implements SliverPersistentHeaderDel
   bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {
     return true;
   }
+
+  @override
+  PersistentHeaderShowOnScreenConfiguration get showOnScreenConfiguration => null;
+
+  @override
+  TickerProvider get vsync => null;
 }

@@ -1,19 +1,20 @@
 import 'dart:io';
-// import 'package:path/path.dart' as Path;
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:uuid/uuid.dart';
-import 'package:uuid/uuid_util.dart';
 
 class Utils {
 
+  //#region Application Documents Path
   static Future<String> get applicationDocumentsPath async {
     final directory = await getApplicationDocumentsDirectory();
     return directory.path;
   }
+  //#endregion
 
+  //#region Create Directory In App Doc Dir
   static Future<String> createDirectoryInAppDocDir(String aDirectoryName) async {
     //Get this App Document Directory
     final Directory _appDocDir = await getApplicationDocumentsDirectory();
@@ -30,7 +31,9 @@ class Utils {
       return _appDocDirNewFolder.path;
     }
   }
+  //#endregion
 
+  //#region Create Guid UserId
   static Future<String> createGuidUserId() async {
 
     var uuid = Uuid();
@@ -58,7 +61,9 @@ class Utils {
 
     return v4;
   }
+  //#endregion
 
+  //#region Make Phone Call
   static Future<void> makePhoneCall(String aPhoneNumber) async {
     try {
       final String _phoneCommand = "tel:$aPhoneNumber";
@@ -72,7 +77,9 @@ class Utils {
       print ('${ex.toString()}');
     }
   }
+  //#endregion
 
+  //#region Send SMS
   static Future<void> sendSms(String aPhoneNumber) async {
     try {
       final String _phoneCommand = "sms:$aPhoneNumber";
@@ -86,7 +93,9 @@ class Utils {
       print ('${ex.toString()}');
     }
   }
+  //#endregion
 
+  //#region Send Email
   static Future<void> sendEmail(String aMail) async {
     try {
       final Uri _emailLaunchUri = Uri(
@@ -102,7 +111,9 @@ class Utils {
       print ('Could not send an Email To: ${ex.toString()}');
     }
   }
+  //#endregion
 
+  //#region Launch In Browser
   static Future<void> launchInBrowser(String aUrl) async {
     try {
       if (await canLaunch(aUrl)) {
@@ -120,7 +131,9 @@ class Utils {
       print ('${ex.toString()}');
     }
   }
+  //#endregion
 
+  //#region Launch In Map By Address
   static Future<void> launchInMapByAddress(String aAddress) async {
     try {
       final url = 'https://www.google.com/maps/search/${Uri.encodeFull(aAddress)}';
@@ -134,14 +147,16 @@ class Utils {
       print ('${ex.toString()}');
     }
   }
+  //#endregion
 
+  //#region Launch In Map By Position
   Future<void> launchInMapByPosition(String aAddress) async {
     try {
       List<Placemark> placeMarksList = await Geolocator().placemarkFromAddress(aAddress);
 //      print ('>>>>>>>> Placemarks: ${placemarks[0].toJson()}');
 
       if (placeMarksList != null && placeMarksList.isNotEmpty) {
-        final List<String>position = placeMarksList.map((placeMark) =>
+        final List<String> position = placeMarksList.map((placeMark) =>
         placeMark.position?.latitude.toString() + ', ' + placeMark.position?.longitude.toString()).toList();
 //        print ('>>>>>>>> coords: ${position}');
 
@@ -162,7 +177,9 @@ class Utils {
       print ('${ex.toString()}');
     }
   }
+  //#endregion
 
+  //#region Open Calendar
   static Future<void> openCalendar(String aDateTime) async {
     try {
       // final String _dateTimeCommand = "content://com.android.calendar/time/$aDateTime";
@@ -178,7 +195,9 @@ class Utils {
       print ('${ex.toString()}');
     }
   }
+  //#endregion
 
+  //#region Add Event To Calendar
   static Future<void> addEventToCalendar(String aTitle, String aDescription, String aLocation, DateTime aStartDateTime, DateTime aEndDateTime) async {
     try {
 
@@ -197,4 +216,5 @@ class Utils {
       print ('${ex.toString()}');
     }
   }
+  //#endregion
 }

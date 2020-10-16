@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +10,8 @@ import 'package:rotary_net/services/connected_user_service.dart';
 import 'package:rotary_net/services/user_service.dart';
 import 'package:rotary_net/shared/decoration_style.dart';
 import 'package:rotary_net/shared/loading.dart';
-import 'package:rotary_net/shared/user_type_labled_radio.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
+import 'package:rotary_net/shared/user_type_label_radio.dart';
 
 class UserDetailEditPageScreen extends StatefulWidget {
   static const routeName = '/UserDetailEditPageScreen';
@@ -388,8 +387,8 @@ class _UserDetailEditPageScreenState extends State<UserDetailEditPageScreen> {
             flex: 8,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: <UserTypeLabeledRadio>[
-                UserTypeLabeledRadio(
+              children: <UserTypeLabelRadio>[
+                UserTypeLabelRadio(
                   label: 'מנהל מערכת',
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   value: Constants.UserTypeEnum.SystemAdmin,
@@ -400,7 +399,7 @@ class _UserDetailEditPageScreenState extends State<UserDetailEditPageScreen> {
                     });
                   },
                 ),
-                UserTypeLabeledRadio(
+                UserTypeLabelRadio(
                   label: 'חבר מועדון רוטרי',
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   value: Constants.UserTypeEnum.RotaryMember,
@@ -411,7 +410,7 @@ class _UserDetailEditPageScreenState extends State<UserDetailEditPageScreen> {
                     });
                   },
                 ),
-                UserTypeLabeledRadio(
+                UserTypeLabelRadio(
                   label: 'אורח',
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   value: Constants.UserTypeEnum.Guest,

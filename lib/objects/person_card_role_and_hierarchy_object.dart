@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/rotary_area_object.dart';
 import 'package:rotary_net/objects/rotary_club_object.dart';

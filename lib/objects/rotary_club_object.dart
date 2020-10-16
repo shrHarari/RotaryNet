@@ -23,26 +23,15 @@ class RotaryClubObject {
   String toString() {
     return
       '{'
-          ' ${this.areaId},'
-          ' ${this.clusterId},'
-          ' ${this.clubId},'
-          ' ${this.clubName},'
-          ' ${this.clubAddress},'
-          ' ${this.clubMail},'
-          ' ${this.clubManagerGuidId},'
-          '}';
+        ' ${this.areaId},'
+        ' ${this.clusterId},'
+        ' ${this.clubId},'
+        ' ${this.clubName},'
+        ' ${this.clubAddress},'
+        ' ${this.clubMail},'
+        ' ${this.clubManagerGuidId},'
+      '}';
   }
-
-  /// Used for jsonDecode Function
-  Map toJson() => {
-    'areaId': areaId,
-    'clusterId': clusterId,
-    'clubId': clubId,
-    'clubName': clubName,
-    'clubAddress': clubAddress,
-    'clubMail': clubMail,
-    'clubManagerGuidId': clubManagerGuidId,
-  };
 
   factory RotaryClubObject.fromJson(Map<String, dynamic> parsedJson){
     return RotaryClubObject(

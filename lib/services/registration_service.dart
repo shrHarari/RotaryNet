@@ -87,7 +87,10 @@ class RegistrationService {
         mapResult = {"returnCode": '100', "errorMessage": 'קיים משתמש עם דוא"ל זהה, נסה שוב...'};
       } else {
         /// Add New User Registration Request
-        dynamic _userRequestID = await sendUserRegistrationRequestToServer(aConnectedUserObj);
+        // dynamic _userRequestID = await sendUserRegistrationRequestToServer(aConnectedUserObj);
+        //***** MONGO DB *****
+        dynamic _userRequestID = await sendUserRegistrationRequestToDataBase(aConnectedUserObj);
+        //***** MONGO DB *****
         if (_userRequestID == null) {
           mapResult = {"returnCode": '200', "errorMessage": 'שגיאה ברישום, נסה שוב...'};
         } else {
@@ -130,7 +133,7 @@ class RegistrationService {
       //***** for debug *****
 
       // Convert UserObject To Json
-      final jsonToPost = aConnectedUserObj.userToJson(aConnectedUserObj);
+      final jsonToPost = aConnectedUserObj.connectedUserToJson(aConnectedUserObj);
       // Check If User Login Parameters are OK !!!
       Response response = await post(Constants.rotaryUserLoginUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
 
@@ -191,7 +194,7 @@ class RegistrationService {
       //***** for debug *****
 
       // Convert UserObject To Json
-      final jsonToPost = aConnectedUserObj.userToJson(aConnectedUserObj);
+      final jsonToPost = aConnectedUserObj.connectedUserToJson(aConnectedUserObj);
       print ('sendUserRegistrationRequestToServer / jsonToPost: $jsonToPost');
       Response response = await post(Constants.rotaryUserRegistrationUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
 
@@ -226,5 +229,64 @@ class RegistrationService {
     }
   }
   //#endregion
+
+  //#region Send User Registration Request To DATABASE [POST]
+  // ===============================================================
+  Future sendUserRegistrationRequestToDataBase(ConnectedUserObject aConnectedUserObj) async {
+    try {
+
+      //***** MONGO DB *****
+
+      // Convert ConnectedUserObject To Json
+      String jsonToPost = aConnectedUserObj.connectedUserToJson(aConnectedUserObj);
+      print ('SendUserRegistrationRequestToDataBase / ConnectedUserObj / jsonToPost: $jsonToPost');
+
+      // '"_id":"1a5d8df7-1f25-44cd-aafc-022542129816",'
+      // String jsonToPost =
+      // '{'
+      //   '"email":"d.d@gmail.com",'
+      //   '"firstName":"test",'
+      //   '"lastName":"test",'
+      //   '"password":"qqqq",'
+      //   '"userType":"Guest",'
+      //   '"stayConnected":1'
+      // '}';
+      // print ('SendUserRegistrationRequestToDataBase / ConnectedUserObj / jsonToPost: $jsonToPost');
+
+      Response response = await post(Constants.rotaryGetUsersUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+        print ('SendUserRegistrationRequestToDataBase / ConnectedUserObj / jsonResponse: $jsonResponse');
+        return jsonResponse;
+
+        // String userRequestID = jsonResponse;
+        // if (int.parse(userRequestID) > 0){
+        //   await LoggerService.log('<RegistrationService> Send Register User Request To SERVER >>> OK\nHeader: $contentType \nUserRequestID: $userRequestID');
+        //   return userRequestID;
+        // } else {
+        //   await LoggerService.log('<RegistrationService> Send Register User Request To SERVER >>> Failed: Unable to get UserRequestID: $userRequestID');
+        //   print('<RegistrationService> Send Register User Request To SERVER >>> Failed: Unable to get UserRequestID: $userRequestID');
+        //   return null;
+        // }
+      } else {
+        await LoggerService.log('<RegistrationService> Send Register User Request To SERVER >>> Failed: Could not Register >>> ${response.statusCode}');
+        print('<RegistrationService> Send Register User Request To SERVER Failed >>> Could not Register >>> ${response.statusCode}');
+        return null;
+      }
+      //***** MONGO DB *****
+    }
+    catch (e) {
+      await LoggerService.log('<RegistrationService> Send Register User Request To SERVER >>> Server ERROR: ${e.toString()}');
+      developer.log(
+        'sendRegisterUserRequestToServer',
+        name: 'RegistrationService',
+        error: 'User Request >>> Server ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+//#endregion
 
 }

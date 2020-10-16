@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-import 'package:rotary_net/database/init_database_data.dart';
 import 'package:rotary_net/database/rotary_database_provider.dart';
 import 'package:rotary_net/objects/rotary_cluster_object.dart';
 import 'package:rotary_net/services/logger_service.dart';
@@ -29,56 +27,6 @@ class RotaryClusterService {
         clusterId: aClusterId,
         clusterName: aClusterName,
       );
-  }
-  //#endregion
-
-  //#region Initialize Rotary Cluster Table Data [INIT Cluster BY JSON DATA]
-  // ========================================================================
-  Future initializeRotaryClusterTableData() async {
-    try {
-
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-      if (GlobalsService.isDebugMode) {
-        String initializeRotaryClusterJsonForDebug = InitDataBaseData.createJsonRowsForRotaryCluster();
-        // print('initializeEventsJsonForDebug: initializeEventsJsonForDebug');
-
-        //// Using JSON
-        var initializeRotaryClusterListForDebug = jsonDecode(initializeRotaryClusterJsonForDebug) as List;    // List of Cluster to display;
-        List<RotaryClusterObject> rotaryClusterObjListForDebug = initializeRotaryClusterListForDebug.map((clusterJsonDebug) =>
-                  RotaryClusterObject.fromJson(clusterJsonDebug)).toList();
-        // print('eventObjListForDebug.length: ${eventObjListForDebug.length}');
-
-        rotaryClusterObjListForDebug.sort((a, b) => a.clusterName.toLowerCase().compareTo(b.clusterName.toLowerCase()));
-        return rotaryClusterObjListForDebug;
-      }
-      //***** for debug *****
-
-    }
-    catch (e) {
-      await LoggerService.log('<RotaryClusterService> Initialize RotaryCluster Table Data >>> ERROR: ${e.toString()}');
-      developer.log(
-        'initializeRotaryClusterTableData',
-        name: 'RotaryClusterService',
-        error: 'Initialize RotaryCluster Table Data >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-  //#endregion
-
-  //#region insert All Started RotaryCluster To DB
-  Future insertAllStartedRotaryClusterToDb() async {
-    List<RotaryClusterObject> starterRotaryClusterList;
-    starterRotaryClusterList = await initializeRotaryClusterTableData();
-    print('starterRotaryClusterList.length: ${starterRotaryClusterList.length}');
-
-    starterRotaryClusterList.forEach((RotaryClusterObject rotaryClusterObj) async =>
-            await RotaryDataBaseProvider.rotaryDB.insertRotaryCluster(rotaryClusterObj));
-
-    List<RotaryClusterObject> _rotaryClusterList = await RotaryDataBaseProvider.rotaryDB.getAllRotaryCluster();
-    if (_rotaryClusterList.isNotEmpty)
-      print('>>>>>>>>>> _rotaryClusterList: ${_rotaryClusterList[1].clusterName}');
   }
   //#endregion
 
@@ -185,8 +133,6 @@ class RotaryClusterService {
   //=============================================================================
   Future updateRotaryClusterByAreaClusterIdToDataBase(RotaryClusterObject aRotaryClusterObj) async {
     try{
-      String jsonToPost = jsonEncode(aRotaryClusterObj);
-
       //***** for debug *****
       if (GlobalsService.isDebugMode) {
         var dbResult = await RotaryDataBaseProvider.rotaryDB.updateRotaryClusterByAreaClusterId(aRotaryClusterObj);
@@ -229,6 +175,6 @@ class RotaryClusterService {
   }
 //#endregion
 
-//#endregion
+  //#endregion
 
 }

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:rotary_net/BLoCs/bloc_provider.dart';
 import 'package:rotary_net/BLoCs/messages_list_bloc.dart';
-import 'package:rotary_net/objects/message_object.dart';
 import 'package:rotary_net/objects/message_queue_object.dart';
 import 'package:rotary_net/objects/message_with_description_object.dart';
 import 'package:rotary_net/screens/message_detail_pages/message_detail_page_screen.dart';
@@ -193,10 +192,7 @@ class RotaryMainPageMessageListTile extends StatelessWidget {
     void removeMessageFromList(MessageWithDescriptionObject aMessageWithDescriptionObject) async {
 
       final messagesBloc = BlocProvider.of<MessagesListBloc>(context);
-
-      MessageObject _messageObj = await MessageObject.getMessageObjectFromMessageWithDescriptionObject(aMessageWithDescriptionObject);
-
-      await messagesBloc.deleteMessageQueueByMessageAndPersonGuidIdFromDataBase(_messageObj, aMessageWithDescriptionObject);
+      await messagesBloc.deleteMessageQueueByMessageAndPersonGuidIdFromDataBase(aMessageWithDescriptionObject);
     }
     //#endregion
 
@@ -204,11 +200,9 @@ class RotaryMainPageMessageListTile extends StatelessWidget {
     void undoAndAddMessageBackToList(MessageWithDescriptionObject aMessageWithDescriptionObject) async {
 
       final messagesBloc = BlocProvider.of<MessagesListBloc>(context);
-
-      MessageObject _messageObj = await MessageObject.getMessageObjectFromMessageWithDescriptionObject(aMessageWithDescriptionObject);
       MessageQueueObject _messageQueueObj = await MessageQueueObject.getMessageQueueObjectFromMessageWithDescriptionObject(aMessageWithDescriptionObject);
 
-      await messagesBloc.insertMessageQueue(_messageObj, aMessageWithDescriptionObject, _messageQueueObj);
+      await messagesBloc.insertMessageQueue(aMessageWithDescriptionObject, _messageQueueObj);
     }
     //#endregion
 
@@ -323,6 +317,7 @@ class RotaryMainPageMessageListTile extends StatelessWidget {
           handleDismiss();
         },
 
+        // background: buildBackgroundListItem(),
         background: BubblesBoxRotaryMessage(
           argContent: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -330,9 +325,17 @@ class RotaryMainPageMessageListTile extends StatelessWidget {
 
             children: [
               Icon(Icons.delete, color: Colors.red, size: 36.0),
+              Text(
+                "מחיקת הודעה של "
+                    "[${argMessageWithDescriptionObject.composerFirstName} "
+                    "${argMessageWithDescriptionObject.composerLastName}]",
+                style: TextStyle(color: Colors.red),
+                textAlign: TextAlign.right,
+              ),
             ],
           ),
-          argBubbleBackgroundColor: Colors.grey[300],
+          argContentAlignment: Alignment.center,
+          argBubbleBackgroundColor: Colors.grey[200],
           argBubbleBorderColor: Colors.red,
           displayPin: false,
         ),
@@ -348,8 +351,8 @@ class RotaryMainPageMessageListTile extends StatelessWidget {
     );
   }
 
-  //#region Build Background ListItem
-  Widget buildBackgroundListItem(BuildContext context, Completer<bool> aCompleter) {
+  //#region Build Background ListItem [--->>> Option]
+  Widget buildBackgroundListItem(Completer<bool> aCompleter) {
     return Container(
       // color: const Color.fromRGBO(183, 28, 28, 0.8),
       color: Colors.white,
@@ -379,8 +382,6 @@ class RotaryMainPageMessageListTile extends StatelessWidget {
                   style: TextStyle(color: Colors.blue, fontSize: 14.0),
                 ),
                 onPressed: () {
-                  // removeMessageFromList(context, MessageWithDescriptionObject.copy(argMessageWithDescriptionObject));
-                  // removeMessageFromList(context, argMessageWithDescriptionObject);
                   aCompleter.complete(true);
                 },
               ),

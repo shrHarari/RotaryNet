@@ -1,8 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:rotary_net/database/init_database_service.dart';
+import 'package:rotary_net/database/rotary_database_provider.dart';
 import 'package:rotary_net/objects/connected_user_global.dart';
 import 'package:rotary_net/objects/connected_user_object.dart';
-import 'package:rotary_net/objects/user_object.dart';
 import 'package:rotary_net/screens/debug_setting_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/login_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/login_state_message_screen.dart';
@@ -149,13 +150,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
   ///------>> Open Debug Settings Screen
   ///------------------------------------------------------------------------------
   Future<void> openDebugSettingsScreen() async {
-    /// Navigate to DebugSettings Screen
+    //Navigate to DebugSettings Screen
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => DebugSettingsScreen(argLoginObject: newLoginObject),
       ),
     );
+
+    // await RotaryDataBaseProvider.rotaryDB.deleteRotaryDatabase();
+    //
+    // await RotaryDataBaseProvider.rotaryDB.createRotaryDB();
+    //
+    // InitDatabaseService _initDatabaseService = InitDatabaseService();
+    // await _initDatabaseService.insertAllStartedRotaryRoleToDb();
+    // await _initDatabaseService.insertAllStartedRotaryAreaToDb();
+    // await _initDatabaseService.insertAllStartedRotaryClusterToDb();
+    // await _initDatabaseService.insertAllStartedRotaryClubToDb();
+    // await _initDatabaseService.insertAllStartedUsersToDb();
+    // await _initDatabaseService.insertAllStartedPersonCardsToDb();
+    // await _initDatabaseService.insertAllStartedEventsToDb();
+    // await _initDatabaseService.insertAllStartedMessagesToDb();
+    // await _initDatabaseService.insertAllStartedMessageQueueToDb();
+
   }
 
   /// ============================== Main Screen ==============================

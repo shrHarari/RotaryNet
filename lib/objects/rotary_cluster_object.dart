@@ -15,18 +15,11 @@ class RotaryClusterObject {
   String toString() {
     return
       '{'
-          ' ${this.areaId},'
-          ' ${this.clusterId},'
-          ' ${this.clusterName},'
-          '}';
+        ' ${this.areaId},'
+        ' ${this.clusterId},'
+        ' ${this.clusterName},'
+      '}';
   }
-
-  /// Used for jsonDecode Function
-  Map toJson() => {
-    'areaId': areaId,
-    'clusterId': clusterId,
-    'clusterName': clusterName,
-  };
 
   factory RotaryClusterObject.fromJson(Map<String, dynamic> parsedJson){
     return RotaryClusterObject(

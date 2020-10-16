@@ -48,7 +48,7 @@ class EventsListBloc implements BloC {
   Future<void> insertEvent(EventObject aEventObj) async {
       await eventService.insertEventToDataBase(aEventObj);
       _eventsList.add(aEventObj);
-      _eventsList.sort((a, b) => a.eventName.toLowerCase().compareTo(b.eventName.toLowerCase()));
+      _eventsList.sort((b, a) => a.eventStartDateTime.compareTo(b.eventStartDateTime));
       _eventsController.sink.add(_eventsList);
   }
 
@@ -59,7 +59,7 @@ class EventsListBloc implements BloC {
 
       _eventsList.remove(aOldEventObj);
       _eventsList.add(aNewEventObj);
-      _eventsList.sort((a, b) => a.eventName.toLowerCase().compareTo(b.eventName.toLowerCase()));
+      _eventsList.sort((b, a) => a.eventStartDateTime.compareTo(b.eventStartDateTime));
       _eventsController.sink.add(_eventsList);
     }
   }

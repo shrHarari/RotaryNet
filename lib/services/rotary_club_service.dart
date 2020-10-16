@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-import 'package:rotary_net/database/init_database_data.dart';
 import 'package:rotary_net/database/rotary_database_provider.dart';
 import 'package:rotary_net/objects/rotary_club_object.dart';
 import 'package:rotary_net/services/logger_service.dart';
@@ -32,56 +30,6 @@ class RotaryClubService {
         clubId: aClubId,
         clubName: aClubName,
       );
-  }
-  //#endregion
-
-  //#region Initialize Rotary Club Table Data [INIT Club BY JSON DATA]
-  // ========================================================================
-  Future initializeRotaryClubTableData() async {
-    try {
-
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-      if (GlobalsService.isDebugMode) {
-        String initializeRotaryClubJsonForDebug = InitDataBaseData.createJsonRowsForRotaryClub();
-        // print('initializeEventsJsonForDebug: initializeEventsJsonForDebug');
-
-        //// Using JSON
-        var initializeRotaryClubListForDebug = jsonDecode(initializeRotaryClubJsonForDebug) as List;    // List of Cluster to display;
-        List<RotaryClubObject> rotaryClubObjListForDebug = initializeRotaryClubListForDebug.map((clubJsonDebug) =>
-                  RotaryClubObject.fromJson(clubJsonDebug)).toList();
-        // print('eventObjListForDebug.length: ${eventObjListForDebug.length}');
-
-        rotaryClubObjListForDebug.sort((a, b) => a.clubName.toLowerCase().compareTo(b.clubName.toLowerCase()));
-        return rotaryClubObjListForDebug;
-      }
-      //***** for debug *****
-
-    }
-    catch (e) {
-      await LoggerService.log('<RotaryClubService> Initialize RotaryClub Table Data >>> ERROR: ${e.toString()}');
-      developer.log(
-        'initializeRotaryClubTableData',
-        name: 'RotaryClubService',
-        error: 'Initialize RotaryClub Table Data >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-  //#endregion
-
-  //#region insert All Started RotaryClub To DB
-  Future insertAllStartedRotaryClubToDb() async {
-    List<RotaryClubObject> starterRotaryClubList;
-    starterRotaryClubList = await initializeRotaryClubTableData();
-    print('starterRotaryClubList.length: ${starterRotaryClubList.length}');
-
-    starterRotaryClubList.forEach((RotaryClubObject rotaryClubObj) async =>
-            await RotaryDataBaseProvider.rotaryDB.insertRotaryClub(rotaryClubObj));
-
-    List<RotaryClubObject> _rotaryClubList = await RotaryDataBaseProvider.rotaryDB.getAllRotaryClub();
-    if (_rotaryClubList.isNotEmpty)
-      print('>>>>>>>>>> _rotaryClubList: ${_rotaryClubList[1].clubName} / ${_rotaryClubList[1].clubMail}');
   }
   //#endregion
 
@@ -188,8 +136,6 @@ class RotaryClubService {
   //=============================================================================
   Future updateRotaryClubByAreaClusterClubIdToDataBase(RotaryClubObject aRotaryClubObj) async {
     try{
-      String jsonToPost = jsonEncode(aRotaryClubObj);
-
       //***** for debug *****
       if (GlobalsService.isDebugMode) {
         var dbResult = await RotaryDataBaseProvider.rotaryDB.updateRotaryClubByAreaClusterClubId(aRotaryClubObj);

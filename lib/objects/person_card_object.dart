@@ -20,7 +20,6 @@ class PersonCardObject {
   int clusterId;
   int clubId;
   Constants.RotaryRolesEnum roleId;
-  // int roleId;
 
   PersonCardObject({
     this.personCardGuidId,
@@ -53,6 +52,30 @@ class PersonCardObject {
     pictureUrl = aPictureUrl;
   }
 
+  @override
+  String toString() {
+    return '{'
+        ' ${this.personCardGuidId},'
+        ' ${this.email},'
+        ' ${this.firstName},'
+        ' ${this.lastName},'
+        ' ${this.firstNameEng},'
+        ' ${this.lastNameEng},'
+        ' ${this.phoneNumber},'
+        ' ${this.phoneNumberDialCode},'
+        ' ${this.phoneNumberParse},'
+        ' ${this.phoneNumberCleanLongFormat},'
+        ' ${this.pictureUrl},'
+        ' ${this.cardDescription},'
+        ' ${this.internetSiteUrl},'
+        ' ${this.address},'
+        ' ${this.areaId},'
+        ' ${this.clusterId},'
+        ' ${this.clubId},'
+        ' ${this.roleId},'
+        ' }';
+  }
+
   factory PersonCardObject.fromJson(Map<String, dynamic> parsedJson){
     // RoleId: Convert [int] to [Enum]
     Constants.RotaryRolesEnum _roleEnum;
@@ -79,51 +102,6 @@ class PersonCardObject {
         roleId : _roleEnumValue,
     );
   }
-
-  @override
-  String toString() {
-    return '{'
-        ' ${this.personCardGuidId},'
-        ' ${this.email},'
-        ' ${this.firstName},'
-        ' ${this.lastName},'
-        ' ${this.firstNameEng},'
-        ' ${this.lastNameEng},'
-        ' ${this.phoneNumber},'
-        ' ${this.phoneNumberDialCode},'
-        ' ${this.phoneNumberParse},'
-        ' ${this.phoneNumberCleanLongFormat},'
-        ' ${this.pictureUrl},'
-        ' ${this.cardDescription},'
-        ' ${this.internetSiteUrl},'
-        ' ${this.address},'
-        ' ${this.areaId},'
-        ' ${this.clusterId},'
-        ' ${this.clubId},'
-        ' ${this.roleId},'
-    ' }';
-  }
-
-  // Map toJson() => {
-  //   'personCardGuidId': personCardGuidId,
-  //   'email': email,
-  //   'firstName': firstName,
-  //   'lastName': lastName,
-  //   'firstNameEng': firstNameEng,
-  //   'lastNameEng': lastNameEng,
-  //   'phoneNumber': phoneNumber,
-  //   'phoneNumberDialCode': phoneNumberDialCode,
-  //   'phoneNumberParse': phoneNumberParse,
-  //   'phoneNumberCleanLongFormat': phoneNumberCleanLongFormat,
-  //   'pictureUrl': pictureUrl,
-  //   'cardDescription': cardDescription,
-  //   'internetSiteUrl': internetSiteUrl,
-  //   'address': address,
-  //   'areaId': areaId,
-  //   'clusterId': clusterId,
-  //   'clubId': clubId,
-  //   'roleId': roleId,
-  // };
 
   /// DataBase: Madel for Person Card
   ///----------------------------------------------------

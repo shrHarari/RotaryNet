@@ -18,12 +18,6 @@ class RotaryAreaObject {
       '}';
   }
 
-  /// Used for jsonDecode Function
-  Map toJson() => {
-    'areaId': areaId,
-    'areaName': areaName,
-  };
-
   factory RotaryAreaObject.fromJson(Map<String, dynamic> parsedJson){
     return RotaryAreaObject(
       areaId: parsedJson['areaId'],

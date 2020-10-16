@@ -18,16 +18,10 @@ class RotaryRoleObject {
       '}';
   }
 
-  /// Used for jsonDecode Function
-  Map toJson() => {
-    'roleId': roleId,
-    'roleName': roleName,
-  };
-
   factory RotaryRoleObject.fromJson(Map<String, dynamic> parsedJson){
     return RotaryRoleObject(
-        roleId: parsedJson['roleId'],
-        roleName: parsedJson['roleName'],
+      roleId: parsedJson['roleId'],
+      roleName: parsedJson['roleName'],
     );
   }
 

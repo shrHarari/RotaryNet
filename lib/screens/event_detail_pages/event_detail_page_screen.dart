@@ -71,7 +71,7 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
 
   //#region Open Event Detail Edit Screen
   openEventDetailEditScreen(EventObject aEventObj) async {
-    final result = await Navigator.push(
+    final returnDataMapFromPicker = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => EventDetailEditPageScreen(
@@ -81,11 +81,34 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
       ),
     );
 
-    if (result != null) {
+    if (returnDataMapFromPicker != null) {
       setState(() {
-        displayEventObject = result;
+        displayEventObject = returnDataMapFromPicker["EventObject"];
+        hebrewEventTimeLabel = returnDataMapFromPicker["HebrewEventTimeLabel"];
       });
     }
+  }
+  //#endregion
+
+  //#region Display Event Description Rich Text
+  RichText displayEventDescriptionRichText () {
+
+    return RichText(
+      textDirection: TextDirection.rtl,
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text: '${displayEventObject.eventDescription} ',
+            style: TextStyle(
+                fontFamily: 'Heebo-Light',
+                fontSize: 20.0,
+                height: 1.5,
+                color: Colors.black87
+            ),
+          ),
+        ],
+      ),
+    );
   }
   //#endregion
 
@@ -206,30 +229,19 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
     return Column(
       children: <Widget>[
         /// ------------------- Event Image -------------------------
-        // Stack(
-        //   overflow: Overflow.visible,
-        //   children: [
-            Container(
-              height: 200.0,
-              width: double.infinity,
-              // clipBehavior: Clip.antiAliasWithSaveLayer,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: (aEventObj.eventPictureUrl == null) || (aEventObj.eventPictureUrl == '')
-                        ? eventImageDefaultAsset
-                        : FileImage(File('${aEventObj.eventPictureUrl}')),
-                    fit: BoxFit.cover
-                ),
-              ),
+        Container(
+          height: 200.0,
+          width: double.infinity,
+          // clipBehavior: Clip.antiAliasWithSaveLayer,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+                image: (aEventObj.eventPictureUrl == null) || (aEventObj.eventPictureUrl == '')
+                    ? eventImageDefaultAsset
+                    : FileImage(File('${aEventObj.eventPictureUrl}')),
+                fit: BoxFit.cover
             ),
-            // if (allowUpdate)
-            //   Positioned(
-            //       left: 20.0,
-            //       bottom: -25.0,
-            //       child: buildEditEventButton(openEventDetailEditScreen, aEventObj)
-            //   ),
-        //   ],
-        // ),
+          ),
+        ),
 
         /// ------------------- Image + Event Name -------------------------
         Padding(
@@ -239,6 +251,7 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Text(
+
                 aEventObj.eventName,
                 style: TextStyle(color: Colors.grey[900], fontSize: 20.0, fontWeight: FontWeight.bold),
               ),
@@ -258,26 +271,12 @@ class _EventDetailPageScreenState extends State<EventDetailPageScreen> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 20.0, right: 30.0, bottom: 40.0),
-                    child: Row(
-                      textDirection: TextDirection.rtl,
-                      children: [
-                        Text(
-                          aEventObj.eventDescription,
-                          textDirection: TextDirection.rtl,
-                          style: TextStyle(
-                              fontFamily: 'Heebo-Light',
-                              fontSize: 20.0,
-                              height: 1.5,
-                              color: Colors.black87
-                          ),
-                        ),
-                      ],
-                    ),
+                    child: displayEventDescriptionRichText(),
                   ),
 
                   /// ---------------- Card Details (Icon Images) --------------------
                   Padding(
-                    padding: const EdgeInsets.only(left: 20.0, right: 30.0, bottom: 20.0),
+                    padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),
                     child: Directionality(
                       textDirection: TextDirection.rtl,
                       child: Column(

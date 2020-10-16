@@ -7,7 +7,6 @@ import 'package:rotary_net/objects/connected_user_object.dart';
 import 'package:rotary_net/objects/login_object.dart';
 import 'package:rotary_net/objects/message_with_description_object.dart';
 import 'package:rotary_net/screens/debug_setting_screen.dart';
-import 'package:rotary_net/screens/event_detail_pages/event_detail_edit_page_screen.dart';
 import 'package:rotary_net/screens/event_search_result_pages/event_search_result_page_screen.dart';
 import 'package:rotary_net/screens/message_detail_pages/rotary_main_page_message_list_tile.dart';
 import 'package:rotary_net/screens/person_card_search_result_pages/person_card_search_result_page_screen.dart';
@@ -52,11 +51,12 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
     messagesBloc = BlocProvider.of<MessagesListBloc>(context);
     messagesBloc.getMessagesListWithDescription();
 
-    /// Lock Screen orientation
+    //#region Lock Screen orientation
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    //#endregion
 
     userHasPermission = getUserPermission();
     super.initState();
@@ -64,13 +64,16 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
 
   @override
   dispose(){
-    /// UnLock Screen orientation
+
+    //#region UnLock Screen orientation
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    //#endregion
+
     super.dispose();
   }
 
@@ -128,7 +131,7 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
         setState(() {
           searchController.text = result;
         });
-      };
+      }
     }
   }
   //#endregion
@@ -155,7 +158,7 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
         setState(() {
           searchController.text = result;
         });
-      };
+      }
     }
   }
   //#endregion
@@ -197,23 +200,6 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
   }
   //#endregion
 
-  //#region Open Event Detail Edit Screen
-  openEventDetailEditScreen() async {
-    // Hide Keyboard
-    FocusScope.of(context).requestFocus(FocusNode());
-
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EventDetailEditPageScreen(
-            argEventObject: null,
-            argHebrewEventTimeLabel: null
-        ),
-      ),
-    );
-  }
-  //#endregion
-
   Future<void> openMenu() async {
     // Open Menu from Left side
     _scaffoldKey.currentState.openDrawer();
@@ -242,7 +228,6 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
             ),
           ),
 
-          // body: buildMainScaffoldBody(),
           body: Container(
             decoration: BoxDecoration(
                 image: DecorationImage(
@@ -268,8 +253,6 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
                           RotaryMainPageActionImageIcons(
                             searchController: searchController,
                             argExecuteSearchFunc: executeSearchByType,
-                            argOpenEventDetailFunc: openEventDetailEditScreen,
-                            argUserHasPermission: userHasPermission,
                             argPersonCardBackgroundColor: personCardBackgroundColor,
                             argEventsBackgroundColor: eventsBackgroundColor,
                           )
@@ -322,94 +305,6 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
           )
         );
       }
-    );
-  }
-
-  Widget buildImageIconWithTitle(String aTitle, IconData aIcon, Function aExecuteFunc, SearchTypeEnum aSearchType, Color aButtonColor) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-      child: Column(
-          textDirection: TextDirection.rtl,
-          children: <Widget>[
-            buildImageIcon(aIcon, aExecuteFunc, aSearchType, aButtonColor),
-            Padding(
-              padding: const EdgeInsets.only(top: 20.0),
-              child: buildTitle(aTitle),
-            ),
-          ]
-      ),
-    );
-  }
-
-  MaterialButton buildImageIcon(IconData aIcon, Function aExecuteFunc, SearchTypeEnum aSearchType, Color aButtonColor) {
-    return MaterialButton(
-      color: aButtonColor,
-      onPressed: () {
-        aExecuteFunc(searchController.text, aSearchType);
-      },
-      shape: CircleBorder(side: BorderSide(color: Colors.blue, width: 2.0)),
-      padding: EdgeInsets.all(10),
-      child: IconTheme(
-        data: IconThemeData(
-            color: Colors.blue[500]
-        ),
-        child: Icon(
-          aIcon,
-          size: 50,
-        ),
-      ),
-    );
-  }
-
-  Widget buildTitle(String aTitle) {
-    return Text(
-      aTitle,
-      style: TextStyle(
-          fontSize: 16.0,
-          height: 0.8,
-          color: Colors.blue,
-          fontWeight: FontWeight.bold
-      ),
-    );
-  }
-
-  Widget buildAddEventImageIconWithTitle(String aTitle, IconData aIcon, Function aFunc, Color aButtonColor) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 0.0, left: 10.0, right: 10.0),
-      child: Column(
-          textDirection: TextDirection.rtl,
-          children: <Widget>[
-            MaterialButton(
-              color: aButtonColor,
-              onPressed: () {
-                aFunc();
-              },
-              shape: CircleBorder(side: BorderSide(color: Colors.blue, width: 2.0)),
-              padding: EdgeInsets.all(10),
-              child: IconTheme(
-                data: IconThemeData(
-                    color: Colors.blue[500]
-                ),
-                child: Icon(
-                  aIcon,
-                  size: 50,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 20.0),
-              child: Text(
-                aTitle,
-                style: TextStyle(
-                    fontSize: 16.0,
-                    height: 0.8,
-                    color: Colors.blue,
-                    fontWeight: FontWeight.bold
-                ),
-              ),
-            ),
-          ]
-      ),
     );
   }
 

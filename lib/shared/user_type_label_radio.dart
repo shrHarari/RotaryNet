@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 
-class UserTypeLabeledRadio extends StatelessWidget {
-  const UserTypeLabeledRadio({
+class UserTypeLabelRadio extends StatelessWidget {
+  const UserTypeLabelRadio({
     this.label,
     this.padding,
     this.groupValue,

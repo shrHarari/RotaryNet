@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-import 'package:rotary_net/database/init_database_data.dart';
 import 'package:rotary_net/database/rotary_database_provider.dart';
 import 'package:rotary_net/objects/rotary_area_object.dart';
 import 'package:rotary_net/services/logger_service.dart';
@@ -26,55 +24,6 @@ class RotaryAreaService {
         areaId: aAreaId,
         areaName: aAreaName,
       );
-  }
-  //#endregion
-
-  //#region Initialize Rotary Area Table Data [INIT Area BY JSON DATA]
-  // ========================================================================
-  Future initializeRotaryAreaTableData() async {
-    try {
-
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-      if (GlobalsService.isDebugMode) {
-        String initializeRotaryAreaJsonForDebug = InitDataBaseData.createJsonRowsForRotaryArea();
-        // print('initializeEventsJsonForDebug: initializeEventsJsonForDebug');
-
-        //// Using JSON
-        var initializeRotaryAreaListForDebug = jsonDecode(initializeRotaryAreaJsonForDebug) as List;    // List of Users to display;
-        List<RotaryAreaObject> rotaryAreaObjListForDebug = initializeRotaryAreaListForDebug.map((areaJsonDebug) => RotaryAreaObject.fromJson(areaJsonDebug)).toList();
-        // print('eventObjListForDebug.length: ${eventObjListForDebug.length}');
-
-        rotaryAreaObjListForDebug.sort((a, b) => a.areaName.toLowerCase().compareTo(b.areaName.toLowerCase()));
-        return rotaryAreaObjListForDebug;
-      }
-      //***** for debug *****
-
-    }
-    catch (e) {
-      await LoggerService.log('<RotaryAreaService> Initialize RotaryArea Table Data >>> ERROR: ${e.toString()}');
-      developer.log(
-        'initializeRotaryAreaTableData',
-        name: 'RotaryAreaService',
-        error: 'Initialize RotaryArea Table Data >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-  //#endregion
-
-  //#region insert All Started RotaryArea To DB
-  Future insertAllStartedRotaryAreaToDb() async {
-    List<RotaryAreaObject> starterRotaryAreaList;
-    starterRotaryAreaList = await initializeRotaryAreaTableData();
-    print('starterRotaryAreaList.length: ${starterRotaryAreaList.length}');
-
-    starterRotaryAreaList.forEach((RotaryAreaObject rotaryAreaObj) async =>
-            await RotaryDataBaseProvider.rotaryDB.insertRotaryArea(rotaryAreaObj));
-
-    List<RotaryAreaObject> _rotaryAreaList = await RotaryDataBaseProvider.rotaryDB.getAllRotaryArea();
-    if (_rotaryAreaList.isNotEmpty)
-      print('>>>>>>>>>> _rotaryAreaList: ${_rotaryAreaList[1].areaName}');
   }
   //#endregion
 
@@ -181,8 +130,6 @@ class RotaryAreaService {
   //=============================================================================
   Future updateRotaryAreaByAreaIdToDataBase(RotaryAreaObject aRotaryAreaObj) async {
     try{
-      String jsonToPost = jsonEncode(aRotaryAreaObj);
-
       //***** for debug *****
       if (GlobalsService.isDebugMode) {
         var dbResult = await RotaryDataBaseProvider.rotaryDB.updateRotaryAreaByAreaId(aRotaryAreaObj);

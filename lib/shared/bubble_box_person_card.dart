@@ -33,21 +33,20 @@ class BubblesBoxPersonCard extends StatelessWidget {
                   BoxShadow(
                     blurRadius: 0.0,
                     offset: Offset(0, 0),
-                    color: bubbleColor,),
+                    color: bubbleColor
+                  ),
                 ],
-                gradient: isWithGradient ? LinearGradient(
-                    colors: [
-                      bubbleColor, Colors.blue[50]
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter
-                ) : LinearGradient(
-                    colors: [
-                      bubbleColor, bubbleColor
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter
-                ),
+                gradient: isWithGradient
+                    ? LinearGradient(
+                      colors: [bubbleColor, Colors.blue[50]],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter
+                    )
+                    : LinearGradient(
+                      colors: [bubbleColor, bubbleColor],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter
+                    ),
             ),
             child: Align(
               alignment: Alignment.centerRight,

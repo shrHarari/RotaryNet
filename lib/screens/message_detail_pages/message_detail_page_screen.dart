@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/connected_user_global.dart';
@@ -81,8 +80,8 @@ class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
   }
   //#endregion
 
-  //#region Get Message Rich Text
-  RichText getMessageRichText () {
+  //#region Display Message Rich Text
+  RichText displayMessageContentRichText () {
 
     return RichText(
       textDirection: TextDirection.rtl,
@@ -134,7 +133,7 @@ class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
     return Container(
       width: double.infinity,
       child: Column(
-        children: [
+        children: <Widget>[
           /// --------------- Title Area ---------------------
           Container(
             height: 160,
@@ -147,7 +146,7 @@ class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
+                    children: <Widget>[
                       Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -201,13 +200,6 @@ class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
                       ),
                     ],
                   ),
-
-                  if (allowUpdate)
-                    Positioned(
-                      left: 20.0,
-                      bottom: -25.0,
-                      child: buildEditMessageButton(openMessageDetailEditScreen)
-                    ),
                 ],
               ),
             ),
@@ -227,68 +219,81 @@ class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
   /// ====================== Message All Fields ==========================
   Widget buildMessageDetailDisplay(MessageWithDescriptionObject aMessageObj) {
     return Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        // mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          /// ---------------- Message Content ----------------------
-          Expanded(
-            flex: 3,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Container(
-                padding: const EdgeInsets.only(top: 50.0, left: 30.0, right: 30.0, bottom: 50.0),
-                child: Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        /// ---------------- Message Content ----------------------
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Container(
+              child: Column(
+                children: <Widget>[
+                  /// --------------- MessageWithDescriptionObj Details [Metadata]---------------------
+                  Stack(
+                    overflow: Overflow.visible,
                     children: <Widget>[
-                      getMessageRichText(),
+                      buildComposerDetailSection(aMessageObj),
+
+                      if (allowUpdate)
+                        Positioned(
+                          left: 20.0,
+                          bottom: -25.0,
+                          child: buildEditMessageCircleButton(openMessageDetailEditScreen)
+                        ),
                     ],
                   ),
-                ),
-              ),
-            ),
-          ),
 
-          /// --------------- Message Details [Metadata]---------------------
-          Flexible(
-            fit: FlexFit.loose,
-            child: Container(
-              // color: Colors.grey[200],
-              padding: const EdgeInsets.only(top: 20.0, left: 20.0, right: 10.0),
-
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                border: Border(
-                  top: BorderSide(
-                    color: Colors.amber,
-                    width: 2.0,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 30.0, left: 30.0, right: 30.0, bottom: 0.0),
+                    child: displayMessageContentRichText(),
                   ),
-                ),
-              ),
-
-              child: Directionality(
-                textDirection: TextDirection.rtl,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  textDirection: TextDirection.rtl,
-                  children: <Widget>[
-                    if (aMessageObj.composerFirstName != "") buildComposerDetailName(Icons.person, aMessageObj, openComposerPersonCardDetailScreen),
-                    if (aMessageObj.areaName != "") buildComposerDetailAreaClusterClub(Icons.location_on, aMessageObj, Utils.launchInMapByAddress),
-                  ],
-                ),
+                ],
               ),
             ),
           ),
-        ],
-      );
+        ),
+      ],
+    );
   }
 
+  //#region Composer Detail Section
+
+  //#region Build Composer Detail Section
+  Widget buildComposerDetailSection(MessageWithDescriptionObject aMessageWithDescriptionObj) {
+
+    return Container(
+      padding: const EdgeInsets.only(top: 20.0, left: 20.0, right: 10.0),
+
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.amber,
+            width: 2.0,
+          ),
+        ),
+      ),
+
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          textDirection: TextDirection.rtl,
+          children: <Widget>[
+            if (aMessageWithDescriptionObj.composerFirstName != "")
+              buildComposerDetailName(Icons.person, aMessageWithDescriptionObj, openComposerPersonCardDetailScreen),
+
+            if (aMessageWithDescriptionObj.areaName != "")
+              buildComposerDetailAreaClusterClub(Icons.location_on, aMessageWithDescriptionObj, Utils.launchInMapByAddress),
+          ],
+        ),
+      ),
+    );
+  }
+  //#endregion
+
+  //#region Build Composer Detail Name
   Widget buildComposerDetailName(IconData aIcon, MessageWithDescriptionObject aMessageObj, Function aFunc) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 5.0),
@@ -335,7 +340,9 @@ class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
       ),
     );
   }
+  //#endregion
 
+  //#region Build Composer Detail Area Cluster Club
   Widget buildComposerDetailAreaClusterClub(IconData aIcon, MessageWithDescriptionObject aMessageObj, Function aFunc) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
@@ -422,8 +429,12 @@ class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
       ),
     );
   }
+  //#endregion
 
-  Widget buildEditMessageButton(Function aFunc) {
+  //#endregion
+
+  //#region Build Edit Message Circle Button
+  Widget buildEditMessageCircleButton(Function aFunc) {
     return MaterialButton(
       elevation: 0.0,
       onPressed: () async {
@@ -443,4 +454,5 @@ class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
       ),
     );
   }
+  //#endregion
 }

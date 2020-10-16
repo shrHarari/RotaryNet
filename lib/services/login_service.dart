@@ -51,7 +51,7 @@ class LoginService {
       //***** for debug *****
 
       // Convert UserObject To Json
-      final jsonToPost = aConnectedUserObj.userToJson(aConnectedUserObj);
+      final jsonToPost = aConnectedUserObj.connectedUserToJson(aConnectedUserObj);
       // Check If User Login Parameters are OK !!!
       Response response = await post(Constants.rotaryUserLoginUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
 

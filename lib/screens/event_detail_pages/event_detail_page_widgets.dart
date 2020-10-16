@@ -37,7 +37,7 @@ class EventDetailWidgets {
               ),
             ),
             TextSpan(
-              text: ' בשעה: ',
+              text: '\nבשעה: ',
               style: TextStyle(
                   color: Colors.blue[700],
                   fontSize: 14.0),
@@ -65,7 +65,7 @@ class EventDetailWidgets {
               ),
             ),
             TextSpan(
-              text: ' בשעה: ',
+              text: '\nבשעה: ',
               style: TextStyle(
                   color: Colors.blue[700],
                   fontSize: 14.0),

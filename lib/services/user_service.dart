@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
-import 'package:rotary_net/database/init_database_data.dart';
 import 'package:rotary_net/database/rotary_database_provider.dart';
 import 'package:rotary_net/objects/user_object.dart';
+import 'package:rotary_net/services/connection_service.dart';
 import 'package:rotary_net/services/globals_service.dart';
 import 'package:rotary_net/services/logger_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
@@ -43,48 +43,34 @@ class UserService {
   }
   //#endregion
 
-  //#region Initialize Users Table Data [INIT USERS BY JSON DATA]
+  //#region Get All Users List From Server [GET]
   // =========================================================
-  Future initializeUsersTableData() async {
+  Future getAllUsersListFromServer() async {
     try {
 
       //***** for debug *****
       // When the Server side will be ready >>> remove that calling
       if (GlobalsService.isDebugMode) {
-        String initializeUsersJsonForDebug = InitDataBaseData.createJsonRowsForUsers();
+        List<UserObject> userObjListForDebug = await RotaryDataBaseProvider.rotaryDB.getAllUsers();
+        if (userObjListForDebug == null) {
+        } else {
+          userObjListForDebug.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
+        }
 
-        //// Using JSON
-        var initializeUsersListForDebug = jsonDecode(initializeUsersJsonForDebug) as List;    // List of Users to display;
-        List<UserObject> userObjListForDebug = initializeUsersListForDebug.map((userJsonDebug) => UserObject.fromJson(userJsonDebug)).toList();
-
-        userObjListForDebug.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
         return userObjListForDebug;
       }
       //***** for debug *****
+
     }
     catch (e) {
-      await LoggerService.log('<UserService> Initialize Users Table Data >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<UserService> Get Get All Users List From Server >>> ERROR: ${e.toString()}');
       developer.log(
-        'initializeUsersTableData',
+        'getAllUsersListFromServer',
         name: 'UserService',
         error: 'Users List >>> ERROR: ${e.toString()}',
       );
       return null;
     }
-  }
-  //#endregion
-
-  //#region insert All Started Users To DB
-  Future insertAllStartedUsersToDb() async {
-    List<UserObject> starterUsersList;
-    starterUsersList = await initializeUsersTableData();
-    // print('starterUsersList.length: ${starterUsersList.length}');
-
-    starterUsersList.forEach((UserObject userObj) async => await RotaryDataBaseProvider.rotaryDB.insertUser(userObj));
-
-    // List<UserObject> _usersList = await RotaryDataBaseProvider.rotaryDB.getAllUsers();
-    // if (_usersList.isNotEmpty)
-    //   print('>>>>>>>>>> usersList: ${_usersList[4].emailId}');
   }
   //#endregion
 
@@ -112,7 +98,7 @@ class UserService {
       //***** for debug *****
 
       /// UserListUrl: 'http://.......'
-      Response response = await get(Constants.rotaryGetUserListUrl);
+      Response response = await get(Constants.rotaryGetUsersUrl);
 
       if (response.statusCode <= 300) {
         Map<String, String> headers = response.headers;
@@ -145,18 +131,57 @@ class UserService {
   }
   //#endregion
 
+  //#region Get All Users List From DataBase [GET]
+  // =========================================================
+  Future getAllUsersListFromDataBase() async {
+    try {
+      Response response = await get(Constants.rotaryGetUsersUrl);
+
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+        print("GetAllUsersListFromMongoDb/ jsonResponse: $jsonResponse");
+        await LoggerService.log('<UserService> Get All Users List From DataBase >>> OK\nHeader: $contentType \nUserListFromJSON: $jsonResponse');
+
+        var userList = jsonDecode(jsonResponse) as List;    // List of PersonCard to display;
+        List<UserObject> userObjList = userList.map((userJson) => UserObject.fromJson(userJson)).toList();
+
+        // userObjList.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
+
+        return userObjList;
+      } else {
+        await LoggerService.log('<UserService> Get All Users List From DataBase >>> Failed: ${response.statusCode}');
+        print('<UserService> Get All Users List From DataBase >>> Failed: ${response.statusCode}');
+        return null;
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<UserService> Get User List From DataBase >>> ERROR: ${e.toString()}');
+      developer.log(
+        'getAllUsersListFromDataBase',
+        name: 'UserService',
+        error: 'Users List >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+  //#endregion
+
   //#region CRUD: Users
 
   //#region Insert User To DataBase [WriteToDB]
   //=============================================================================
   Future insertUserToDataBase(UserObject aUserObj) async {
     try{
+      var dbResult;
+
       //***** for debug *****
       if (GlobalsService.isDebugMode) {
-        var dbResult = await RotaryDataBaseProvider.rotaryDB.insertUser(aUserObj);
+        dbResult = await RotaryDataBaseProvider.rotaryDB.insertUser(aUserObj);
         return dbResult;
-        //***** for debug *****
       }
+      //***** for debug *****
     }
     catch (e) {
       await LoggerService.log('<UserService> Insert User To DataBase >>> ERROR: ${e.toString()}');

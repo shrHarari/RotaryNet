@@ -5,16 +5,12 @@ import 'package:rotary_net/shared/constants.dart';
 class RotaryMainPageActionImageIcons extends StatelessWidget {
   final TextEditingController searchController;
   final Function argExecuteSearchFunc;
-  final Function argOpenEventDetailFunc;
-  final bool argUserHasPermission;
   final Color argPersonCardBackgroundColor;
   final Color argEventsBackgroundColor;
 
   RotaryMainPageActionImageIcons({
     this.searchController,
     this.argExecuteSearchFunc,
-    this.argOpenEventDetailFunc,
-    this.argUserHasPermission,
     this.argPersonCardBackgroundColor,
     this.argEventsBackgroundColor,
   });
@@ -34,9 +30,6 @@ class RotaryMainPageActionImageIcons extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              // if (argUserHasPermission)
-              //   buildAddEventImageIconWithTitle('הוסף אירוע', Icons.plus_one, argOpenEventDetailFunc, Colors.white),
-
               buildImageIconWithTitle('אירועים', Icons.event, argExecuteSearchFunc, SearchTypeEnum.Event, argEventsBackgroundColor),
 
               buildImageIconWithTitle('כרטיס ביקור', Icons.person, argExecuteSearchFunc, SearchTypeEnum.PersonCard, argPersonCardBackgroundColor),
@@ -90,46 +83,6 @@ class RotaryMainPageActionImageIcons extends StatelessWidget {
           height: 0.8,
           color: Colors.blue,
           fontWeight: FontWeight.bold
-      ),
-    );
-  }
-
-  Widget buildAddEventImageIconWithTitle(String aTitle, IconData aIcon, Function aFunc, Color aButtonColor) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 0.0, left: 10.0, right: 10.0),
-      child: Column(
-          textDirection: TextDirection.rtl,
-          children: <Widget>[
-            MaterialButton(
-              color: aButtonColor,
-              onPressed: () {
-                aFunc();
-              },
-              shape: CircleBorder(side: BorderSide(color: Colors.blue, width: 2.0)),
-              padding: EdgeInsets.all(10),
-              child: IconTheme(
-                data: IconThemeData(
-                    color: Colors.blue[500]
-                ),
-                child: Icon(
-                  aIcon,
-                  size: 50,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 20.0),
-              child: Text(
-                aTitle,
-                style: TextStyle(
-                    fontSize: 16.0,
-                    height: 0.8,
-                    color: Colors.blue,
-                    fontWeight: FontWeight.bold
-                ),
-              ),
-            ),
-          ]
       ),
     );
   }

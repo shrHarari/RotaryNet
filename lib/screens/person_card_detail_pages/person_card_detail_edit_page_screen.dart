@@ -131,7 +131,6 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
 
     // Find the RoleObject Element in a RoleList By roleId ===>>> Set DropDown Initial Value
     int _initialListIndex;
-    RotaryRolesEnum _rotaryRolesEnum;
     if (widget.argPersonCardObject.roleId != null) {
       _initialListIndex = aRotaryRoleObjectsList.indexWhere((listElement) =>  listElement.roleId == widget.argPersonCardObject.roleId.value);
       selectedRotaryRoleObj = dropdownRotaryRoleItems[_initialListIndex].value;

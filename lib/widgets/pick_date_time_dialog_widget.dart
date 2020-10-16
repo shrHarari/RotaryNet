@@ -8,7 +8,9 @@ class PickDateTimeDialogWidget extends StatefulWidget {
   final DateTime argEndDateTime;
   final Map argDatesMapObj;
 
-  PickDateTimeDialogWidget({Key key, @required this.argStartDateTime, @required this.argEndDateTime,
+  PickDateTimeDialogWidget({Key key,
+    @required this.argStartDateTime,
+    @required this.argEndDateTime,
     this.argDatesMapObj});
 
   @override
@@ -24,6 +26,8 @@ class _PickDateTimeDialogWidgetState extends State<PickDateTimeDialogWidget> {
   String hebrewEndDate;
   String hebrewEndTime;
 
+  String errorMessage;
+
   @override
   void initState() {
     super.initState();
@@ -37,20 +41,27 @@ class _PickDateTimeDialogWidgetState extends State<PickDateTimeDialogWidget> {
     pickedEndDateTime = widget.argEndDateTime;
 
     hebrewStartDate = widget.argDatesMapObj["HebrewStartDate"];
-    hebrewEndDate = widget.argDatesMapObj["HebrewEndDate"];
     hebrewStartTime = widget.argDatesMapObj["HebrewStartTime"];
+    hebrewEndDate = widget.argDatesMapObj["HebrewEndDate"];
     hebrewEndTime = widget.argDatesMapObj["HebrewEndTime"];
   }
   //#endregion
 
   //#region Close Picker And Return EventDateTime Values Event
   Future closePickerEventAndReturnDateTimeValues() async {
-    /// Return multiple data using MAP
-    final returnDataDateTimeMap = {
-      "EventPickedStartDateTime": pickedStartDateTime,
-      "EventPickedEndDateTime": pickedEndDateTime,
-    };
-    Navigator.pop(context, returnDataDateTimeMap);
+    if (pickedStartDateTime.isAfter(pickedEndDateTime))
+    {
+      setState(() {
+        errorMessage = "טווח תאריכים לא חוקי";
+      });
+    } else {
+      /// Return multiple data using MAP
+      final returnDataDateTimeMap = {
+        "EventPickedStartDateTime": pickedStartDateTime,
+        "EventPickedEndDateTime": pickedEndDateTime,
+      };
+      Navigator.pop(context, returnDataDateTimeMap);
+    }
   }
   //#endregion
 
@@ -178,6 +189,12 @@ class _PickDateTimeDialogWidgetState extends State<PickDateTimeDialogWidget> {
                     ),
                   ),
 
+                  if (errorMessage != null)
+                    Text(
+                      errorMessage,
+                      style: TextStyle(color: Colors.red),
+                    ),
+
                   buildUpdateImageButton('אישור', closePickerEventAndReturnDateTimeValues, Icons.check_circle_outline),
                 ],
               ),
@@ -188,6 +205,7 @@ class _PickDateTimeDialogWidgetState extends State<PickDateTimeDialogWidget> {
     );
   }
 
+  //#region Pick StartDate
   pickStartDate() async {
     DateTime _dateTime = await showDatePicker(
       context: context,
@@ -196,16 +214,42 @@ class _PickDateTimeDialogWidgetState extends State<PickDateTimeDialogWidget> {
       initialDate: pickedStartDateTime,
     );
 
-    await SymbolData.initializeDateFormatting("he", null);
-    var formatterDateTime = Intl.DateFormat.yMMMMEEEEd('he');
-    String _hebrewDateTime = formatterDateTime.format(_dateTime);
-    if(_dateTime != null)
-      setState(() {
-        pickedStartDateTime = DateTime(_dateTime.year, _dateTime.month, _dateTime.day, pickedStartDateTime.hour, pickedStartDateTime.minute);
-        hebrewStartDate = _hebrewDateTime;
-      });
-  }
+    if (_dateTime != null){
+      await SymbolData.initializeDateFormatting("he", null);
+      var formatterDate = Intl.DateFormat.yMMMMEEEEd('he');
+      var formatterTime = Intl.DateFormat.Hm('he');
 
+      String _hebrewStartDate = formatterDate.format(_dateTime);
+      DateTime _newStartDateTime = DateTime(_dateTime.year, _dateTime.month, _dateTime.day, pickedStartDateTime.hour, pickedStartDateTime.minute);
+
+      if (_newStartDateTime.isAfter(pickedEndDateTime))
+      {
+        /// If the new [StartDateTime] Is After [EndDateTime] ===>>> Fix the [EndDateTime]
+        DateTime _newEndDateTime = _newStartDateTime.add(Duration(hours: 1));
+        String _hebrewEndDate = formatterDate.format(_newEndDateTime);
+        String _hebrewEndTime = formatterTime.format(_newEndDateTime);
+
+        setState(() {
+          errorMessage = null;
+          pickedStartDateTime = _newStartDateTime;
+          hebrewStartDate = _hebrewStartDate;
+
+          pickedEndDateTime = _newEndDateTime;
+          hebrewEndDate = _hebrewEndDate;
+          hebrewEndTime = _hebrewEndTime;
+        });
+      } else {
+        setState(() {
+          errorMessage = null;
+          pickedStartDateTime = _newStartDateTime;
+          hebrewStartDate = _hebrewStartDate;
+        });
+      }
+    }
+  }
+  //#endregion
+
+  //#region Pick EndDate
   pickEndDate() async {
     DateTime _dateTime = await showDatePicker(
       context: context,
@@ -214,16 +258,23 @@ class _PickDateTimeDialogWidgetState extends State<PickDateTimeDialogWidget> {
       initialDate: pickedEndDateTime,
     );
 
-    await SymbolData.initializeDateFormatting("he", null);
-    var formatterDateTime = Intl.DateFormat.yMMMMEEEEd('he');
-    String _hebrewDateTime = formatterDateTime.format(_dateTime);
-    if(_dateTime != null)
-      setState(() {
-        pickedEndDateTime = DateTime(_dateTime.year, _dateTime.month, _dateTime.day, pickedEndDateTime.hour, pickedEndDateTime.minute);
-        hebrewEndDate = _hebrewDateTime;
-      });
-  }
+    if (_dateTime != null) {
+      await SymbolData.initializeDateFormatting("he", null);
+      var formatterDate = Intl.DateFormat.yMMMMEEEEd('he');
 
+      String _hebrewEndDate = formatterDate.format(_dateTime);
+      DateTime _newEndDateTime = DateTime(_dateTime.year, _dateTime.month, _dateTime.day, pickedEndDateTime.hour, pickedEndDateTime.minute);
+
+      setState(() {
+        errorMessage = null;
+        pickedEndDateTime = _newEndDateTime;
+        hebrewEndDate = _hebrewEndDate;
+      });
+    }
+  }
+  //#endregion
+
+  //#region Pick StartTime
   pickStartTime() async {
     TimeOfDay _currentStartTime = TimeOfDay.fromDateTime(pickedStartDateTime);
     TimeOfDay _time = await showTimePicker(
@@ -231,18 +282,40 @@ class _PickDateTimeDialogWidgetState extends State<PickDateTimeDialogWidget> {
         initialTime: _currentStartTime
     );
 
-    DateTime _dateTime = DateTime(pickedStartDateTime.year, pickedStartDateTime.month, pickedStartDateTime.day, _time.hour, _time.minute);
-    await SymbolData.initializeDateFormatting("he", null);
-    var formatterStartTime = Intl.DateFormat.Hm('he');
-    String _hebrewStartTime = formatterStartTime.format(_dateTime);
+    if (_time != null) {
+      await SymbolData.initializeDateFormatting("he", null);
+      var formatterTime = Intl.DateFormat.Hm('he');
 
-    if(_time != null)
-      setState(() {
-        pickedStartDateTime = _dateTime;
-        hebrewStartTime = _hebrewStartTime;
-      });
+      DateTime _newStartDateTime = DateTime(
+          pickedStartDateTime.year, pickedStartDateTime.month,
+          pickedStartDateTime.day, _time.hour, _time.minute);
+      String _hebrewStartTime = formatterTime.format(_newStartDateTime);
+
+      if (_newStartDateTime.isAfter(pickedEndDateTime)) {
+        /// If the new [StartTime] Is After [EndTime] ===>>> Fix the [EndTime]
+        DateTime _newEndDateTime = _newStartDateTime.add(Duration(hours: 1));
+        String _hebrewEndTime = formatterTime.format(_newEndDateTime);
+
+        setState(() {
+          errorMessage = null;
+          pickedStartDateTime = _newStartDateTime;
+          hebrewStartTime = _hebrewStartTime;
+
+          pickedEndDateTime = _newEndDateTime;
+          hebrewEndTime = _hebrewEndTime;
+        });
+      } else {
+        setState(() {
+          errorMessage = null;
+          pickedStartDateTime = _newStartDateTime;
+          hebrewStartTime = _hebrewStartTime;
+        });
+      }
+    }
   }
+  //#endregion
 
+  //#region Pick EndTime
   pickEndTime() async {
     TimeOfDay _currentEndTime = TimeOfDay.fromDateTime(pickedEndDateTime);
     TimeOfDay _time = await showTimePicker(
@@ -250,18 +323,23 @@ class _PickDateTimeDialogWidgetState extends State<PickDateTimeDialogWidget> {
         initialTime: _currentEndTime
     );
 
-    DateTime _dateTime = DateTime(pickedEndDateTime.year, pickedEndDateTime.month, pickedEndDateTime.day, _time.hour, _time.minute);
-    await SymbolData.initializeDateFormatting("he", null);
-    var formatterStartTime = Intl.DateFormat.Hm('he');
-    String _hebrewEndTime = formatterStartTime.format(_dateTime);
+    if (_time != null)
+    {
+      DateTime _newEndDateTime = DateTime(pickedEndDateTime.year, pickedEndDateTime.month, pickedEndDateTime.day, _time.hour, _time.minute);
+      await SymbolData.initializeDateFormatting("he", null);
+      var formatterTime = Intl.DateFormat.Hm('he');
+      String _hebrewEndTime = formatterTime.format(_newEndDateTime);
 
-    if(_time != null)
       setState(() {
-        pickedEndDateTime = _dateTime;
+        errorMessage = null;
+        pickedEndDateTime = _newEndDateTime;
         hebrewEndTime = _hebrewEndTime;
       });
+    }
   }
+  //#endregion
 
+  //#region Build Update ImageButton
   Widget buildUpdateImageButton(String buttonText, Function aFunc, IconData aIcon) {
     return Padding(
       padding: const EdgeInsets.only(top: 10.0),
@@ -285,4 +363,5 @@ class _PickDateTimeDialogWidgetState extends State<PickDateTimeDialogWidget> {
       ),
     );
   }
+  //#endregion
 }

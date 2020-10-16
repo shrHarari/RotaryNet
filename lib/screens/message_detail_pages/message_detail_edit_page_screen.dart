@@ -3,7 +3,6 @@ import 'package:rotary_net/BLoCs/bloc_provider.dart';
 import 'package:rotary_net/BLoCs/messages_list_bloc.dart';
 import 'package:rotary_net/objects/connected_user_global.dart';
 import 'package:rotary_net/objects/connected_user_object.dart';
-import 'package:rotary_net/objects/message_object.dart';
 import 'package:rotary_net/objects/message_with_description_object.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
 import 'package:rotary_net/objects/person_card_with_description_object.dart';
@@ -121,18 +120,9 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
 
       String _messageText = (messageController.text != null) ? (messageController.text) : '';
 
-      MessageObject _newMessageObj;
       MessageWithDescriptionObject _newMessageWithDescriptionObj;
 
       if (isMessageExist) {
-        /// Message Exists --->>> Update
-        _newMessageObj = messageService.createMessageAsObject(
-            widget.argMessageWithDescriptionObject.messageGuidId,
-            widget.argMessageWithDescriptionObject.composerGuidId,
-            _messageText,
-            widget.argMessageWithDescriptionObject.messageCreatedDateTime
-        );
-
         _newMessageWithDescriptionObj = messageService.createMessageWithDescriptionAsObject(
             widget.argMessageWithDescriptionObject.messageGuidId,
             widget.argMessageWithDescriptionObject.composerGuidId,
@@ -154,25 +144,16 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
             widget.argMessageWithDescriptionObject.clubManagerGuidId
         );
 
-        MessageObject _oldMessageObject = await MessageObject.getMessageObjectFromMessageWithDescriptionObject(
-            widget.argMessageWithDescriptionObject);
-
         await aMessageBloc.updateMessage(
-            _oldMessageObject,
-            _newMessageObj,
             widget.argMessageWithDescriptionObject,
             _newMessageWithDescriptionObj);
       }
       else {
         /// Message NOT Exists --->>> Insert
+        /// Using personCardWithDescriptionObject ===>>> Because there is no Current Message (Insert State)
         String _messageGuidId = await Utils.createGuidUserId();
         DateTime _messageCreatedDateTime = DateTime.now();
-        _newMessageObj = messageService.createMessageAsObject(
-            _messageGuidId,
-            currentDataRequired.personCardWithDescriptionObject.personCardGuidId,
-            _messageText,
-            _messageCreatedDateTime,
-        );
+
         _newMessageWithDescriptionObj = messageService.createMessageWithDescriptionAsObject(
             _messageGuidId,
             currentDataRequired.personCardWithDescriptionObject.personCardGuidId,
@@ -194,10 +175,9 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
             currentDataRequired.personCardWithDescriptionObject.clubManagerGuidId
         );
 
-        var dbResult = await aMessageBloc.insertMessage(_newMessageObj, _newMessageWithDescriptionObj);
+        await aMessageBloc.insertMessage(_newMessageWithDescriptionObj);
       }
 
-      // Hide Keyboard
       FocusScope.of(context).requestFocus(FocusNode());
       Navigator.pop(context, _newMessageWithDescriptionObj);
     }
@@ -347,7 +327,6 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
   Widget buildMessageDetailDisplay(PersonCardWithDescriptionObject aPersonCardWithDescriptionObj) {
     return Column(
       children: <Widget>[
-
         /// ---------------- Message Content ----------------------
         Expanded(
           child: SingleChildScrollView(
@@ -359,7 +338,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
                   buildComposerDetailSection(aPersonCardWithDescriptionObj),
 
                   Padding(
-                    padding: const EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0, bottom: 0.0),
+                    padding: const EdgeInsets.only(top: 30.0, left: 30.0, right: 30.0, bottom: 0.0),
                     child: Form(
                       key: formKey,
                       child: Column(
@@ -379,7 +358,10 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
           ),
         ),
 
-        buildUpdateButtonRectangleWithIcon("עדכן", updateMessage, Icons.update),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 20.0),
+          child: buildUpdateButtonRectangleWithIcon("עדכן", updateMessage, Icons.update),
+        ),
 
         /// ---------------------- Display Error -----------------------
         if (error.length > 0)
@@ -422,6 +404,8 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
   }
   //#endregion
 
+  //#region Composer Detail Section
+
   //#region Build Composer Detail Section
   Widget buildComposerDetailSection(PersonCardWithDescriptionObject aPersonCardWithDescriptionObj) {
 
@@ -457,6 +441,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
       ),
     );
   }
+  //#endregion
 
   //#region Build Composer Detail Name
   Widget buildComposerDetailName(IconData aIcon, PersonCardWithDescriptionObject aPersonCardWithDescriptionObj, Function aFunc) {
@@ -604,13 +589,13 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
 
     final messagesBloc = BlocProvider.of<MessagesListBloc>(context);
 
-    return StreamBuilder<List<MessageObject>>(
-      stream: messagesBloc.messagesStream,
-      initialData: messagesBloc.messagesList,
+    return StreamBuilder<List<MessageWithDescriptionObject>>(
+      stream: messagesBloc.messagesWithDescriptionStream,
+      initialData: messagesBloc.messagesListWithDescription,
       builder: (context, snapshot) {
-        List<MessageObject> currentMessagesList =
+        List<MessageWithDescriptionObject> currentMessagesList =
         (snapshot.connectionState == ConnectionState.waiting)
-            ? messagesBloc.messagesList
+            ? messagesBloc.messagesListWithDescription
             : snapshot.data;
 
         return MaterialButton(
@@ -641,13 +626,13 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
 
     final messagesBloc = BlocProvider.of<MessagesListBloc>(context);
 
-    return StreamBuilder<List<MessageObject>>(
-        stream: messagesBloc.messagesStream,
-        initialData: messagesBloc.messagesList,
+    return StreamBuilder<List<MessageWithDescriptionObject>>(
+        stream: messagesBloc.messagesWithDescriptionStream,
+        initialData: messagesBloc.messagesListWithDescription,
         builder: (context, snapshot) {
-          List<MessageObject> currentMessagesList =
+          List<MessageWithDescriptionObject> currentMessagesList =
           (snapshot.connectionState == ConnectionState.waiting)
-              ? messagesBloc.messagesList
+              ? messagesBloc.messagesListWithDescription
               : snapshot.data;
 
           return RaisedButton.icon(

@@ -118,7 +118,7 @@ class EventSearchResultPageListTile extends StatelessWidget {
       stream: bloc.eventsStream,
       initialData: bloc.eventsList,
       builder: (context, snapshot) {
-        List<EventObject> users =
+        List<EventObject> currentUsersList =
         (snapshot.connectionState == ConnectionState.waiting)
             ? bloc.eventsList
             : snapshot.data;

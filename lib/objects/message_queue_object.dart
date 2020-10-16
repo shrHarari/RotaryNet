@@ -37,15 +37,8 @@ class MessageQueueObject {
         ' ${this.messageGuidId},'
         ' ${this.personCardGuidId},'
         ' ${this.messageReadStatus},'
-      '}';
+      ' }';
   }
-
-  // /// Used for jsonDecode Function
-  // Map toJson() => {
-  //   'messageGuidId': messageGuidId,
-  //   'personCardGuidId': personCardGuidId,
-  //   'messageReadStatus': messageReadStatus,
-  // };
 
   factory MessageQueueObject.fromJson(Map<String, dynamic> parsedJson){
 

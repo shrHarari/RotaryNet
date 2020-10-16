@@ -36,6 +36,20 @@ class EventObject {
   }
   //#endregion
 
+  @override
+  String toString() {
+    return '{'
+        ' ${this.eventGuidId},'
+        ' ${this.eventName},'
+        ' ${this.eventPictureUrl},'
+        ' ${this.eventDescription},'
+        ' ${this.eventStartDateTime},'
+        ' ${this.eventEndDateTime},'
+        ' ${this.eventLocation},'
+        ' ${this.eventManager},'
+        ' }';
+  }
+
   factory EventObject.fromJson(Map<String, dynamic> parsedJson){
     return EventObject(
         eventGuidId: parsedJson['eventGuidId'],
@@ -48,31 +62,6 @@ class EventObject {
         eventManager : parsedJson['eventManager']
     );
   }
-
-  @override
-  String toString() {
-    return '{'
-        ' ${this.eventGuidId},'
-        ' ${this.eventName},'
-        ' ${this.eventPictureUrl},'
-        ' ${this.eventDescription},'
-        ' ${this.eventStartDateTime},'
-        ' ${this.eventEndDateTime},'
-        ' ${this.eventLocation},'
-        ' ${this.eventManager},'
-    ' }';
-  }
-
-  // Map toJson() => {
-  //   'eventGuidId': eventGuidId,
-  //   'eventName': eventName,
-  //   'eventPictureUrl': eventPictureUrl,
-  //   'eventDescription': eventDescription,
-  //   'eventStartDateTime': eventStartDateTime.toString(),
-  //   'eventEndDateTime': eventEndDateTime.toString(),
-  //   'eventLocation': eventLocation,
-  //   'eventManager': eventManager,
-  // };
 
   /// DataBase: Madel for Event
   ///----------------------------------------------------

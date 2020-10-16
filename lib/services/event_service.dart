@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
-import 'package:rotary_net/database/init_database_data.dart';
 import 'package:rotary_net/database/rotary_database_provider.dart';
 import 'package:rotary_net/objects/event_object.dart';
 import 'package:rotary_net/services/logger_service.dart';
@@ -49,55 +48,6 @@ class EventService {
   }
   //#endregion
 
-  //#region Initialize Events Table Data [INIT Events BY JSON DATA]
-  // ========================================================================
-  Future initializeEventsTableData() async {
-    try {
-
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-      if (GlobalsService.isDebugMode) {
-        String initializeEventsJsonForDebug = InitDataBaseData.createJsonRowsForEvents();
-        // print('initializeEventsJsonForDebug: initializeEventsJsonForDebug');
-
-        //// Using JSON
-        var initializeEventsListForDebug = jsonDecode(initializeEventsJsonForDebug) as List;    // List of Users to display;
-        List<EventObject> eventObjListForDebug = initializeEventsListForDebug.map((eventJsonDebug) => EventObject.fromJson(eventJsonDebug)).toList();
-        // print('eventObjListForDebug.length: ${eventObjListForDebug.length}');
-
-        eventObjListForDebug.sort((a, b) => a.eventName.toLowerCase().compareTo(b.eventName.toLowerCase()));
-        return eventObjListForDebug;
-      }
-      //***** for debug *****
-
-    }
-    catch (e) {
-      await LoggerService.log('<EventService> Get Events List From Server >>> ERROR: ${e.toString()}');
-      developer.log(
-        'initializeEventsTableData',
-        name: 'EventService',
-        error: 'Events List >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-  //#endregion
-
-  //#region insert All Started Events To DB
-  Future insertAllStartedEventsToDb() async {
-    List<EventObject> starterEventsList;
-    starterEventsList = await initializeEventsTableData();
-    // print('starterEventsList.length: ${starterEventsList.length}');
-
-    starterEventsList.forEach((EventObject eventObj) async => await RotaryDataBaseProvider.rotaryDB.insertEvent(eventObj));
-    // starterEventsList.forEach((EventObject eventObj) => insertRawEvent(eventObj));
-
-    // List<EventObject> eventsList = await RotaryDataBaseProvider.rotaryDB.getAllEvents();
-    // if (eventsList.isNotEmpty)
-    // print('>>>>>>>>>> eventsList: ${eventsList[0].eventName}');
-  }
-  //#endregion
-
   //#region Get Events List By Search Query From Server [GET]
   // =========================================================
   Future getEventsListBySearchQueryFromServer(String aValueToSearch) async {
@@ -114,7 +64,7 @@ class EventService {
         List<EventObject> eventObjListForDebug = await RotaryDataBaseProvider.rotaryDB.getEventsListBySearchQuery(aValueToSearch);
         if (eventObjListForDebug == null) {
         } else {
-          eventObjListForDebug.sort((a, b) => a.eventName.toLowerCase().compareTo(b.eventName.toLowerCase()));
+          eventObjListForDebug.sort((b, a) => a.eventStartDateTime.compareTo(b.eventStartDateTime));
         }
 
         return eventObjListForDebug;
@@ -187,8 +137,6 @@ class EventService {
   //=============================================================================
   Future updateEventByEventGuidIdToDataBase(EventObject aEventObj) async {
     try{
-      String jsonToPost = jsonEncode(aEventObj);
-
       //***** for debug *****
       if (GlobalsService.isDebugMode) {
         var dbResult = await RotaryDataBaseProvider.rotaryDB.updateEventByEventGuidId(aEventObj);

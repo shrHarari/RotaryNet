@@ -141,7 +141,12 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
         await aEventBloc.insertEvent(_newEventObj);
       }
 
-      Navigator.pop(context, _newEventObj);
+      /// Return multiple data using MAP
+      final returnDataDateTimeMap = {
+        "EventObject": _newEventObj,
+        "HebrewEventTimeLabel": currentHebrewEventTimeLabel,
+      };
+      Navigator.pop(context, returnDataDateTimeMap);
     }
   }
   //#endregion
@@ -149,19 +154,26 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
   //#region Pick DateTime Dialog
   Future<void> openDateTimePickerDialog(BuildContext context) async {
 
-    if (selectedPickStartDateTime == null) selectedPickStartDateTime = DateTime.now();
-    if (selectedPickEndDateTime == null) selectedPickEndDateTime = DateTime.now();
+    if (selectedPickStartDateTime == null) {
+      DateTime dtNow = DateTime.now();
+      selectedPickStartDateTime = DateTime(dtNow.year, dtNow.month, dtNow.day, dtNow.hour+1, 0, 0);
+      selectedPickEndDateTime = selectedPickStartDateTime.add(Duration(hours: 1));
+    } else {
+      if (selectedPickEndDateTime == null) {
+        selectedPickEndDateTime = selectedPickStartDateTime.add(Duration(hours: 1));
+      }
+    }
 
     Map datesMapObj = await HebrewFormatSyntax.getHebrewStartEndDateTimeLabels(selectedPickStartDateTime, selectedPickEndDateTime);
 
     final returnDataMapFromPicker = await showDialog(
-      context: context,
-      builder: (context) {
-        return PickDateTimeDialogWidget(
-          argStartDateTime: selectedPickStartDateTime,
-          argEndDateTime: selectedPickEndDateTime,
-          argDatesMapObj: datesMapObj);
-      }
+        context: context,
+        builder: (context) {
+          return PickDateTimeDialogWidget(
+              argStartDateTime: selectedPickStartDateTime,
+              argEndDateTime: selectedPickEndDateTime,
+              argDatesMapObj: datesMapObj);
+        }
     );
 
     if (returnDataMapFromPicker != null) {

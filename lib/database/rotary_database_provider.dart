@@ -26,11 +26,10 @@ class RotaryDataBaseProvider {
   //#region Create Rotary DB
   Future<Database> get database async {
     if (_database != null)
-      {
-        // print ('>>>>>>>>>> Database Exists  !!!!!!!!!');
-        return _database;
-      }
-
+    {
+      return _database;
+    }
+    
     // if _database is null we instantiate it
     _database = await createRotaryDB();
     return _database;
@@ -39,20 +38,21 @@ class RotaryDataBaseProvider {
   createRotaryDB() async {
     String dbDirectory = await getDatabasesPath();
     String dbPath = join(dbDirectory, "Rotary.db");
+
     final Future<Database> database = openDatabase(dbPath,
         onOpen: (db) {
-          // print('>>>  <RotaryDataBaseProvider> Rotary Database was Opened !!!');
+          print('>>>  <RotaryDataBaseProvider> Rotary Database was Opened !!!');
         },
         onCreate: (Database db, int version) async {
+          await db.execute(CreateDbTablesSyntax.createRotaryRoleTable());
+          await db.execute(CreateDbTablesSyntax.createRotaryAreaTable());
+          await db.execute(CreateDbTablesSyntax.createRotaryClusterTable());
+          await db.execute(CreateDbTablesSyntax.createRotaryClubTable());
           await db.execute(CreateDbTablesSyntax.createUsersTable());
           await db.execute(CreateDbTablesSyntax.createPersonCardsTable());
           await db.execute(CreateDbTablesSyntax.createEventsTable());
           await db.execute(CreateDbTablesSyntax.createMessagesTable());
           await db.execute(CreateDbTablesSyntax.createMessageQueueTable());
-          await db.execute(CreateDbTablesSyntax.createRotaryRoleTable());
-          await db.execute(CreateDbTablesSyntax.createRotaryAreaTable());
-          await db.execute(CreateDbTablesSyntax.createRotaryClusterTable());
-          await db.execute(CreateDbTablesSyntax.createRotaryClubTable());
 
           print('+++ <RotaryDataBaseProvider> Rotary Database was Created');
         },
@@ -67,14 +67,12 @@ class RotaryDataBaseProvider {
     String dbDirectory = await getDatabasesPath();
     String dbPath = join(dbDirectory, "Rotary.db");
 
-    // await deleteAllUsers();
-    // await deleteAllPersonCards();
-
     if (await databaseExists(dbPath))
-      {
-        await deleteDatabase(dbPath);
-        print('+++ <RotaryDataBaseProvider> Rotary Database was Deleted');
-      }
+    {
+      await deleteDatabase(dbPath);
+      _database = null;
+      print('+++ <RotaryDataBaseProvider> Rotary Database was Deleted');
+    }
   }
   //#endregion
 
@@ -1221,7 +1219,7 @@ class RotaryDataBaseProvider {
     final db = await database;
     db.rawDelete('Delete * from RotaryCluster');
   }
-//#endregion
+  //#endregion
 
   //#endregion
 

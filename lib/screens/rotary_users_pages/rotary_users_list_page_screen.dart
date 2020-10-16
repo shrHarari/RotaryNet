@@ -26,6 +26,13 @@ class _RotaryUsersListPageScreenState extends State<RotaryUsersListPageScreen> {
     super.initState();
   }
 
+  String currentSearchText = "";
+  setSearchText(String aSearchText) {
+    setState(() {
+      currentSearchText = aSearchText;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -63,6 +70,7 @@ class _RotaryUsersListPageScreenState extends State<RotaryUsersListPageScreen> {
                         minExtent: 100.0,
                         maxExtent: 100.0,
                         usersBloc: usersBloc,
+                        argSearchTextFunction: setSearchText,
                       ),
                     ),
 
@@ -87,6 +95,7 @@ class _RotaryUsersListPageScreenState extends State<RotaryUsersListPageScreen> {
                         {
                           return RotaryUsersListPageTile(
                             argUserObj: currentUsersList[index],
+                            argSearchText: currentSearchText,
                           );
                         },
                         childCount: currentUsersList.length,

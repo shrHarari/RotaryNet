@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 class BubblesBoxRotaryMessage extends StatelessWidget {
   final Widget argContent;
+  final Alignment argContentAlignment;
   final Color argBubbleBackgroundColor;
   final Color argBubbleBorderColor;
   final bool displayPin;
 
   const BubblesBoxRotaryMessage({Key key,
     @required this.argContent,
+    this.argContentAlignment = Alignment.center,
     @required this.argBubbleBackgroundColor,
     @required this.argBubbleBorderColor,
     this.displayPin = true});
@@ -40,6 +42,7 @@ class BubblesBoxRotaryMessage extends StatelessWidget {
         ),
 
         Container(
+          alignment: argContentAlignment,
           margin: const EdgeInsets.all(2.0),
           child: argContent,
         ),

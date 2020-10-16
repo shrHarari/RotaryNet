@@ -47,6 +47,21 @@ class UserObject {
     userType = aUserType;
   }
 
+  /// Convert JsonStringStructure to String
+  @override
+  String toString() {
+    return
+      '{'
+        ' ${this.userGuidId},'
+        ' ${this.email},'
+        ' ${this.firstName},'
+        ' ${this.lastName},'
+        ' ${this.password},'
+        ' ${this.userType},'
+        ' ${this.stayConnected},'
+      '}';
+  }
+
   factory UserObject.fromJson(Map<String, dynamic> parsedJson){
     /// Deserialize the parsedJson string to UserObject
     // UserType: Convert [String] to [Enum]
@@ -67,32 +82,6 @@ class UserObject {
         stayConnected : _stayConnected
     );
   }
-
-  /// Convert JsonStringStructure to String
-  @override
-  String toString() {
-    return
-      '{'
-        ' ${this.userGuidId},'
-        ' ${this.email},'
-        ' ${this.firstName},'
-        ' ${this.lastName},'
-        ' ${this.password},'
-        ' ${this.userType},'
-        ' ${this.stayConnected},'
-      '}';
-  }
-
-  // /// Used for jsonDecode Function
-  // Map toJson() => {
-  //   'userGuidId': userGuidId,
-  //   'email': email,
-  //   'firstName': firstName,
-  //   'lastName': lastName,
-  //   'password': password,
-  //   'userType': userType,
-  //   'stayConnected': stayConnected,
-  // };
 
   /// DataBase: Madel for User
   ///----------------------------------------------------

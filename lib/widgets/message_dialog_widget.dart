@@ -1,12 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+//#region OBJECT TYPE: Message Dialog Action Object
 class MessageDialogActionObject {
   final String title;
   final VoidCallback onPressed;
 
   MessageDialogActionObject({this.title, this.onPressed});
 }
+//#endregion
 
 class MessageDialogWidget extends StatefulWidget {
   final Widget argDialogTitle;
@@ -22,20 +24,7 @@ class _MessageDialogWidgetState extends State<MessageDialogWidget> {
   @override
   void initState() {
     super.initState();
-    setEventVariables();
   }
-
-  //#region Set event Variables
-  Future<void> setEventVariables() async {
-
-  }
-  //#endregion
-
-  //#region Close Message Dialog And Return Value
-  Future closeMessageDialogAndReturnValue() async {
-    Navigator.pop(context, true);
-  }
-  //#endregion
 
   @override
   Widget build(BuildContext context){
@@ -80,6 +69,7 @@ class _MessageDialogWidgetState extends State<MessageDialogWidget> {
     );
   }
 
+  //#region Build Action Buttons
   Widget buildActionButtons() {
 
     return Row(
@@ -102,5 +92,6 @@ class _MessageDialogWidgetState extends State<MessageDialogWidget> {
       ),
     );
   }
+  //#endregion
 }
 
