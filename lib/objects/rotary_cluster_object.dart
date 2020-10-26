@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 class RotaryClusterObject {
-  final int areaId;
-  final int clusterId;
+  final String areaId;
+  final String clusterId;
   final String clusterName;
 
   RotaryClusterObject({
@@ -15,7 +15,7 @@ class RotaryClusterObject {
   String toString() {
     return
       '{'
-        ' ${this.areaId},'
+        // ' ${this.areaId},'
         ' ${this.clusterId},'
         ' ${this.clusterName},'
       '}';
@@ -23,8 +23,8 @@ class RotaryClusterObject {
 
   factory RotaryClusterObject.fromJson(Map<String, dynamic> parsedJson){
     return RotaryClusterObject(
-      areaId: parsedJson['areaId'],
-      clusterId: parsedJson['clusterId'],
+      // areaId: parsedJson['areaId'],
+      clusterId: parsedJson['_id'],
       clusterName: parsedJson['clusterName'],
     );
   }
@@ -43,17 +43,25 @@ class RotaryClusterObject {
 
   factory RotaryClusterObject.fromMap(Map<String, dynamic> jsonFromMap) {
     return RotaryClusterObject(
-      areaId: jsonFromMap['areaId'],
-      clusterId: jsonFromMap['clusterId'],
+      // areaId: jsonFromMap['areaId'],
+      // clusterId: jsonFromMap['_id'],
       clusterName: jsonFromMap['clusterName'],
     );
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'areaId': areaId,
-      'clusterId': clusterId,
-      'clusterName': clusterName,
-    };
+    if (clusterId == null) {
+      return {
+        // 'areaId': areaId,
+        // '_id': clusterId,
+        'clusterName': clusterName,
+      };
+    } else {
+      return {
+        // 'areaId': areaId,
+        '_id': clusterId,
+        'clusterName': clusterName,
+      };
+    }
   }
 }

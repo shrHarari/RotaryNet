@@ -11,9 +11,16 @@ import 'package:rotary_net/objects/rotary_club_object.dart';
 import 'package:rotary_net/objects/rotary_cluster_object.dart';
 import 'package:rotary_net/objects/rotary_role_object.dart';
 import 'package:rotary_net/objects/user_object.dart';
-import 'package:rotary_net/services/globals_service.dart';
+import 'package:rotary_net/services/event_service.dart';
 import 'package:rotary_net/services/logger_service.dart';
+import 'package:rotary_net/services/person_card_service.dart';
+import 'package:rotary_net/services/rotary_area_service.dart';
+import 'package:rotary_net/services/rotary_club_service.dart';
+import 'package:rotary_net/services/rotary_cluster_service.dart';
+import 'package:rotary_net/services/rotary_role_service.dart';
 import 'dart:developer' as developer;
+
+import 'package:rotary_net/services/user_service.dart';
 
 class InitDatabaseService {
 
@@ -21,20 +28,13 @@ class InitDatabaseService {
   // =========================================================
   Future initializeUsersTableData() async {
     try {
+      String initializeUsersJsonForDebug = InitDataBaseData.createJsonRowsForUsers();
 
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-      if (GlobalsService.isDebugMode) {
-        String initializeUsersJsonForDebug = InitDataBaseData.createJsonRowsForUsers();
+      var initializeUsersListForDebug = jsonDecode(initializeUsersJsonForDebug) as List;
+      List<UserObject> userObjListForDebug = initializeUsersListForDebug.map((userJsonDebug) => UserObject.fromJson(userJsonDebug)).toList();
 
-        //// Using JSON
-        var initializeUsersListForDebug = jsonDecode(initializeUsersJsonForDebug) as List;    // List of Users to display;
-        List<UserObject> userObjListForDebug = initializeUsersListForDebug.map((userJsonDebug) => UserObject.fromJson(userJsonDebug)).toList();
-
-        userObjListForDebug.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
-        return userObjListForDebug;
-      }
-      //***** for debug *****
+      userObjListForDebug.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
+      return userObjListForDebug;
     }
     catch (e) {
       await LoggerService.log('<InitDatabaseService> Initialize Users Table Data >>> ERROR: ${e.toString()}');
@@ -52,37 +52,25 @@ class InitDatabaseService {
   Future insertAllStartedUsersToDb() async {
     List<UserObject> starterUsersList;
     starterUsersList = await initializeUsersTableData();
-    // print('starterUsersList.length: ${starterUsersList.length}');
 
-    starterUsersList.forEach((UserObject userObj) async => await RotaryDataBaseProvider.rotaryDB.insertUser(userObj));
-
-    // List<UserObject> _usersList = await RotaryDataBaseProvider.rotaryDB.getAllUsers();
-    // if (_usersList.isNotEmpty)
-    //   print('>>>>>>>>>> usersList: ${_usersList[4].emailId}');
+    UserService userService = UserService();
+    starterUsersList.forEach((UserObject userObj) async => await userService.insertUser(userObj));
   }
   //#endregion
 
   //#region Initialize PersonCards Table Data [INIT PersonCard BY JSON DATA]
   // ========================================================================
-  Future initializePersonCardsTableData() async {
+  Future<List<PersonCardObject>> initializePersonCardsTableData() async {
     try {
-
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-      if (GlobalsService.isDebugMode) {
         String initializePersonCardsJsonForDebug = InitDataBaseData.createJsonRowsForPersonCards();
-        // print('initializeUsersJsonForDebug: initializeUsersJsonForDebug');
 
-        //// Using JSON
-        var initializePersonCardsListForDebug = jsonDecode(initializePersonCardsJsonForDebug) as List;    // List of Users to display;
-        List<PersonCardObject> personCardObjListForDebug = initializePersonCardsListForDebug.map((personJsonDebug) => PersonCardObject.fromJson(personJsonDebug)).toList();
-        // print('personCardObjListForDebug.length: ${personCardObjListForDebug.length}');
+        var initializePersonCardsListForDebug = jsonDecode(initializePersonCardsJsonForDebug) as List;
+
+        List<PersonCardObject> personCardObjListForDebug = initializePersonCardsListForDebug.map((personJsonDebug) =>
+            PersonCardObject.fromJson(personJsonDebug)).toList();
 
         personCardObjListForDebug.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
         return personCardObjListForDebug;
-      }
-      //***** for debug *****
-
     }
     catch (e) {
       await LoggerService.log('<InitDatabaseService> Get PersonCards List From Server >>> ERROR: ${e.toString()}');
@@ -100,13 +88,10 @@ class InitDatabaseService {
   Future insertAllStartedPersonCardsToDb() async {
     List<PersonCardObject> starterPersonCardsList;
     starterPersonCardsList = await initializePersonCardsTableData();
-    // print('starterPersonCardsList.length: ${starterPersonCardsList.length}');
 
-    starterPersonCardsList.forEach((PersonCardObject personCardObj) async => await RotaryDataBaseProvider.rotaryDB.insertPersonCard(personCardObj));
-
-    // List<PersonCardObject> personCardsList = await RotaryDataBaseProvider.rotaryDB.getAllPersonCards();
-    // if (personCardsList.isNotEmpty)
-    //   print('>>>>>>>>>> personCardsList: ${personCardsList[0].emailId}');
+    PersonCardService personCardService = PersonCardService();
+    starterPersonCardsList.forEach((PersonCardObject personCardObj) async =>
+            await personCardService.insertPersonCardOnInitializeDataBase(personCardObj));
   }
   //#endregion
 
@@ -114,23 +99,13 @@ class InitDatabaseService {
   // ========================================================================
   Future initializeEventsTableData() async {
     try {
+      String initializeEventsJsonForDebug = InitDataBaseData.createJsonRowsForEvents();
 
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-      if (GlobalsService.isDebugMode) {
-        String initializeEventsJsonForDebug = InitDataBaseData.createJsonRowsForEvents();
-        // print('initializeEventsJsonForDebug: initializeEventsJsonForDebug');
+      var initializeEventsListForDebug = jsonDecode(initializeEventsJsonForDebug) as List;    // List of Users to display;
+      List<EventObject> eventObjListForDebug = initializeEventsListForDebug.map((eventJsonDebug) => EventObject.fromJson(eventJsonDebug)).toList();
 
-        //// Using JSON
-        var initializeEventsListForDebug = jsonDecode(initializeEventsJsonForDebug) as List;    // List of Users to display;
-        List<EventObject> eventObjListForDebug = initializeEventsListForDebug.map((eventJsonDebug) => EventObject.fromJson(eventJsonDebug)).toList();
-        // print('eventObjListForDebug.length: ${eventObjListForDebug.length}');
-
-        eventObjListForDebug.sort((a, b) => a.eventName.toLowerCase().compareTo(b.eventName.toLowerCase()));
-        return eventObjListForDebug;
-      }
-      //***** for debug *****
-
+      eventObjListForDebug.sort((a, b) => a.eventName.toLowerCase().compareTo(b.eventName.toLowerCase()));
+      return eventObjListForDebug;
     }
     catch (e) {
       await LoggerService.log('<InitDatabaseService> Get Events List From Server >>> ERROR: ${e.toString()}');
@@ -148,14 +123,9 @@ class InitDatabaseService {
   Future insertAllStartedEventsToDb() async {
     List<EventObject> starterEventsList;
     starterEventsList = await initializeEventsTableData();
-    // print('starterEventsList.length: ${starterEventsList.length}');
 
-    starterEventsList.forEach((EventObject eventObj) async => await RotaryDataBaseProvider.rotaryDB.insertEvent(eventObj));
-    // starterEventsList.forEach((EventObject eventObj) => insertRawEvent(eventObj));
-
-    // List<EventObject> eventsList = await RotaryDataBaseProvider.rotaryDB.getAllEvents();
-    // if (eventsList.isNotEmpty)
-    // print('>>>>>>>>>> eventsList: ${eventsList[0].eventName}');
+    EventService eventService = EventService();
+    starterEventsList.forEach((EventObject eventObj) async => await eventService.insertEvent(eventObj));
   }
   //#endregion
 
@@ -163,24 +133,15 @@ class InitDatabaseService {
   // ========================================================================
   Future initializeMessagesTableData() async {
     try {
+      String initializeMessagesJsonForDebug = InitDataBaseData.createJsonRowsForMessages();
 
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-      if (GlobalsService.isDebugMode) {
-        String initializeMessagesJsonForDebug = InitDataBaseData.createJsonRowsForMessages();
-        // print('initializeEventsJsonForDebug: initializeEventsJsonForDebug');
+      var initializeMessagesListForDebug = jsonDecode(initializeMessagesJsonForDebug) as List;    // List of Users to display;
+      List<MessageObject> messageObjListForDebug = initializeMessagesListForDebug.map((messageJsonDebug) =>
+          MessageObject.fromJson(messageJsonDebug)).toList();
+      // print('eventObjListForDebug.length: ${eventObjListForDebug.length}');
 
-        //// Using JSON
-        var initializeMessagesListForDebug = jsonDecode(initializeMessagesJsonForDebug) as List;    // List of Users to display;
-        List<MessageObject> messageObjListForDebug = initializeMessagesListForDebug.map((messageJsonDebug) =>
-            MessageObject.fromJson(messageJsonDebug)).toList();
-        // print('eventObjListForDebug.length: ${eventObjListForDebug.length}');
-
-        messageObjListForDebug.sort((a, b) => a.messageCreatedDateTime.compareTo(b.messageCreatedDateTime));
-        return messageObjListForDebug;
-      }
-      //***** for debug *****
-
+      messageObjListForDebug.sort((a, b) => a.messageCreatedDateTime.compareTo(b.messageCreatedDateTime));
+      return messageObjListForDebug;
     }
     catch (e) {
       await LoggerService.log('<InitDatabaseService> Get Messages List From Server >>> ERROR: ${e.toString()}');
@@ -199,14 +160,8 @@ class InitDatabaseService {
     List<MessageObject> starterMessagesList;
 
     starterMessagesList = await initializeMessagesTableData();
-    // print('starterEventsList.length: ${starterEventsList.length}');
 
     starterMessagesList.forEach((MessageObject messageObj) async => await RotaryDataBaseProvider.rotaryDB.insertMessage(messageObj));
-    // starterEventsList.forEach((EventObject eventObj) => insertRawEvent(eventObj));
-
-    // List<EventObject> eventsList = await RotaryDataBaseProvider.rotaryDB.getAllEvents();
-    // if (eventsList.isNotEmpty)
-    // print('>>>>>>>>>> eventsList: ${eventsList[0].eventName}');
   }
   //#endregion
 
@@ -214,22 +169,14 @@ class InitDatabaseService {
   // ========================================================================
   Future initializeMessageQueueTableData() async {
     try {
+      String initializeMessageQueueJsonForDebug = InitDataBaseData.createJsonRowsForMessageQueue();
 
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-      if (GlobalsService.isDebugMode) {
-        String initializeMessageQueueJsonForDebug = InitDataBaseData.createJsonRowsForMessageQueue();
+      var initializeMessageQueueListForDebug = jsonDecode(initializeMessageQueueJsonForDebug) as List;    // List of Users to display;
+      List<MessageQueueObject> messageQueueObjListForDebug = initializeMessageQueueListForDebug.map((messageQueueJsonDebug) =>
+          MessageQueueObject.fromJson(messageQueueJsonDebug)).toList();
 
-        //// Using JSON
-        var initializeMessageQueueListForDebug = jsonDecode(initializeMessageQueueJsonForDebug) as List;    // List of Users to display;
-        List<MessageQueueObject> messageQueueObjListForDebug = initializeMessageQueueListForDebug.map((messageQueueJsonDebug) =>
-            MessageQueueObject.fromJson(messageQueueJsonDebug)).toList();
-
-        messageQueueObjListForDebug.sort((a, b) => a.messageGuidId.compareTo(b.messageGuidId));
-        return messageQueueObjListForDebug;
-      }
-      //***** for debug *****
-
+      messageQueueObjListForDebug.sort((a, b) => a.messageGuidId.compareTo(b.messageGuidId));
+      return messageQueueObjListForDebug;
     }
     catch (e) {
       await LoggerService.log('<InitDatabaseService> Get MessageQueue List From Server >>> ERROR: ${e.toString()}');
@@ -257,23 +204,14 @@ class InitDatabaseService {
   // ========================================================================
   Future initializeRotaryRoleTableData() async {
     try {
+      String initializeRotaryRoleJsonForDebug = InitDataBaseData.createJsonRowsForRotaryRole();
 
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-      if (GlobalsService.isDebugMode) {
-        String initializeRotaryRoleJsonForDebug = InitDataBaseData.createJsonRowsForRotaryRole();
-        // print('initializeEventsJsonForDebug: initializeEventsJsonForDebug');
+      var initializeRotaryRoleListForDebug = jsonDecode(initializeRotaryRoleJsonForDebug) as List;
+      List<RotaryRoleObject> rotaryRoleObjListForDebug = initializeRotaryRoleListForDebug.map((roleJsonDebug) =>
+          RotaryRoleObject.fromJson(roleJsonDebug)).toList();
 
-        //// Using JSON
-        var initializeRotaryRoleListForDebug = jsonDecode(initializeRotaryRoleJsonForDebug) as List;
-        List<RotaryRoleObject> rotaryRoleObjListForDebug = initializeRotaryRoleListForDebug.map((roleJsonDebug) =>
-            RotaryRoleObject.fromJson(roleJsonDebug)).toList();
-
-        rotaryRoleObjListForDebug.sort((a, b) => a.roleName.toLowerCase().compareTo(b.roleName.toLowerCase()));
-        return rotaryRoleObjListForDebug;
-      }
-      //***** for debug *****
-
+      rotaryRoleObjListForDebug.sort((a, b) => a.roleName.toLowerCase().compareTo(b.roleName.toLowerCase()));
+      return rotaryRoleObjListForDebug;
     }
     catch (e) {
       await LoggerService.log('<InitDatabaseService> Initialize RotaryRole Table Data >>> ERROR: ${e.toString()}');
@@ -291,38 +229,24 @@ class InitDatabaseService {
   Future insertAllStartedRotaryRoleToDb() async {
     List<RotaryRoleObject> starterRotaryRoleList;
     starterRotaryRoleList = await initializeRotaryRoleTableData();
-    print('starterRotaryRoleList.length: ${starterRotaryRoleList.length}');
 
-    starterRotaryRoleList.forEach((RotaryRoleObject rotaryRoleObj) async =>
-    await RotaryDataBaseProvider.rotaryDB.insertRotaryRole(rotaryRoleObj));
-
-    List<RotaryRoleObject> _rotaryRoleList = await RotaryDataBaseProvider.rotaryDB.getAllRotaryRole();
-    if (_rotaryRoleList.isNotEmpty)
-      print('>>>>>>>>>> _rotaryRoleList: ${_rotaryRoleList[1].roleName}');
+    RotaryRoleService roleService = RotaryRoleService();
+    starterRotaryRoleList.forEach((RotaryRoleObject rotaryRoleObj) async => await roleService.insertRotaryRole(rotaryRoleObj));
   }
-//#endregion
+  //#endregion
 
   //#region Initialize Rotary Area Table Data [INIT Area BY JSON DATA]
   // ========================================================================
   Future initializeRotaryAreaTableData() async {
     try {
+      String initializeRotaryAreaJsonForDebug = InitDataBaseData.createJsonRowsForRotaryArea();
 
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-      if (GlobalsService.isDebugMode) {
-        String initializeRotaryAreaJsonForDebug = InitDataBaseData.createJsonRowsForRotaryArea();
-        // print('initializeEventsJsonForDebug: initializeEventsJsonForDebug');
+      var initializeRotaryAreaListForDebug = jsonDecode(initializeRotaryAreaJsonForDebug) as List;
+      List<RotaryAreaObject> rotaryAreaObjListForDebug = initializeRotaryAreaListForDebug.map((areaJsonDebug) =>
+          RotaryAreaObject.fromJson(areaJsonDebug)).toList();
 
-        //// Using JSON
-        var initializeRotaryAreaListForDebug = jsonDecode(initializeRotaryAreaJsonForDebug) as List;    // List of Users to display;
-        List<RotaryAreaObject> rotaryAreaObjListForDebug = initializeRotaryAreaListForDebug.map((areaJsonDebug) => RotaryAreaObject.fromJson(areaJsonDebug)).toList();
-        // print('eventObjListForDebug.length: ${eventObjListForDebug.length}');
-
-        rotaryAreaObjListForDebug.sort((a, b) => a.areaName.toLowerCase().compareTo(b.areaName.toLowerCase()));
-        return rotaryAreaObjListForDebug;
-      }
-      //***** for debug *****
-
+      rotaryAreaObjListForDebug.sort((a, b) => a.areaName.toLowerCase().compareTo(b.areaName.toLowerCase()));
+      return rotaryAreaObjListForDebug;
     }
     catch (e) {
       await LoggerService.log('<InitDatabaseService> Initialize RotaryArea Table Data >>> ERROR: ${e.toString()}');
@@ -340,39 +264,24 @@ class InitDatabaseService {
   Future insertAllStartedRotaryAreaToDb() async {
     List<RotaryAreaObject> starterRotaryAreaList;
     starterRotaryAreaList = await initializeRotaryAreaTableData();
-    print('starterRotaryAreaList.length: ${starterRotaryAreaList.length}');
 
-    starterRotaryAreaList.forEach((RotaryAreaObject rotaryAreaObj) async =>
-    await RotaryDataBaseProvider.rotaryDB.insertRotaryArea(rotaryAreaObj));
-
-    List<RotaryAreaObject> _rotaryAreaList = await RotaryDataBaseProvider.rotaryDB.getAllRotaryArea();
-    if (_rotaryAreaList.isNotEmpty)
-      print('>>>>>>>>>> _rotaryAreaList: ${_rotaryAreaList[1].areaName}');
+    RotaryAreaService areaService = RotaryAreaService();
+    starterRotaryAreaList.forEach((RotaryAreaObject rotaryAreaObj) async => await areaService.insertRotaryArea(rotaryAreaObj));
   }
 //#endregion
 
   //#region Initialize Rotary Cluster Table Data [INIT Cluster BY JSON DATA]
   // ========================================================================
-  Future initializeRotaryClusterTableData() async {
+  Future initializeRotaryClusterTableData(String aAreaName) async {
     try {
+      String initializeRotaryClusterJsonForDebug = InitDataBaseData.createJsonRowsForRotaryCluster(aAreaName);
 
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-      if (GlobalsService.isDebugMode) {
-        String initializeRotaryClusterJsonForDebug = InitDataBaseData.createJsonRowsForRotaryCluster();
-        // print('initializeEventsJsonForDebug: initializeEventsJsonForDebug');
+      var initializeRotaryClusterListForDebug = jsonDecode(initializeRotaryClusterJsonForDebug) as List;
+      List<RotaryClusterObject> rotaryClusterObjListForDebug = initializeRotaryClusterListForDebug.map((clusterJsonDebug) =>
+          RotaryClusterObject.fromJson(clusterJsonDebug)).toList();
 
-        //// Using JSON
-        var initializeRotaryClusterListForDebug = jsonDecode(initializeRotaryClusterJsonForDebug) as List;    // List of Cluster to display;
-        List<RotaryClusterObject> rotaryClusterObjListForDebug = initializeRotaryClusterListForDebug.map((clusterJsonDebug) =>
-            RotaryClusterObject.fromJson(clusterJsonDebug)).toList();
-        // print('eventObjListForDebug.length: ${eventObjListForDebug.length}');
-
-        rotaryClusterObjListForDebug.sort((a, b) => a.clusterName.toLowerCase().compareTo(b.clusterName.toLowerCase()));
-        return rotaryClusterObjListForDebug;
-      }
-      //***** for debug *****
-
+      rotaryClusterObjListForDebug.sort((a, b) => a.clusterName.toLowerCase().compareTo(b.clusterName.toLowerCase()));
+      return rotaryClusterObjListForDebug;
     }
     catch (e) {
       await LoggerService.log('<InitDatabaseService> Initialize RotaryCluster Table Data >>> ERROR: ${e.toString()}');
@@ -388,41 +297,39 @@ class InitDatabaseService {
 
   //#region insert All Started RotaryCluster To DB
   Future insertAllStartedRotaryClusterToDb() async {
+    RotaryAreaService areaService = RotaryAreaService();
+    List<RotaryAreaObject> _areaList = await areaService.getAllRotaryAreaList();
+
     List<RotaryClusterObject> starterRotaryClusterList;
-    starterRotaryClusterList = await initializeRotaryClusterTableData();
-    print('starterRotaryClusterList.length: ${starterRotaryClusterList.length}');
+    RotaryClusterService clusterService = RotaryClusterService();
 
-    starterRotaryClusterList.forEach((RotaryClusterObject rotaryClusterObj) async =>
-    await RotaryDataBaseProvider.rotaryDB.insertRotaryCluster(rotaryClusterObj));
+    _areaList.forEach((RotaryAreaObject rotaryAreaObj) async
+    {
+        starterRotaryClusterList = await initializeRotaryClusterTableData(rotaryAreaObj.areaName);
 
-    List<RotaryClusterObject> _rotaryClusterList = await RotaryDataBaseProvider.rotaryDB.getAllRotaryCluster();
-    if (_rotaryClusterList.isNotEmpty)
-      print('>>>>>>>>>> _rotaryClusterList: ${_rotaryClusterList[1].clusterName}');
+        starterRotaryClusterList.forEach((RotaryClusterObject rotaryClusterObj) async =>
+            await clusterService.insertRotaryClusterWithArea(rotaryAreaObj.areaId, rotaryClusterObj));
+    });
   }
-//#endregion
+  //#endregion
 
   //#region Initialize Rotary Club Table Data [INIT Club BY JSON DATA]
   // ========================================================================
-  Future initializeRotaryClubTableData() async {
+  Future initializeRotaryClubTableData(String aClusterName) async {
     try {
+      String initializeRotaryClubJsonForDebug = InitDataBaseData.createJsonRowsForRotaryClub(aClusterName);
 
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-      if (GlobalsService.isDebugMode) {
-        String initializeRotaryClubJsonForDebug = InitDataBaseData.createJsonRowsForRotaryClub();
-        // print('initializeEventsJsonForDebug: initializeEventsJsonForDebug');
-
-        //// Using JSON
+      List<RotaryClubObject> rotaryClubObjListForDebug;
+      if (initializeRotaryClubJsonForDebug != null)
+      {
         var initializeRotaryClubListForDebug = jsonDecode(initializeRotaryClubJsonForDebug) as List;    // List of Cluster to display;
-        List<RotaryClubObject> rotaryClubObjListForDebug = initializeRotaryClubListForDebug.map((clubJsonDebug) =>
+        rotaryClubObjListForDebug = initializeRotaryClubListForDebug.map((clubJsonDebug) =>
             RotaryClubObject.fromJson(clubJsonDebug)).toList();
-        // print('eventObjListForDebug.length: ${eventObjListForDebug.length}');
 
         rotaryClubObjListForDebug.sort((a, b) => a.clubName.toLowerCase().compareTo(b.clubName.toLowerCase()));
-        return rotaryClubObjListForDebug;
       }
-      //***** for debug *****
 
+      return rotaryClubObjListForDebug;
     }
     catch (e) {
       await LoggerService.log('<InitDatabaseService> Initialize RotaryClub Table Data >>> ERROR: ${e.toString()}');
@@ -438,16 +345,21 @@ class InitDatabaseService {
 
   //#region insert All Started RotaryClub To DB
   Future insertAllStartedRotaryClubToDb() async {
+    RotaryClusterService clusterService = RotaryClusterService();
+    List<RotaryClusterObject> _clusterList = await clusterService.getAllRotaryClusterList();
+
     List<RotaryClubObject> starterRotaryClubList;
-    starterRotaryClubList = await initializeRotaryClubTableData();
-    print('starterRotaryClubList.length: ${starterRotaryClubList.length}');
+    RotaryClubService clubService = RotaryClubService();
 
-    starterRotaryClubList.forEach((RotaryClubObject rotaryClubObj) async =>
-    await RotaryDataBaseProvider.rotaryDB.insertRotaryClub(rotaryClubObj));
+    _clusterList.forEach((RotaryClusterObject rotaryClusterObj) async
+    {
+      starterRotaryClubList = await initializeRotaryClubTableData(rotaryClusterObj.clusterName);
+      if (starterRotaryClubList != null) {
 
-    List<RotaryClubObject> _rotaryClubList = await RotaryDataBaseProvider.rotaryDB.getAllRotaryClub();
-    if (_rotaryClubList.isNotEmpty)
-      print('>>>>>>>>>> _rotaryClubList: ${_rotaryClubList[1].clubName} / ${_rotaryClubList[1].clubMail}');
+        starterRotaryClubList.forEach((RotaryClubObject rotaryClubObj) async =>
+            await clubService.insertRotaryClubWithCluster(rotaryClusterObj.clusterId, rotaryClubObj));
+      }
+    });
   }
   //#endregion
 }

@@ -347,7 +347,7 @@ class RotaryDataBaseProvider {
             "areaId,"
             "clusterId,"
             "clubId,"
-            "roleId,"
+            "roleId"
             ") "
         "VALUES ("
             "${aPersonCard.personCardGuidId}, "
@@ -367,7 +367,7 @@ class RotaryDataBaseProvider {
             "${aPersonCard.areaId}, "
             "${aPersonCard.clusterId}, "
             "${aPersonCard.clubId}, "
-            "${aPersonCard.roleId}, "
+            "${aPersonCard.roleId} "
         ")"
     );
     return result;
@@ -1035,7 +1035,7 @@ class RotaryDataBaseProvider {
   //#endregion
 
   //#region get Rotary Area By AreaId
-  Future getRotaryAreaByAreaId(int aAreaId) async {
+  Future getRotaryAreaByAreaId(String aAreaId) async {
     final db = await database;
 
     var result = await  db.query(
@@ -1144,7 +1144,7 @@ class RotaryDataBaseProvider {
   //#endregion
 
   //#region get Rotary Cluster By AreaClusterId
-  Future getRotaryClusterByAreaClusterId(int aAreaId, int aClusterId) async {
+  Future getRotaryClusterByAreaClusterId(String aAreaId, String aClusterId) async {
     final db = await database;
 
     var result = await  db.query(
@@ -1266,7 +1266,7 @@ class RotaryDataBaseProvider {
   //#endregion
 
   //#region get Rotary Club By AreaClusterClubId
-  Future getRotaryClubByAreaClusterClubId(int aAreaId, int aClusterId, int aClubId) async {
+  Future getRotaryClubByAreaClusterClubId(String aAreaId, String aClusterId, String aClubId) async {
     final db = await database;
 
     var result = await  db.query(

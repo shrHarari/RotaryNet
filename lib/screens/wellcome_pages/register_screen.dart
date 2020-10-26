@@ -157,22 +157,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         builder: (context) => DebugSettingsScreen(argLoginObject: newLoginObject),
       ),
     );
-
-    // await RotaryDataBaseProvider.rotaryDB.deleteRotaryDatabase();
-    //
-    // await RotaryDataBaseProvider.rotaryDB.createRotaryDB();
-    //
-    // InitDatabaseService _initDatabaseService = InitDatabaseService();
-    // await _initDatabaseService.insertAllStartedRotaryRoleToDb();
-    // await _initDatabaseService.insertAllStartedRotaryAreaToDb();
-    // await _initDatabaseService.insertAllStartedRotaryClusterToDb();
-    // await _initDatabaseService.insertAllStartedRotaryClubToDb();
-    // await _initDatabaseService.insertAllStartedUsersToDb();
-    // await _initDatabaseService.insertAllStartedPersonCardsToDb();
-    // await _initDatabaseService.insertAllStartedEventsToDb();
-    // await _initDatabaseService.insertAllStartedMessagesToDb();
-    // await _initDatabaseService.insertAllStartedMessageQueueToDb();
-
   }
 
   /// ============================== Main Screen ==============================

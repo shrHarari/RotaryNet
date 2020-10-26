@@ -87,6 +87,7 @@ class RotaryUsersListPageTile extends StatelessWidget {
         {
           // Hide Keyboard
           FocusScope.of(context).requestFocus(FocusNode());
+          print("argUserObj: $argUserObj");
           openUserDetailScreen(context);
         },
       ),

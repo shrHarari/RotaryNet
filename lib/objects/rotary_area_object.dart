@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class RotaryAreaObject {
-  final int areaId;
+  final String areaId;
   final String areaName;
 
   RotaryAreaObject({
@@ -20,7 +20,7 @@ class RotaryAreaObject {
 
   factory RotaryAreaObject.fromJson(Map<String, dynamic> parsedJson){
     return RotaryAreaObject(
-      areaId: parsedJson['areaId'],
+      areaId: parsedJson['_id'],
       areaName: parsedJson['areaName'],
     );
   }
@@ -39,15 +39,22 @@ class RotaryAreaObject {
 
   factory RotaryAreaObject.fromMap(Map<String, dynamic> jsonFromMap) {
     return RotaryAreaObject(
-      areaId: jsonFromMap['areaId'],
+      // areaId: jsonFromMap['_id'],
       areaName: jsonFromMap['areaName'],
     );
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'areaId': areaId,
-      'areaName': areaName,
-    };
+    if (areaId == null) {
+      return {
+        // '_id': areaId,
+        'areaName': areaName,
+      };
+    } else {
+      return {
+        '_id': areaId,
+        'areaName': areaName,
+      };
+    }
   }
 }

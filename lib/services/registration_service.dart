@@ -89,7 +89,7 @@ class RegistrationService {
         /// Add New User Registration Request
         // dynamic _userRequestID = await sendUserRegistrationRequestToServer(aConnectedUserObj);
         //***** MONGO DB *****
-        dynamic _userRequestID = await sendUserRegistrationRequestToDataBase(aConnectedUserObj);
+        dynamic _userRequestID = await sendUserRegistrationRequest(aConnectedUserObj);
         //***** MONGO DB *****
         if (_userRequestID == null) {
           mapResult = {"returnCode": '200', "errorMessage": 'שגיאה ברישום, נסה שוב...'};
@@ -232,28 +232,28 @@ class RegistrationService {
 
   //#region Send User Registration Request To DATABASE [POST]
   // ===============================================================
-  Future sendUserRegistrationRequestToDataBase(ConnectedUserObject aConnectedUserObj) async {
+  Future sendUserRegistrationRequest(ConnectedUserObject aConnectedUserObj) async {
     try {
 
       //***** MONGO DB *****
 
       // Convert ConnectedUserObject To Json
-      String jsonToPost = aConnectedUserObj.connectedUserToJson(aConnectedUserObj);
-      print ('SendUserRegistrationRequestToDataBase / ConnectedUserObj / jsonToPost: $jsonToPost');
-
-      // '"_id":"1a5d8df7-1f25-44cd-aafc-022542129816",'
-      // String jsonToPost =
-      // '{'
-      //   '"email":"d.d@gmail.com",'
-      //   '"firstName":"test",'
-      //   '"lastName":"test",'
-      //   '"password":"qqqq",'
-      //   '"userType":"Guest",'
-      //   '"stayConnected":1'
-      // '}';
+      // String jsonToPost = aConnectedUserObj.connectedUserToJson(aConnectedUserObj);
       // print ('SendUserRegistrationRequestToDataBase / ConnectedUserObj / jsonToPost: $jsonToPost');
 
-      Response response = await post(Constants.rotaryGetUsersUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
+      // '"_id":"1a5d8df7-1f25-44cd-aafc-022542129816",'
+      String jsonToPost =
+      '{'
+        '"email":"e.e@gmail.com",'
+        '"firstName":"eeee",'
+        '"lastName":"eeee",'
+        '"password":"qqqq",'
+        '"userType":"Guest",'
+        '"stayConnected":1'
+      '}';
+      print ('SendUserRegistrationRequestToDataBase / ConnectedUserObj / jsonToPost: $jsonToPost');
+
+      Response response = await post(Constants.rotaryUserUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
       if (response.statusCode <= 300) {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];

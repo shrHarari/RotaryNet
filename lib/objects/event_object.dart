@@ -52,7 +52,7 @@ class EventObject {
 
   factory EventObject.fromJson(Map<String, dynamic> parsedJson){
     return EventObject(
-        eventGuidId: parsedJson['eventGuidId'],
+        eventGuidId: parsedJson['_id'],
         eventName: parsedJson['eventName'],
         eventPictureUrl : parsedJson['eventPictureUrl'],
         eventDescription : parsedJson['eventDescription'],
@@ -82,7 +82,7 @@ class EventObject {
     DateTime _eventEndDateTime = DateTime.parse(jsonFromMap['eventEndDateTime']);
 
     return EventObject(
-          eventGuidId: jsonFromMap['eventGuidId'],
+          eventGuidId: jsonFromMap['_id'],
           eventName: jsonFromMap['eventName'],
           eventPictureUrl : jsonFromMap['eventPictureUrl'],
           eventDescription : jsonFromMap['eventDescription'],
@@ -100,7 +100,7 @@ class EventObject {
     String _eventEndDateTime = eventEndDateTime.toIso8601String();
 
     return {
-      'eventGuidId': eventGuidId,
+      '_id': eventGuidId,
       'eventName': eventName,
       'eventPictureUrl': eventPictureUrl,
       'eventDescription': eventDescription,

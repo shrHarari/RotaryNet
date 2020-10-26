@@ -1,11 +1,13 @@
 import 'dart:convert';
 
 class RotaryRoleObject {
-  final int roleId;
+  final String roleId;
+  final int roleEnum;
   final String roleName;
 
   RotaryRoleObject({
     this.roleId,
+    this.roleEnum,
     this.roleName});
 
   /// Convert JsonStringStructure to String
@@ -14,13 +16,15 @@ class RotaryRoleObject {
     return
       '{'
         ' ${this.roleId},'
+        ' ${this.roleEnum},'
         ' ${this.roleName},'
       '}';
   }
 
   factory RotaryRoleObject.fromJson(Map<String, dynamic> parsedJson){
     return RotaryRoleObject(
-      roleId: parsedJson['roleId'],
+      roleId: parsedJson['_id'],
+      roleEnum: parsedJson['roleEnum'],
       roleName: parsedJson['roleName'],
     );
   }
@@ -39,14 +43,16 @@ class RotaryRoleObject {
 
   factory RotaryRoleObject.fromMap(Map<String, dynamic> jsonFromMap) {
     return RotaryRoleObject(
-      roleId: jsonFromMap['roleId'],
+      roleId: jsonFromMap['_id'],
+      roleEnum: jsonFromMap['roleEnum'],
       roleName: jsonFromMap['roleName'],
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'roleId': roleId,
+      '_id': roleId,
+      'roleEnum': roleEnum,
       'roleName': roleName,
     };
   }

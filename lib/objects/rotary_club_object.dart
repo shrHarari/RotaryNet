@@ -3,7 +3,7 @@ import 'dart:convert';
 class RotaryClubObject {
   final int areaId;
   final int clusterId;
-  final int clubId;
+  final String clubId;
   final String clubName;
   final String clubAddress;
   final String clubMail;
@@ -35,9 +35,9 @@ class RotaryClubObject {
 
   factory RotaryClubObject.fromJson(Map<String, dynamic> parsedJson){
     return RotaryClubObject(
-      areaId: parsedJson['areaId'],
-      clusterId: parsedJson['clusterId'],
-      clubId: parsedJson['clubId'],
+      // areaId: parsedJson['areaId'],
+      // clusterId: parsedJson['clusterId'],
+      clubId: parsedJson['_id'],
       clubName: parsedJson['clubName'],
       clubAddress: parsedJson['clubAddress'],
       clubMail: parsedJson['clubMail'],
@@ -59,9 +59,9 @@ class RotaryClubObject {
 
   factory RotaryClubObject.fromMap(Map<String, dynamic> jsonFromMap) {
     return RotaryClubObject(
-      areaId: jsonFromMap['areaId'],
-      clusterId: jsonFromMap['clusterId'],
-      clubId: jsonFromMap['clubId'],
+      // areaId: jsonFromMap['areaId'],
+      // clusterId: jsonFromMap['clusterId'],
+      // clubId: jsonFromMap['_id'],
       clubName: jsonFromMap['clubName'],
       clubAddress: jsonFromMap['clubAddress'],
       clubMail: jsonFromMap['clubMail'],
@@ -70,14 +70,26 @@ class RotaryClubObject {
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'areaId': areaId,
-      'clusterId': clusterId,
-      'clubId': clubId,
-      'clubName': clubName,
-      'clubAddress': clubAddress,
-      'clubMail': clubMail,
-      'clubManagerGuidId': clubManagerGuidId,
-    };
+    if (clusterId == null) {
+      return {
+        // 'areaId': areaId,
+        // 'clusterId': clusterId,
+        // '_id': clubId,
+        'clubName': clubName,
+        'clubAddress': clubAddress,
+        'clubMail': clubMail,
+        'clubManagerGuidId': clubManagerGuidId,
+      };
+    } else {
+      return {
+        // 'areaId': areaId,
+        // 'clusterId': clusterId,
+        '_id': clubId,
+        'clubName': clubName,
+        'clubAddress': clubAddress,
+        'clubMail': clubMail,
+        'clubManagerGuidId': clubManagerGuidId,
+      };
+    }
   }
 }

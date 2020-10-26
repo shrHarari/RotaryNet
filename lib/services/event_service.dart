@@ -110,7 +110,7 @@ class EventService {
 
   //#region CRUD: Events
 
-  //#region Insert Event To DataBase [WriteToDB]
+  //#region * Insert Event [WriteToDB]
   //=============================================================================
   Future insertEventToDataBase(EventObject aEventObj) async {
     try{
@@ -127,6 +127,45 @@ class EventService {
         'insertEventToDataBase',
         name: 'EventService',
         error: 'Insert Event To DataBase >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+
+  Future insertEvent(EventObject aEventObj) async {
+    try {
+      // Convert ConnectedUserObject To Json
+      String jsonToPost = aEventObj.eventToJson(aEventObj);
+      print ('insertEvent / EventObject / jsonToPost: $jsonToPost');
+
+      Response response = await post(Constants.rotaryEventUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+        print ('insertEvent / EventObject / jsonResponse: $jsonResponse');
+
+        bool returnVal = jsonResponse.toLowerCase() == 'true';
+        if (returnVal) {
+          await LoggerService.log('<EventService> Insert Event >>> OK');
+          return returnVal;
+        } else {
+          await LoggerService.log('<EventService> Insert Event >>> Failed');
+          print('<EventService> Insert Event >>> Failed');
+          return null;
+        }
+      } else {
+        await LoggerService.log('<EventService> Insert Event >>> Failed >>> ${response.statusCode}');
+        print('<EventService> Insert Event >>> Failed >>> ${response.statusCode}');
+        return null;
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<EventService> Insert Event >>> Server ERROR: ${e.toString()}');
+      developer.log(
+        'insertEvent',
+        name: 'EventService',
+        error: 'Insert Event >>> Server ERROR: ${e.toString()}',
       );
       return null;
     }

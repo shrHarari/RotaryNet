@@ -11,11 +11,11 @@ class MessageWithDescriptionObject {
   final DateTime messageCreatedDateTime;
   Constants.RotaryRolesEnum roleId;
   final String roleName;
-  final int areaId;
+  final String areaId;
   final String areaName;
-  final int clusterId;
+  final String clusterId;
   final String clusterName;
-  final int clubId;
+  final String clubId;
   final String clubName;
   final String clubAddress;
   final String clubMail;

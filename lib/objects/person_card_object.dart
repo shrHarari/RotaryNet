@@ -16,10 +16,11 @@ class PersonCardObject {
   String cardDescription;
   String internetSiteUrl;
   String address;
-  int areaId;
-  int clusterId;
-  int clubId;
-  Constants.RotaryRolesEnum roleId;
+  String areaId;
+  String clusterId;
+  String clubId;
+  String roleId;
+  // Constants.RotaryRolesEnum roleEnum;
 
   PersonCardObject({
     this.personCardGuidId,
@@ -40,8 +41,10 @@ class PersonCardObject {
     this.clusterId,
     this.clubId,
     this.roleId,
+    // this.roleEnum,
   });
 
+  //#region Update PersonCard Object with Sets Calls
   // Set PersonCard Email
   Future <void> setEmail(String aEmail) async {
     email = aEmail;
@@ -52,54 +55,78 @@ class PersonCardObject {
     pictureUrl = aPictureUrl;
   }
 
+  // Set PersonCard RoleId
+  Future <void> setRoleId(String aRoleId) async {
+    roleId = aRoleId;
+  }
+
+  // Set PersonCard AreaId
+  Future <void> setAreaId(String aAreaId) async {
+    areaId = aAreaId;
+  }
+
+  // Set PersonCard ClusterId
+  Future <void> setClusterId(String aClusterId) async {
+    clusterId = aClusterId;
+  }
+
+  // Set PersonCard ClubId
+  Future <void> setClubId(String aClubId) async {
+    clubId = aClubId;
+  }
+  //#endregion
+
   @override
   String toString() {
-    return '{'
-        ' ${this.personCardGuidId},'
-        ' ${this.email},'
-        ' ${this.firstName},'
-        ' ${this.lastName},'
-        ' ${this.firstNameEng},'
-        ' ${this.lastNameEng},'
-        ' ${this.phoneNumber},'
-        ' ${this.phoneNumberDialCode},'
-        ' ${this.phoneNumberParse},'
-        ' ${this.phoneNumberCleanLongFormat},'
-        ' ${this.pictureUrl},'
-        ' ${this.cardDescription},'
-        ' ${this.internetSiteUrl},'
-        ' ${this.address},'
-        ' ${this.areaId},'
-        ' ${this.clusterId},'
-        ' ${this.clubId},'
-        ' ${this.roleId},'
-        ' }';
+    return
+      '{'
+          ' ${this.personCardGuidId},'
+          ' ${this.email},'
+          ' ${this.firstName},'
+          ' ${this.lastName},'
+          ' ${this.firstNameEng},'
+          ' ${this.lastNameEng},'
+          ' ${this.phoneNumber},'
+          ' ${this.phoneNumberDialCode},'
+          ' ${this.phoneNumberParse},'
+          ' ${this.phoneNumberCleanLongFormat},'
+          ' ${this.pictureUrl},'
+          ' ${this.cardDescription},'
+          ' ${this.internetSiteUrl},'
+          ' ${this.address},'
+          ' ${this.areaId},'
+          ' ${this.clusterId},'
+          ' ${this.clubId},'
+          ' ${this.roleId},'
+        // ' ${this.roleEnum},'
+      ' }';
   }
 
   factory PersonCardObject.fromJson(Map<String, dynamic> parsedJson){
     // RoleId: Convert [int] to [Enum]
-    Constants.RotaryRolesEnum _roleEnum;
-    Constants.RotaryRolesEnum _roleEnumValue = _roleEnum.convertToEnum(parsedJson['roleId']);
+    // Constants.RotaryRolesEnum _roleEnum;
+    // Constants.RotaryRolesEnum _roleEnumValue = _roleEnum.convertToEnum(parsedJson['roleId']);
 
     return PersonCardObject(
-      personCardGuidId: parsedJson['personCardGuidId'],
-        email: parsedJson['email'],
-        firstName : parsedJson['firstName'],
-        lastName : parsedJson['lastName'],
-        firstNameEng : parsedJson['firstNameEng'],
-        lastNameEng : parsedJson['lastNameEng'],
-        phoneNumber : parsedJson['phoneNumber'],
-        phoneNumberDialCode : parsedJson['phoneNumberDialCode'],
-        phoneNumberParse : parsedJson['phoneNumberParse'],
-        phoneNumberCleanLongFormat : parsedJson['phoneNumberCleanLongFormat'],
-        pictureUrl : parsedJson['pictureUrl'],
-        cardDescription : parsedJson['cardDescription'],
-        internetSiteUrl : parsedJson['internetSiteUrl'],
-        address : parsedJson['address'],
-        areaId : parsedJson['areaId'],
-        clusterId : parsedJson['clusterId'],
-        clubId : parsedJson['clubId'],
-        roleId : _roleEnumValue,
+      personCardGuidId: parsedJson['_id'],
+      email: parsedJson['email'],
+      firstName : parsedJson['firstName'],
+      lastName : parsedJson['lastName'],
+      firstNameEng : parsedJson['firstNameEng'],
+      lastNameEng : parsedJson['lastNameEng'],
+      phoneNumber : parsedJson['phoneNumber'],
+      phoneNumberDialCode : parsedJson['phoneNumberDialCode'],
+      phoneNumberParse : parsedJson['phoneNumberParse'],
+      phoneNumberCleanLongFormat : parsedJson['phoneNumberCleanLongFormat'],
+      pictureUrl : parsedJson['pictureUrl'],
+      cardDescription : parsedJson['cardDescription'],
+      internetSiteUrl : parsedJson['internetSiteUrl'],
+      address : parsedJson['address'],
+      areaId : parsedJson['areaId'],
+      clusterId : parsedJson['clusterId'],
+      clubId : parsedJson['clubId'],
+      roleId : parsedJson['roleId'],
+      // roleEnum : _roleEnumValue,
     );
   }
 
@@ -119,10 +146,10 @@ class PersonCardObject {
 
     // RoleId: Convert [int] to [Enum]
     Constants.RotaryRolesEnum _roleEnum;
-    Constants.RotaryRolesEnum _roleEnumValue = _roleEnum.convertToEnum(jsonFromMap['roleId']);
+    Constants.RotaryRolesEnum _roleEnumValue = _roleEnum.convertToEnum(jsonFromMap['roleEnum']);
 
     return PersonCardObject(
-      personCardGuidId: jsonFromMap['personCardGuidId'],
+      personCardGuidId: jsonFromMap['_id'],
       email: jsonFromMap['email'],
       firstName: jsonFromMap['firstName'],
       lastName: jsonFromMap['lastName'],
@@ -139,35 +166,61 @@ class PersonCardObject {
       areaId: jsonFromMap['areaId'],
       clusterId: jsonFromMap['clusterId'],
       clubId: jsonFromMap['clubId'],
-      roleId: _roleEnumValue,
+      roleId: jsonFromMap['roleId'],
+      // roleEnum: _roleEnumValue,
     );
   }
 
   Map<String, dynamic> toMap() {
 
-    // RoleEnum: Convert [Enum] to [int]
-    Constants.RotaryRolesEnum _roleEnum = roleId;
-    int _roleEnumValue = _roleEnum.value;
+    // // RoleEnum: Convert [Enum] to [int]
+    // Constants.RotaryRolesEnum _roleEnum = roleEnum;
+    // int _roleEnumValue = _roleEnum.value;
 
-    return {
-      'personCardGuidId': personCardGuidId,
-      'email': email,
-      'firstName': firstName,
-      'lastName': lastName,
-      'firstNameEng': firstNameEng,
-      'lastNameEng': lastNameEng,
-      'phoneNumber': phoneNumber,
-      'phoneNumberDialCode': phoneNumberDialCode,
-      'phoneNumberParse': phoneNumberParse,
-      'phoneNumberCleanLongFormat': phoneNumberCleanLongFormat,
-      'pictureUrl': pictureUrl,
-      'cardDescription': cardDescription,
-      'internetSiteUrl': internetSiteUrl,
-      'address': address,
-      'areaId': areaId,
-      'clusterId': clusterId,
-      'clubId': clubId,
-      'roleId': _roleEnumValue,
-    };
+    if (personCardGuidId == null) {
+      return {
+        // '_id': personCardGuidId,
+        'email': email,
+        'firstName': firstName,
+        'lastName': lastName,
+        'firstNameEng': firstNameEng,
+        'lastNameEng': lastNameEng,
+        'phoneNumber': phoneNumber,
+        'phoneNumberDialCode': phoneNumberDialCode,
+        'phoneNumberParse': phoneNumberParse,
+        'phoneNumberCleanLongFormat': phoneNumberCleanLongFormat,
+        'pictureUrl': pictureUrl,
+        'cardDescription': cardDescription,
+        'internetSiteUrl': internetSiteUrl,
+        'address': address,
+        'areaId': areaId,
+        'clusterId': clusterId,
+        'clubId': clubId,
+        'roleId': roleId,
+        // 'roleEnum': _roleEnumValue,
+      };
+    } else {
+      return {
+        '_id': personCardGuidId,
+        'email': email,
+        'firstName': firstName,
+        'lastName': lastName,
+        'firstNameEng': firstNameEng,
+        'lastNameEng': lastNameEng,
+        'phoneNumber': phoneNumber,
+        'phoneNumberDialCode': phoneNumberDialCode,
+        'phoneNumberParse': phoneNumberParse,
+        'phoneNumberCleanLongFormat': phoneNumberCleanLongFormat,
+        'pictureUrl': pictureUrl,
+        'cardDescription': cardDescription,
+        'internetSiteUrl': internetSiteUrl,
+        'address': address,
+        'areaId': areaId,
+        'clusterId': clusterId,
+        'clubId': clubId,
+        'roleId': roleId,
+        // 'roleEnum': _roleEnumValue,
+      };
+    }
   }
 }

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:rotary_net/database/rotary_database_provider.dart';
 import 'package:rotary_net/objects/user_object.dart';
-import 'package:rotary_net/services/connection_service.dart';
 import 'package:rotary_net/services/globals_service.dart';
 import 'package:rotary_net/services/logger_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
@@ -43,7 +42,7 @@ class UserService {
   }
   //#endregion
 
-  //#region Get All Users List From Server [GET]
+  //#region * Get All Users List [GET]
   // =========================================================
   Future getAllUsersListFromServer() async {
     try {
@@ -72,9 +71,44 @@ class UserService {
       return null;
     }
   }
+
+  Future getAllUsersList() async {
+    try {
+      Response response = await get(Constants.rotaryUserUrl);
+
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+        print("GetAllUsersListFromMongoDb/ jsonResponse: $jsonResponse");
+        await LoggerService.log('<UserService> Get All Users List >>> OK\nHeader: $contentType \nUserListFromJSON: $jsonResponse');
+
+        var userList = jsonDecode(jsonResponse) as List;    // List of PersonCard to display;
+        List<UserObject> userObjList = userList.map((userJson) => UserObject.fromJson(userJson)).toList();
+
+        userObjList.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
+        print("userObjList: ${userObjList[0]}");
+
+        return userObjList;
+      } else {
+        await LoggerService.log('<UserService> Get All Users List From DataBase >>> Failed: ${response.statusCode}');
+        print('<UserService> Get All Users List From DataBase >>> Failed: ${response.statusCode}');
+        return null;
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<UserService> Get User List From DataBase >>> ERROR: ${e.toString()}');
+      developer.log(
+        'getAllUsersListFromDataBase',
+        name: 'UserService',
+        error: 'Users List >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
   //#endregion
 
-  //#region Get Users List By Search Query From Server [GET]
+  //#region * Get Users List By Search Query From Server [GET]
   // =========================================================
   Future getUsersListBySearchQueryFromServer(String aValueToSearch) async {
     try {
@@ -98,7 +132,7 @@ class UserService {
       //***** for debug *****
 
       /// UserListUrl: 'http://.......'
-      Response response = await get(Constants.rotaryGetUsersUrl);
+      Response response = await get(Constants.rotaryUserUrl);
 
       if (response.statusCode <= 300) {
         Map<String, String> headers = response.headers;
@@ -129,39 +163,83 @@ class UserService {
       return null;
     }
   }
-  //#endregion
 
-  //#region Get All Users List From DataBase [GET]
-  // =========================================================
-  Future getAllUsersListFromDataBase() async {
+  //#region * Get User By SearchQuery
+  Future getUsersListBySearchQuery(String aValueToSearch) async {
+
     try {
-      Response response = await get(Constants.rotaryGetUsersUrl);
+      String _getUrl = Constants.rotaryUserUrl + "/query/$aValueToSearch";
+      print ("_getUrl: $_getUrl");
+
+      Response response = await get(_getUrl);
 
       if (response.statusCode <= 300) {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        print("GetAllUsersListFromMongoDb/ jsonResponse: $jsonResponse");
-        await LoggerService.log('<UserService> Get All Users List From DataBase >>> OK\nHeader: $contentType \nUserListFromJSON: $jsonResponse');
+        print("getUsersListBySearchQuery/ jsonResponse: $jsonResponse");
+        await LoggerService.log('<UserService> Get User By SearchQuery >>> OK\nHeader: $contentType \nUserListFromJSON: $jsonResponse');
 
         var userList = jsonDecode(jsonResponse) as List;    // List of PersonCard to display;
         List<UserObject> userObjList = userList.map((userJson) => UserObject.fromJson(userJson)).toList();
 
-        // userObjList.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
+        userObjList.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
+        print("userObjList: ${userObjList[0]}");
 
         return userObjList;
       } else {
-        await LoggerService.log('<UserService> Get All Users List From DataBase >>> Failed: ${response.statusCode}');
-        print('<UserService> Get All Users List From DataBase >>> Failed: ${response.statusCode}');
+        await LoggerService.log('<UserService> Get User By SearchQuery >>> Failed: ${response.statusCode}');
+        print('<UserService> Get User By SearchQuery >>> Failed: ${response.statusCode}');
         return null;
       }
     }
     catch (e) {
-      await LoggerService.log('<UserService> Get User List From DataBase >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<UserService> Get User By SearchQuery >>> ERROR: ${e.toString()}');
       developer.log(
-        'getAllUsersListFromDataBase',
+        'getUsersListBySearchQuery',
         name: 'UserService',
-        error: 'Users List >>> ERROR: ${e.toString()}',
+        error: 'User Object >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+  //#endregion
+
+  //#endregion
+
+  //#region * Get User By Email
+  Future<UserObject> getUserByEmail(String aEmail) async {
+
+    try {
+      String _getUrl = Constants.rotaryUserUrl + "/email/$aEmail";
+      print ("_getUrl: $_getUrl");
+
+      Response response = await get(_getUrl);
+
+      if (response.statusCode <= 300) {
+        String jsonResponse = response.body;
+        print("getUserByEmail/ jsonResponse: $jsonResponse");
+        await LoggerService.log('<UserService> Get User By Email >>> OK >>> UserListFromJSON: $jsonResponse');
+
+        var _user = jsonDecode(jsonResponse);
+        print ("_user: $_user");
+        UserObject _userObj = UserObject.fromJson(_user);
+
+        print("userObj: $_userObj");
+
+        return _userObj;
+      } else {
+        await LoggerService.log('<UserService> Get User By Email >>> Failed: ${response.statusCode}');
+        print('<UserService> Get User By Email >>> Failed: ${response.statusCode}');
+        return null;
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<UserService> Get User By Email >>> ERROR: ${e.toString()}');
+      developer.log(
+        'get User By Email',
+        name: 'UserService',
+        error: 'User Object >>> ERROR: ${e.toString()}',
       );
       return null;
     }
@@ -170,7 +248,7 @@ class UserService {
 
   //#region CRUD: Users
 
-  //#region Insert User To DataBase [WriteToDB]
+  //#region * Insert User [WriteToDB]
   //=============================================================================
   Future insertUserToDataBase(UserObject aUserObj) async {
     try{
@@ -193,9 +271,47 @@ class UserService {
       return null;
     }
   }
+
+  Future insertUser(UserObject aUserObj) async {
+    try {
+      String jsonToPost = aUserObj.userToJson(aUserObj);
+      print ('insertUser / UserObject / jsonToPost: $jsonToPost');
+
+      Response response = await post(Constants.rotaryUserUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+        print ('insertUser / UserObject / jsonResponse: $jsonResponse');
+
+        bool returnVal = jsonResponse.toLowerCase() == 'true';
+        if (returnVal) {
+          await LoggerService.log('<UserService> Insert User >>> OK');
+          return returnVal;
+        } else {
+          await LoggerService.log('<UserService> Insert User >>> Failed');
+          print('<UserService> Insert User >>> Failed');
+          return null;
+        }
+      } else {
+        await LoggerService.log('<UserService> Insert User >>> Failed >>> ${response.statusCode}');
+        print('<UserService> Insert User >>> Failed >>> ${response.statusCode}');
+        return null;
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<UserService> Insert User >>> Server ERROR: ${e.toString()}');
+      developer.log(
+        'insertUser',
+        name: 'UserService',
+        error: 'Insert User >>> Server ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
   //#endregion
 
-  //#region Update User By GuidId To DataBase [WriteToDB]
+  //#region * Update User By Id [WriteToDB]
   //=============================================================================
   Future updateUserByGuidIdToDataBase(UserObject aUserObj) async {
     try{
@@ -218,9 +334,50 @@ class UserService {
       return null;
     }
   }
+
+  Future updateUserById(UserObject aUserObj) async {
+    try {
+      // Convert ConnectedUserObject To Json
+      String jsonToPost = aUserObj.userToJson(aUserObj);
+      print ('updateUserById / UserObject / jsonToPost: $jsonToPost');
+
+      String _updateUrl = Constants.rotaryUserUrl + "/${aUserObj.userGuidId}";
+
+      Response response = await put(_updateUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+        print ('updateUserById / UserObject / jsonResponse: $jsonResponse');
+
+        bool returnVal = jsonResponse.toLowerCase() == 'true';
+        if (returnVal) {
+          await LoggerService.log('<UserService> Update User By Id >>> OK');
+          return returnVal;
+        } else {
+          await LoggerService.log('<UserService> Update User By Id >>> Failed');
+          print('<UserService> Update User By Id >>> Failed');
+          return null;
+        }
+      } else {
+        await LoggerService.log('<UserService> Update User By Id >>> Failed >>> ${response.statusCode}');
+        print('<UserService> Update User By Id >>> Failed >>> ${response.statusCode}');
+        return null;
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<UserService> Update User By Id >>> ERROR: ${e.toString()}');
+      developer.log(
+        'updateUserById',
+        name: 'UserService',
+        error: 'Update User By Id >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
   //#endregion
 
-  //#region Delete User By GuidId To DataBase [WriteToDB]
+  //#region * Delete User By Id [WriteToDB]
   //=============================================================================
   Future deleteUserByGuidIdFromDataBase(UserObject aUserObj) async {
     try{
@@ -237,6 +394,43 @@ class UserService {
         'deleteUserByGuidIdFromDataBase',
         name: 'UserService',
         error: 'Delete User By GuidId To DataBase >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+
+  Future deleteUserById(UserObject aUserObj) async {
+    try {
+      String _deleteUrl = Constants.rotaryUserUrl + "/${aUserObj.userGuidId}";
+
+      Response response = await delete(_deleteUrl, headers: Constants.rotaryUrlHeader);
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+        print ('deleteUserById / UserObj / jsonResponse: $jsonResponse');
+
+        bool returnVal = jsonResponse.toLowerCase() == 'true';
+        if (returnVal) {
+          await LoggerService.log('<UserService> Delete User By Id >>> OK');
+          return returnVal;
+        } else {
+          await LoggerService.log('<UserService> Delete User By Id >>> Failed');
+          print('<UserService> Delete User By Id >>> Failed');
+          return null;
+        }
+      } else {
+        await LoggerService.log('<UserService> Delete User By Id >>> Failed >>> ${response.statusCode}');
+        print('<UserService> Delete User By Id >>> Failed >>> ${response.statusCode}');
+        return null;
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<UserService> Delete User By Id >>> ERROR: ${e.toString()}');
+      developer.log(
+        'deleteUserById',
+        name: 'UserService',
+        error: 'Delete User By Id >>> ERROR: ${e.toString()}',
       );
       return null;
     }

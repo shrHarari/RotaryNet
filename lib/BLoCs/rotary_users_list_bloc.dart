@@ -38,8 +38,14 @@ class RotaryUsersListBloc implements BloC {
 
     if (_textToSearch == null || _textToSearch.length == 0)
       clearUsersList();
-    else
-      _usersList = await userService.getUsersListBySearchQueryFromServer(_textToSearch);
+    else{
+      // _usersList = await userService.getUsersListBySearchQueryFromServer(_textToSearch);
+      //***** MongoDB *****
+      // _usersList = await userService.getAllUsersList();
+      _usersList = await userService.getUsersListBySearchQuery(aTextToSearch);
+      //***** MongoDB *****
+
+    }
 
     _usersController.sink.add(_usersList);
   }
@@ -60,6 +66,10 @@ class RotaryUsersListBloc implements BloC {
     if (_usersList.contains(aUserObj)) {
       await userService.insertUserToDataBase(aUserObj);
 
+      //***** MongoDB *****
+      await userService.insertUser(aUserObj);
+      //***** MongoDB *****
+
       _usersList.add(aUserObj);
       _usersList.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
       _usersController.sink.add(_usersList);
@@ -68,7 +78,11 @@ class RotaryUsersListBloc implements BloC {
 
   Future<void> updateUserByGuidId(UserObject aOldUserObj, UserObject aNewUserObj) async {
     if (_usersList.contains(aOldUserObj)) {
-      await userService.updateUserByGuidIdToDataBase(aNewUserObj);
+      // await userService.updateUserByGuidIdToDataBase(aNewUserObj);
+
+      //***** MongoDB *****
+      await userService.updateUserById(aNewUserObj);
+      //***** MongoDB *****
 
       _usersList.remove(aOldUserObj);
       _usersList.add(aNewUserObj);
@@ -77,14 +91,17 @@ class RotaryUsersListBloc implements BloC {
     }
   }
 
-  Future<void> deleteUserByGuidId(UserObject aUsrObj) async {
-    if (_usersList.contains(aUsrObj)) {
-      await userService.deleteUserByGuidIdFromDataBase(aUsrObj);
+  Future<void> deleteUserByGuidId(UserObject aUserObj) async {
+    if (_usersList.contains(aUserObj)) {
+      await userService.deleteUserByGuidIdFromDataBase(aUserObj);
 
-      _usersList.remove(aUsrObj);
+      //***** MongoDB *****
+      await userService.deleteUserById(aUserObj);
+      //***** MongoDB *****
+
+      _usersList.remove(aUserObj);
       _usersController.sink.add(_usersList);
     }
   }
-//#endregion
-
+  //#endregion
 }

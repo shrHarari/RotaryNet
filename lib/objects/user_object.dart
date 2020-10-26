@@ -73,7 +73,7 @@ class UserObject {
     parsedJson['stayConnected'] == 0 ? _stayConnected = false : _stayConnected = true;
 
     return UserObject(
-        userGuidId: parsedJson['userGuidId'],
+        userGuidId: parsedJson['_id'],
         email: parsedJson['email'],
         firstName : parsedJson['firstName'],
         lastName : parsedJson['lastName'],
@@ -106,7 +106,7 @@ class UserObject {
     jsonFromMap['stayConnected'] == 0 ? _stayConnected = false : _stayConnected = true;
 
     return UserObject(
-          userGuidId: jsonFromMap['userGuidId'],
+          userGuidId: jsonFromMap['_id'],
           email: jsonFromMap['email'],
           firstName : jsonFromMap['firstName'],
           lastName : jsonFromMap['lastName'],
@@ -119,14 +119,27 @@ class UserObject {
   Map<String, dynamic> toMap() {
     // UserType: Convert [Enum] to [String]
     String _userType = EnumToString.parse(userType);
-    return {
-      'userGuidId': userGuidId,
-      'email': email,
-      'firstName': firstName,
-      'lastName': lastName,
-      'password': password,
-      'userType': _userType,
-      'stayConnected': stayConnected ? 1 : 0,
-    };
+
+    if (userGuidId == null) {
+      return {
+        // '_id': userGuidId,
+        'email': email,
+        'firstName': firstName,
+        'lastName': lastName,
+        'password': password,
+        'userType': _userType,
+        'stayConnected': stayConnected ? 1 : 0,
+      };
+    } else {
+      return {
+        '_id': userGuidId,
+        'email': email,
+        'firstName': firstName,
+        'lastName': lastName,
+        'password': password,
+        'userType': _userType,
+        'stayConnected': stayConnected ? 1 : 0,
+      };
+    }
   }
 }

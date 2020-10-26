@@ -132,7 +132,7 @@ class _PersonalAreaPageTabPersonCardState extends State<PersonalAreaPageTabPerso
     // Find the RoleObject Element in a RoleList By roleId ===>>> Set DropDown Initial Value
     int _initialListIndex;
     if (widget.argPersonCardObject.roleId != null) {
-      _initialListIndex = aRotaryRoleObjectsList.indexWhere((listElement) => listElement.roleId == widget.argPersonCardObject.roleId.value);
+      _initialListIndex = aRotaryRoleObjectsList.indexWhere((listElement) => listElement.roleId == widget.argPersonCardObject.roleId);
       selectedRotaryRoleObj = dropdownRotaryRoleItems[_initialListIndex].value;
     } else {
       _initialListIndex = null;
@@ -172,7 +172,7 @@ class _PersonalAreaPageTabPersonCardState extends State<PersonalAreaPageTabPerso
     filterRotaryAreaDropdownMenuItems(widget.argPersonCardObject.areaId);
   }
 
-  void filterRotaryAreaDropdownMenuItems(int aAreaId) {
+  void filterRotaryAreaDropdownMenuItems(String aAreaId) {
     // Filter list & Find the ClusterObject Element in a ClusterList By clusterId ===>>> Set DropDown Initial Value
     int _initialListIndex;
 
@@ -225,7 +225,7 @@ class _PersonalAreaPageTabPersonCardState extends State<PersonalAreaPageTabPerso
         widget.argPersonCardObject.clusterId);
   }
 
-  void filterRotaryClusterDropdownMenuItems(int aAreaId, int aClusterId) {
+  void filterRotaryClusterDropdownMenuItems(String aAreaId, String aClusterId) {
     // Filter list & Find the ClusterObject Element in a ClusterList By clusterId ===>>> Set DropDown Initial Value
     int _initialListIndex;
     dropdownRotaryClusterFilteredItems = dropdownRotaryClusterItems.where((item) =>
@@ -279,7 +279,7 @@ class _PersonalAreaPageTabPersonCardState extends State<PersonalAreaPageTabPerso
         widget.argPersonCardObject.clubId);
   }
 
-  void filterRotaryClubDropdownMenuItems(int aAreaId, int aClusterId, int aClubId) {
+  void filterRotaryClubDropdownMenuItems(String aAreaId, String aClusterId, String aClubId) {
     // Filter list & Find the ClubObject Element in a ClubList By clubId ===>>> Set DropDown Initial Value
     int _initialListIndex;
     if (aClusterId != null) {
@@ -408,7 +408,8 @@ class _PersonalAreaPageTabPersonCardState extends State<PersonalAreaPageTabPerso
               _email, _firstName, _lastName, _firstNameEng, _lastNameEng,
               _phoneNumber, _phoneNumberDialCode, _phoneNumberParse, _phoneNumberCleanLongFormat,
               _pictureUrl, _cardDescription, _internetSiteUrl, _address,
-              _rotaryRolesEnum.convertToEnum(selectedRotaryRoleObj.roleId),
+              // _rotaryRolesEnum.convertToEnum(selectedRotaryRoleObj.roleId),
+              selectedRotaryRoleObj.roleId,
               selectedRotaryAreaObj.areaId, selectedRotaryClusterObj.clusterId, selectedRotaryClubObj.clubId);
 
       int returnVal;

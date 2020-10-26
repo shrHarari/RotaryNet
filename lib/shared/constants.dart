@@ -21,9 +21,16 @@ const Map<String, String> rotaryUrlHeader = {"Content-type": "application/json"}
 const String rotaryUserRegistrationUrl = 'http://159.89.225.231:7775/api/registration/';
 const String rotaryUserLoginUrl = 'http://159.89.225.231:7775/api/login/';
 
-// const String rotaryGetUsersUrl = 'http://localhost:3000/api/user/';
+// const String rotaryGetUsersUrl = 'http://localhost:3030/api/user/';
 /////// ----------------------- localhost = 10.100.102.6 [using ipconfig <command on cmd>]
-const String rotaryGetUsersUrl = 'http://10.100.102.6:3000/api/user';
+// const String rotaryGetUsersUrl = 'http://10.100.102.6:3030/api/user';
+const String rotaryRoleUrl = 'http://10.100.102.6:3030/api/role';
+const String rotaryAreaUrl = 'http://10.100.102.6:3030/api/area';
+const String rotaryClusterUrl = 'http://10.100.102.6:3030/api/cluster';
+const String rotaryClubUrl = 'http://10.100.102.6:3030/api/club';
+const String rotaryUserUrl = 'http://10.100.102.6:3030/api/user';
+const String rotaryPersonUrl = 'http://10.100.102.6:3030/api/person';
+const String rotaryEventUrl = 'http://10.100.102.6:3030/api/event';
 
 const String rotaryGetPersonCardListUrl = 'http://159.89.225.231:7775/api/registration/';
 const String rotaryPersonCardWriteToDataBaseRequestUrl = 'http://159.89.225.231:7775/api/registration/';

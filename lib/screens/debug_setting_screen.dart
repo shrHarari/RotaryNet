@@ -12,6 +12,7 @@ import 'package:rotary_net/services/connected_user_service.dart';
 import 'package:rotary_net/services/globals_service.dart';
 import 'package:rotary_net/services/login_service.dart';
 import 'package:rotary_net/services/registration_service.dart';
+import 'package:rotary_net/services/rotary_area_service.dart';
 import 'package:rotary_net/services/user_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 import 'package:rotary_net/shared/error_message_screen.dart';
@@ -59,6 +60,7 @@ class _DebugSettingsScreen extends State<DebugSettingsScreen> {
 
     UserService _userService = UserService();
     List<UserObject> _userObjList = await _userService.getAllUsersListFromServer();
+    _userObjList = [];
     setUserDropdownMenuItems(_userObjList, _currentConnectedUserObj);
 
     setCurrentLoginState();
@@ -237,20 +239,23 @@ class _DebugSettingsScreen extends State<DebugSettingsScreen> {
             if (snapshot.connectionState == ConnectionState.waiting)
               return Loading();
             else
-            if (snapshot.hasError) {
-              return RotaryErrorMessageScreen(
-                errTitle: 'שגיאה בשליפת נתונים',
-                errMsg: 'אנא פנה למנהל המערכת',
-              );
-            } else {
-              if (snapshot.hasData)
-              {
-                currentDataRequired = snapshot.data;
-                return buildMainScaffoldBody();
-              }
-              else
-                return Center(child: Text('שגיאה בטעינת נתוני מסך'));
-            }
+              /////////////
+              return buildMainScaffoldBody();
+              // if (snapshot.hasError) {
+              //   return RotaryErrorMessageScreen(
+              //     errTitle: 'שגיאה בשליפת נתונים',
+              //     errMsg: 'אנא פנה למנהל המערכת',
+              //   );
+              // } else {
+              //   if (snapshot.hasData)
+              //   {
+              //     currentDataRequired = snapshot.data;
+              //     return buildMainScaffoldBody();
+              //   }
+              //   else
+              //     return Center(child: Text('שגיאה בטעינת נתוני מסך'));
+              // }
+              /////////////
           }
       ),
     );
@@ -425,74 +430,148 @@ class _DebugSettingsScreen extends State<DebugSettingsScreen> {
               ),
               SizedBox(height: 10.0,),
 
-              RaisedButton(
-                  elevation: 0.0,
-                  disabledElevation: 0.0,
-                  color: Colors.blue,
-                  child: Text(
-                    'Initialize Rotary Database',
-                    style: TextStyle(color: Colors.white),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: RaisedButton(
+                        elevation: 0.0,
+                        disabledElevation: 0.0,
+                        color: Colors.blue,
+                        child: Text(
+                          'Init Rotary DB',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () async {
+                          // await RotaryDataBaseProvider.rotaryDB.createRotaryDB();
+
+                          InitDatabaseService _initDatabaseService = InitDatabaseService();
+                          // await _initDatabaseService.insertAllStartedRotaryRoleToDb();
+                          // await _initDatabaseService.insertAllStartedRotaryAreaToDb();
+                          // await _initDatabaseService.insertAllStartedRotaryClusterToDb();
+                          // await _initDatabaseService.insertAllStartedRotaryClubToDb();
+                          // await _initDatabaseService.insertAllStartedUsersToDb();
+
+                          await _initDatabaseService.insertAllStartedPersonCardsToDb();
+                          // await _initDatabaseService.insertAllStartedEventsToDb();
+                          // await _initDatabaseService.insertAllStartedMessagesToDb();
+                          // await _initDatabaseService.insertAllStartedMessageQueueToDb();
+                        }
+                    ),
                   ),
-                  onPressed: () async {
-                    await RotaryDataBaseProvider.rotaryDB.createRotaryDB();
-
-                    InitDatabaseService _initDatabaseService = InitDatabaseService();
-                    await _initDatabaseService.insertAllStartedRotaryRoleToDb();
-                    await _initDatabaseService.insertAllStartedRotaryAreaToDb();
-                    await _initDatabaseService.insertAllStartedRotaryClusterToDb();
-                    await _initDatabaseService.insertAllStartedRotaryClubToDb();
-                    await _initDatabaseService.insertAllStartedUsersToDb();
-                    await _initDatabaseService.insertAllStartedPersonCardsToDb();
-                    await _initDatabaseService.insertAllStartedEventsToDb();
-                    await _initDatabaseService.insertAllStartedMessagesToDb();
-                    await _initDatabaseService.insertAllStartedMessageQueueToDb();
-                  }
-              ),
-              // SizedBox(height: 10.0,),
-
-              RaisedButton(
-                  elevation: 0.0,
-                  disabledElevation: 0.0,
-                  color: Colors.red,
-                  child: Text(
-                    'Delete Rotary Database',
-                    style: TextStyle(color: Colors.white),
+                  SizedBox(width: 10.0,),
+                  Expanded(
+                    flex: 1,
+                    child: RaisedButton(
+                        elevation: 0.0,
+                        disabledElevation: 0.0,
+                        color: Colors.red,
+                        child: Text(
+                          'Delete Rotary DB',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () async {
+                          await RotaryDataBaseProvider.rotaryDB.deleteRotaryDatabase();
+                        }
+                    ),
                   ),
-                  onPressed: () async {
-                    await RotaryDataBaseProvider.rotaryDB.deleteRotaryDatabase();
-                  }
-              ),
-              // SizedBox(height: 10.0,),
-
-              RaisedButton(
-                  elevation: 0.0,
-                  disabledElevation: 0.0,
-                  color: Colors.green,
-                  child: Text(
-                    'Get All Users List From Mongo DB',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: () async {
-
-                    UserService _userService = UserService();
-                    await _userService.getAllUsersListFromDataBase();
-                  }
+                ],
               ),
 
-              RaisedButton(
-                  elevation: 0.0,
-                  disabledElevation: 0.0,
-                  color: Colors.green,
-                  child: Text(
-                    'Create New User In Mongo DB',
-                    style: TextStyle(color: Colors.white),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: RaisedButton(
+                        elevation: 0.0,
+                        disabledElevation: 0.0,
+                        color: Colors.green,
+                        child: Text(
+                          'Get Users',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () async {
+                          UserService _userService = UserService();
+                          await _userService.getAllUsersList();
+                        }
+                    ),
                   ),
-                  onPressed: () async {
+                  SizedBox(width: 5.0,),
+                  Expanded(
+                    flex: 1,
+                    child: RaisedButton(
+                        elevation: 0.0,
+                        disabledElevation: 0.0,
+                        color: Colors.green,
+                        child: Text(
+                          'Create User',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () async {
+                          RegistrationService _registrationService = RegistrationService();
+                          ConnectedUserObject _connectedUserObject;
+                          await _registrationService.sendUserRegistrationRequest(_connectedUserObject);
+                        }
+                    ),
+                  ),
+                  SizedBox(width: 5.0,),
+                  Expanded(
+                    flex: 1,
+                    child: RaisedButton(
+                        elevation: 0.0,
+                        disabledElevation: 0.0,
+                        color: Colors.green,
+                        child: Text(
+                          'Del User',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () async {
+                          UserService _userService = UserService();
+                          UserObject _userObj;
+                          await _userService.deleteUserById(_userObj);
+                        }
+                    ),
+                  ),
+                ],
+              ),
 
-                    RegistrationService _registrationService = RegistrationService();
-                    ConnectedUserObject _connectedUserObject;
-                    await _registrationService.sendUserRegistrationRequestToDataBase(_connectedUserObject);
-                  }
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: RaisedButton(
+                        elevation: 0.0,
+                        disabledElevation: 0.0,
+                        color: Colors.green,
+                        child: Text(
+                          'User By Mail',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () async {
+                          UserService _userService = UserService();
+                          await _userService.getUserByEmail("uma_thurman@gmail.com");
+                        }
+                    ),
+                  ),
+                  SizedBox(width: 5.0,),
+
+                  Expanded(
+                    flex: 1,
+                    child: RaisedButton(
+                        elevation: 0.0,
+                        disabledElevation: 0.0,
+                        color: Colors.green,
+                        child: Text(
+                          'Get Areas',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () async {
+                          RotaryAreaService _areaService = RotaryAreaService();
+                          await _areaService.getAllRotaryAreaList();
+                        }
+                    ),
+                  ),
+                ],
               ),
 
               // SizedBox(height: 10.0,),

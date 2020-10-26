@@ -134,7 +134,7 @@ class InitDataBaseData {
     final String someText = "\\nשל כרטיס הביקור של אלק באלדווי\\nפירוט נוסף\\nועוד פירוט\\nשורה נונספת ארוכה מאודדדדדדדדדדד דדדדדדדדדדדדד דדדדדדדדדדדד  דדדדד\\nועוד שורה ארררררוככככה יחדגיכחגי דגיכגדי דגכי ידגכי דגכי דגכי דגכי\\nסוף";
 
     String personCardRowsJson =
-      '['
+    '['
       '{'
         '"personCardGuidId": "1", '
         '"email": "shr.harari@gmail.com", '
@@ -150,10 +150,10 @@ class InitDataBaseData {
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של שחר הררי", '
         '"internetSiteUrl": "https://www.google.co.il/", '
         '"address": "הנשיאים 6, הוד-השרון ישראל", '
-        '"areaId": 1, '
-        '"clusterId": 1, '
-        '"clubId": 1, '
-        '"roleId": 1 '
+        '"areaId": "ישראל", '
+        '"clusterId": "גוש דן", '
+        '"clubId": "תל-אביב", '
+        '"roleId": "1" '
       '},'
       '{'
         '"personCardGuidId": "2", '
@@ -170,10 +170,10 @@ class InitDataBaseData {
         '"cardDescription": "$someText", '
         '"internetSiteUrl": "", '
         '"address": "ויצמן 32, כפר-סבא ישראל", '
-        '"areaId": 1, '
-        '"clusterId": 1, '
-        '"clubId": 1, '
-        '"roleId": 6 '
+        '"areaId": "ישראל", '
+        '"clusterId": "גוש דן", '
+        '"clubId": "תל-אביב", '
+        '"roleId": "6" '
       '},'
       '{'
         '"personCardGuidId": "3", '
@@ -190,10 +190,10 @@ class InitDataBaseData {
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של גל גדות", '
         '"internetSiteUrl": "", '
         '"address": "יפו 32 ירושלים ישראל", '
-        '"areaId": 1, '
-        '"clusterId": 2, '
-        '"clubId": 1, '
-        '"roleId": 3 '
+        '"areaId": "ישראל", '
+        '"clusterId": "שומרון", '
+        '"clubId": "קיסריה", '
+        '"roleId": "3" '
       '},'
       '{'
         '"personCardGuidId": "4", '
@@ -210,10 +210,10 @@ class InitDataBaseData {
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של טום קרוז", '
         '"internetSiteUrl": "", '
         '"address": "הכנסת 1, ירושלים", '
-        '"areaId": 1, '
-        '"clusterId": 2, '
-        '"clubId": 1, '
-        '"roleId": 4 '
+        '"areaId": "ישראל", '
+        '"clusterId": "שומרון", '
+        '"clubId": "קיסריה", '
+        '"roleId": "4" '
       '},'
       '{'
         '"personCardGuidId": "5", '
@@ -230,10 +230,10 @@ class InitDataBaseData {
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של קמרון דיאז", '
         '"internetSiteUrl": "", '
         '"address": "תל-חי 18, כפר-סבא ישראל", '
-        '"areaId": 1, '
-        '"clusterId": 2, '
-        '"clubId": 1, '
-        '"roleId": 5 '
+        '"areaId": "ישראל", '
+        '"clusterId": "שומרון", '
+        '"clubId": "קיסריה", '
+        '"roleId": "5" '
       '},'
       '{'
         '"personCardGuidId": "6", '
@@ -250,10 +250,10 @@ class InitDataBaseData {
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של האריסון פורד", '
         '"internetSiteUrl": "", '
         '"address": "סוקולוב 6, נתניה", '
-        '"areaId": 1, '
-        '"clusterId": 2, '
-        '"clubId": 1, '
-        '"roleId": 6 '
+        '"areaId": "ישראל", '
+        '"clusterId": "שומרון", '
+        '"clubId": "קיסריה", '
+        '"roleId": "6" '
       '},'
       '{'
         '"personCardGuidId": "7", '
@@ -270,10 +270,10 @@ class InitDataBaseData {
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של גק ניקולסון", '
         '"internetSiteUrl": "", '
         '"address": "ויצמן 6, חדרה", '
-        '"areaId": 1, '
-        '"clusterId": 2, '
-        '"clubId": 3, '
-        '"roleId": 6 '
+        '"areaId": "ישראל", '
+        '"clusterId": "שומרון", '
+        '"clubId": "כפר יונה", '
+        '"roleId": "6" '
       '},'
       '{'
         '"personCardGuidId": "8", '
@@ -290,10 +290,10 @@ class InitDataBaseData {
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של גוליה רוברטס", '
         '"internetSiteUrl": "google.com", '
         '"address": "סוקולוב 6, רמת-השרון", '
-        '"areaId": 1, '
-        '"clusterId": 3, '
-        '"clubId": 1, '
-        '"roleId": 4 '
+        '"areaId": "ישראל", '
+        '"clusterId": "חיפה והקריות", '
+        '"clubId": "חיפה", '
+        '"roleId": "4" '
       '},'
       '{'
         '"personCardGuidId": "9", '
@@ -310,10 +310,10 @@ class InitDataBaseData {
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של פול ניומן", '
         '"internetSiteUrl": "google.com", '
         '"address": "וינגייט 56, באר-שבע", '
-        '"areaId": 1, '
-        '"clusterId": 3, '
-        '"clubId": 1, '
-        '"roleId": 6 '
+        '"areaId": "ישראל", '
+        '"clusterId": "חיפה והקריות", '
+        '"clubId": "חיפה", '
+        '"roleId": "6" '
       '},'
       '{'
         '"personCardGuidId": "10", '
@@ -330,10 +330,10 @@ class InitDataBaseData {
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של רוברט דה-נירו", '
         '"internetSiteUrl": "google.com", '
         '"address": "הנשיא 6, פתח-תקווה", '
-        '"areaId": 2, '
-        '"clusterId": 1, '
-        '"clubId": 1, '
-        '"roleId": 3 '
+        '"areaId": "ארצות הברית", '
+        '"clusterId": "חוף מערבי", '
+        '"clubId": "ניו-יורק", '
+        '"roleId": "3" '
       '},'
       '{'
         '"personCardGuidId": "11", '
@@ -350,10 +350,10 @@ class InitDataBaseData {
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של אומה תורמן", '
         '"internetSiteUrl": "google.com", '
         '"address": "6767 Hollywood Blvd, Los Angeles, CA 90028, ארצות הברית", '
-        '"areaId": 3, '
-        '"clusterId": 1, '
-        '"clubId": 1, '
-        '"roleId": 3 '
+        '"areaId": "צרפת", '
+        '"clusterId": "מרכז צרפת", '
+        '"clubId": "פריז", '
+        '"roleId": "3" '
       '},'
       '{'
         '"personCardGuidId": "12", '
@@ -370,12 +370,12 @@ class InitDataBaseData {
         '"cardDescription": "תיאור מפורט של כרטיס הביקור של דאסטין הופמן", '
         '"internetSiteUrl": "google.com", '
         '"address": "הירקון 7, תל-אביב", '
-        '"areaId": 1, '
-        '"clusterId": 3, '
-        '"clubId": 2, '
-        '"roleId": 6 '
+        '"areaId": "ישראל", '
+        '"clusterId": "חיפה והקריות", '
+        '"clubId": "נהריה", '
+        '"roleId": "6" '
       '}'
-      ']';
+    ']';
 
     return personCardRowsJson;
   }
@@ -527,26 +527,32 @@ class InitDataBaseData {
         '['
         '{'
         '"roleId": 1, '
+        '"roleEnum": 1, '
         '"roleName": "יושב ראש" '
         '},'
         '{'
         '"roleId": 2, '
+        '"roleEnum": 2, '
         '"roleName": "גזבר" '
         '},'
         '{'
         '"roleId": 3, '
+        '"roleEnum": 3, '
         '"roleName": "מזכיר אזור" '
         '},'
         '{'
         '"roleId": 4, '
+        '"roleEnum": 4, '
         '"roleName": "מזכיר אשכול" '
         '},'
         '{'
         '"roleId": 5, '
+        '"roleEnum": 5, '
         '"roleName": "מזכיר מועדון" '
         '},'
         '{'
         '"roleId": 6, '
+        '"roleEnum": 6, '
         '"roleName": "חבר" '
         '}'
         ']';
@@ -559,27 +565,80 @@ class InitDataBaseData {
   static String createJsonRowsForRotaryArea() {
 
     String rotaryAreasListJson =
-        '['
+      '['
         '{'
-        '"areaId": 1, '
-        '"areaName": "ישראל" '
+          '"areaId": 1, '
+          '"areaName": "ישראל" '
         '},'
         '{'
-        '"areaId": 2, '
-        '"areaName": "ארצות הברית" '
+          '"areaId": 2, '
+          '"areaName": "ארצות הברית" '
         '},'
         '{'
-        '"areaId": 3, '
-        '"areaName": "צרפת" '
+          '"areaId": 3, '
+          '"areaName": "צרפת" '
         '}'
-        ']';
+      ']';
 
     return rotaryAreasListJson;
   }
   //#endregion
 
   //#region Create Json Rows: Rotary Cluster [Data for Debug]
-  static String createJsonRowsForRotaryCluster() {
+  static String createJsonRowsForRotaryCluster(String aAreaName) {
+    String rotaryClusterListJson;
+
+    switch (aAreaName) {
+      case 'ישראל':         // ישראל
+        rotaryClusterListJson =
+          '['
+            '{'
+              '"clusterId": 1, '
+              '"clusterName": "גוש דן" '
+            '},'
+            '{'
+              '"clusterId": 2, '
+              '"clusterName": "שומרון" '
+            '},'
+            '{'
+              '"clusterId": 3, '
+              '"clusterName": "חיפה והקריות" '
+            '}'
+          ']';
+        break;
+      case 'ארצות הברית':         // ארצות הברית
+        rotaryClusterListJson =
+        '['
+          '{'
+            '"clusterId": 1, '
+            '"clusterName": "חוף מזרחי" '
+          '},'
+          '{'
+            '"clusterId": 2, '
+            '"clusterName": "חוף מערבי" '
+          '}'
+        ']';
+        break;
+      case 'צרפת':         // צרפת
+        rotaryClusterListJson =
+        '['
+          '{'
+            '"clusterId": 1, '
+            '"clusterName": "מרכז צרפת" '
+          '},'
+          '{'
+            '"clusterId": 2, '
+            '"clusterName": "אזור החוף" '
+          '}'
+        ']';
+        break;
+    }
+    return rotaryClusterListJson;
+  }
+  //#endregion
+
+  //#region Create Json Rows: Rotary Cluster OLD [Data for Debug]
+  static String createJsonRowsForRotaryClusterOLD() {
 
     String rotaryClusterListJson =
         '['
@@ -625,7 +684,116 @@ class InitDataBaseData {
   //#endregion
 
   //#region Create Json Rows: Rotary Club [Data for Debug]
-  static String createJsonRowsForRotaryClub() {
+  static String createJsonRowsForRotaryClub(String  aClusterName) {
+    String rotaryClubsListJson;
+
+    switch (aClusterName) {
+      case 'גוש דן':
+        rotaryClubsListJson =
+        '['
+          '{'
+            '"clubId": 1, '
+            '"clubName": "תל-אביב", '
+            '"clubAddress": "תל-אביב, ויצמן 1", '
+            '"clubMail": "tel-aviv@rotary.net", '
+            '"clubManagerGuidId": "1" '
+          '},'
+          '{'
+            '"clubId": 2, '
+            '"clubName": "כפר-סבא", '
+            '"clubAddress": "כפר-סבא, ויצמן 1", '
+            '"clubMail": "kfar-saba@rotary.net", '
+            '"clubManagerGuidId": "1" '
+          '}'
+        ']';
+        break;
+      case 'שומרון':
+        rotaryClubsListJson =
+        '['
+          '{'
+            '"clubId": 1, '
+            '"clubName": "קיסריה", '
+            '"clubAddress": "קיסריה, ויצמן 1", '
+            '"clubMail": "caesarea@rotary.net", '
+            '"clubManagerGuidId": "2" '
+          '},'
+          '{'
+            '"clubId": 2, '
+            '"clubName": "חדרה", '
+            '"clubAddress": "חדרה, ויצמן 1", '
+            '"clubMail": "hadera@rotary.net", '
+            '"clubManagerGuidId": "2" '
+          '},'
+          '{'
+            '"clubId": 3, '
+            '"clubName": "כפר יונה", '
+            '"clubAddress": "כפר יונה, ויצמן 1", '
+            '"clubMail": "kfar-yona@rotary.net", '
+            '"clubManagerGuidId": "2" '
+          '},'
+          '{'
+            '"clubId": 4, '
+            '"clubName": "פרדס חנה", '
+            '"clubAddress": "פרדס חנה, ויצמן 1", '
+            '"clubMail": "pardes-hana@rotary.net", '
+            '"clubManagerGuidId": "3" '
+          '}'
+        ']';
+        break;
+      case 'חיפה והקריות':
+        rotaryClubsListJson =
+        '['
+          '{'
+            '"clubId": 1, '
+            '"clubName": "חיפה", '
+            '"clubAddress": "חיפה, ויצמן 1", '
+            '"clubMail": "haiffa@rotary.net", '
+            '"clubManagerGuidId": "3" '
+          '},'
+          '{'
+            '"clubId": 2, '
+            '"clubName": "נהריה", '
+            '"clubAddress": "נהריה, ויצמן 1", '
+            '"clubMail": "naharia@rotary.net", '
+            '"clubManagerGuidId": "4" '
+          '}'
+        ']';
+        break;
+      case 'חוף מזרחי':
+        rotaryClubsListJson =
+        '['
+          '{'
+            '"clubId": 1, '
+            '"clubName": "ניו-יורק", '
+            '"clubAddress": "ניו-יורק, השדרה החמישית 99", '
+            '"clubMail": "naharia@rotary.net", '
+            '"clubManagerGuidId": "4" '
+          '}'
+        ']';
+        break;
+      case 'חוף מערבי':
+        break;
+      case 'מרכז צרפת':
+        rotaryClubsListJson =
+        '['
+          '{'
+            '"clubId": 1, '
+            '"clubName": "פריז", '
+            '"clubAddress": "פריז, שאנז-אליזה 1", '
+            '"clubMail": "naharia@rotary.net", '
+            '"clubManagerGuidId": "4" '
+          '}'
+        ']';
+        break;
+      case 'אזור החוף':
+        break;
+    }
+    return rotaryClubsListJson;
+  }
+  //#endregion
+
+  //#region Create Json Rows: Rotary Club OLD [Data for Debug]
+  static String createJsonRowsForRotaryClubOLD() {
 
     String rotaryClubsListJson =
         '['

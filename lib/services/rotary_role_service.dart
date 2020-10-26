@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart';
 import 'package:rotary_net/database/rotary_database_provider.dart';
 import 'package:rotary_net/objects/rotary_role_object.dart';
 import 'package:rotary_net/services/logger_service.dart';
+import 'package:rotary_net/shared/constants.dart' as Constants;
 import 'dart:developer' as developer;
 import 'globals_service.dart';
 
@@ -10,24 +13,27 @@ class RotaryRoleService {
   //#region Create RotaryRole As Object
   //=============================================================================
   RotaryRoleObject createRotaryRoleAsObject(
-      int aRoleId,
+      String aRoleId,
+      int aRoleEnum,
       String aRoleName,
       )
   {
     if (aRoleId == null)
       return RotaryRoleObject(
-        roleId: 0,
+        roleId: '0',
+        roleEnum: 0,
         roleName: '',
       );
     else
       return RotaryRoleObject(
         roleId: aRoleId,
+        roleEnum: aRoleEnum,
         roleName: aRoleName,
       );
   }
   //#endregion
 
-  //#region Get All RotaryRole List From Server [GET]
+  //#region * Get All RotaryRoles List [GET]
   // =========================================================
   Future getAllRotaryRoleListFromServer() async {
     try {
@@ -64,9 +70,41 @@ class RotaryRoleService {
       return null;
     }
   }
+
+  Future getAllRotaryRolesList() async {
+    try {
+      Response response = await get(Constants.rotaryRoleUrl);
+
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+        print("GetAllRolesListFromMongoDb/ jsonResponse: $jsonResponse");
+        await LoggerService.log('<RotaryRoleService> Get All Rotary Roles List >>> OK\nHeader: $contentType \nRotaryRoleListFromJSON: $jsonResponse');
+
+        var rolesList = jsonDecode(jsonResponse) as List;    // List of PersonCard to display;
+        List<RotaryRoleObject> rolesObjList = rolesList.map((roleJson) => RotaryRoleObject.fromJson(roleJson)).toList();
+
+        return rolesObjList;
+      } else {
+        await LoggerService.log('<RotaryRoleService> Get All RotaryRoles List >>> Failed: ${response.statusCode}');
+        print('<RotaryRoleService> Get All RotaryRoles List >>> Failed: ${response.statusCode}');
+        return null;
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<RotaryRoleService> Get All RotaryRoles List >>> ERROR: ${e.toString()}');
+      developer.log(
+        'getAllRotaryRolesList',
+        name: 'RotaryRoleService',
+        error: 'Get All RotaryRoles List >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
   //#endregion
 
-  //#region Get All RotaryRole List From Server [GET]
+  //#region * Get RotaryRole By RoleId [GET]
   // =========================================================
   Future getRotaryRoleByRoleIdFromServer(int aRoleId) async {
     try {
@@ -99,11 +137,87 @@ class RotaryRoleService {
       return null;
     }
   }
+
+  Future getRotaryRoleByRoleId(String aRoleId) async {
+    try {
+      String _getUrl = Constants.rotaryRoleUrl + "/$aRoleId";
+      print ("_getUrl: $_getUrl");
+
+      Response response = await get(_getUrl);
+
+      if (response.statusCode <= 300) {
+        String jsonResponse = response.body;
+        print("getRotaryRoleByRoleId/ jsonResponse: $jsonResponse");
+        await LoggerService.log('<RotaryRoleService> Get RotaryRole By RoleId >>> OK >>> RotaryRoleFromJSON: $jsonResponse');
+
+        var _role = jsonDecode(jsonResponse);
+        print ("_role: $_role");
+        RotaryRoleObject _roleObj = RotaryRoleObject.fromJson(_role);
+
+        print("_roleObj: $_roleObj");
+
+        return _roleObj;
+      } else {
+        await LoggerService.log('<RotaryRoleService> Get RotaryRole By RoleId >>> Failed: ${response.statusCode}');
+        print('<RotaryRoleService> Get RotaryRole By RoleId >>> Failed: ${response.statusCode}');
+        return null;
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<RotaryRoleService> Get Get RotaryRole By RoleId >>> ERROR: ${e.toString()}');
+      developer.log(
+        'getRotaryRoleByRoleId',
+        name: 'RotaryRoleService',
+        error: 'Get RotaryRole By RoleId >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
   //#endregion
 
-  //#region CRUD: Area
+  //#region * Get RotaryRole By RoleEnum [GET]
+  // =========================================================
 
-  //#region Insert RotaryRole To DataBase [WriteToDB]
+  Future getRotaryRoleByRoleEnum(int aRoleEnum) async {
+    try {
+      String _getUrl = Constants.rotaryRoleUrl + "/roleEnum/$aRoleEnum";
+      print ("_getUrl: $_getUrl");
+
+      Response response = await get(_getUrl);
+
+      if (response.statusCode <= 300) {
+        String jsonResponse = response.body;
+        print("getRotaryRoleByRoleEnum/ jsonResponse: $jsonResponse");
+        await LoggerService.log('<RotaryRoleService> Get RotaryRole By RoleEnum >>> OK >>> RotaryRoleFromJSON: $jsonResponse');
+
+        var _role = jsonDecode(jsonResponse);
+        print ("_role: $_role");
+        RotaryRoleObject _roleObj = RotaryRoleObject.fromJson(_role);
+
+        print("_roleObj: $_roleObj");
+
+        return _roleObj;
+      } else {
+        await LoggerService.log('<RotaryRoleService> Get RotaryRole By RoleEnum >>> Failed: ${response.statusCode}');
+        print('<RotaryRoleService> Get RotaryRole By RoleEnum >>> Failed: ${response.statusCode}');
+        return null;
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<RotaryRoleService> Get Get RotaryRole By RoleEnum >>> ERROR: ${e.toString()}');
+      developer.log(
+        'getRotaryRoleByRoleEnum',
+        name: 'RotaryRoleService',
+        error: 'Get RotaryRole By RoleEnum >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+  //#endregion
+
+  //#region CRUD: RotaryRole
+
+  //#region * Insert RotaryRole [WriteToDB]
   //=============================================================================
   Future insertRotaryRoleToDataBase(RotaryRoleObject aRotaryRoleObj) async {
     try{
@@ -124,9 +238,47 @@ class RotaryRoleService {
       return null;
     }
   }
+
+  Future insertRotaryRole(RotaryRoleObject aRotaryRoleObj) async {
+    try {
+      String jsonToPost = aRotaryRoleObj.rotaryRoleObjectToJson(aRotaryRoleObj);
+      print ('insertRotaryRole / RotaryRoleObject / jsonToPost: $jsonToPost');
+
+      Response response = await post(Constants.rotaryRoleUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+        print ('insertRotaryRole / RotaryRoleObject / jsonResponse: $jsonResponse');
+
+        bool returnVal = jsonResponse.toLowerCase() == 'true';
+        if (returnVal) {
+          await LoggerService.log('<RotaryRoleService> Insert RotaryRole >>> OK');
+          return returnVal;
+        } else {
+          await LoggerService.log('<RotaryRoleService> Insert RotaryRole >>> Failed');
+          print('<RotaryRoleService> Insert RotaryRole >>> Failed');
+          return null;
+        }
+      } else {
+        await LoggerService.log('<RotaryRoleService> Insert RotaryRole >>> Failed >>> ${response.statusCode}');
+        print('<RotaryRoleService> Insert RotaryRole >>> Failed >>> ${response.statusCode}');
+        return null;
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<RotaryRoleService> Insert RotaryRole >>> ERROR: ${e.toString()}');
+      developer.log(
+        'insertRotaryRole',
+        name: 'RotaryRoleService',
+        error: 'Insert RotaryRole >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
   //#endregion
 
-  //#region Update RotaryRole By RoleId To DataBase [WriteToDB]
+  //#region * Update RotaryRole By RoleId [WriteToDB]
   //=============================================================================
   Future updateRotaryRoleByRoleIdToDataBase(RotaryRoleObject aRotaryRoleObj) async {
     try{
@@ -147,9 +299,46 @@ class RotaryRoleService {
       return null;
     }
   }
+
+  Future updateRotaryRoleByRoleId(RotaryRoleObject aRotaryRoleObj) async {
+    try {
+      String jsonToPost = aRotaryRoleObj.rotaryRoleObjectToJson(aRotaryRoleObj);
+      print ('updateRotaryRoleByRoleId / RotaryRoleObject / jsonToPost: $jsonToPost');
+
+      String _updateUrl = Constants.rotaryRoleUrl + "/${aRotaryRoleObj.roleId}";
+
+      Response response = await put(_updateUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+        print('updateRotaryRole / RotaryRoleObject / jsonResponse: $jsonResponse');
+
+        bool returnVal = jsonResponse.toLowerCase() == 'true';
+        if (returnVal) {
+          await LoggerService.log('<RotaryRoleService> Update RotaryRole By RoleId >>> OK');
+          return returnVal;
+        } else {
+          await LoggerService.log(
+              '<RotaryRoleService> Update RotaryRole By RoleId >>> Failed');
+          print('<RotaryRoleService> Update RotaryRole By RoleId >>> Failed');
+          return null;
+        }
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<RotaryRoleService> Update RotaryRole By RoleId >>> ERROR: ${e.toString()}');
+      developer.log(
+        'updateRotaryRoleByRoleId',
+        name: 'RotaryRoleService',
+        error: 'Update RotaryRole By RoleId >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
   //#endregion
 
-  //#region Delete RotaryRole By RoleId From DataBase [WriteToDB]
+  //#region * Delete RotaryRole By RoleId [WriteToDB]
   //=============================================================================
   Future deleteRotaryRoleByRoleIdFromDataBase(RotaryRoleObject aRotaryRoleObj) async {
     try{
@@ -166,6 +355,43 @@ class RotaryRoleService {
         'deleteRotaryRoleByRoleIdFromDataBase',
         name: 'RotaryRoleService',
         error: 'Delete Rotary Role By RoleId From DataBase >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+
+  Future deleteRotaryRoleByRoleId(RotaryRoleObject aRotaryRoleObj) async {
+    try {
+      String _deleteUrl = Constants.rotaryRoleUrl + "/${aRotaryRoleObj.roleId}";
+
+      Response response = await delete(_deleteUrl, headers: Constants.rotaryUrlHeader);
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+        print ('deleteRotaryRoleByRoleId / RotaryRoleObject / jsonResponse: $jsonResponse');
+
+        bool returnVal = jsonResponse.toLowerCase() == 'true';
+        if (returnVal) {
+          await LoggerService.log('<RotaryRoleService> Delete RotaryRole By RoleId >>> OK');
+          return returnVal;
+        } else {
+          await LoggerService.log('<RotaryRoleService> Delete RotaryRole By RoleId >>> Failed');
+          print('<RotaryRoleService> Delete RotaryRole By RoleId >>> Failed');
+          return null;
+        }
+      } else {
+        await LoggerService.log('<UserService> Delete RotaryRole By RoleId >>> Failed >>> ${response.statusCode}');
+        print('<UserService> Delete RotaryRole By RoleId >>> Failed >>> ${response.statusCode}');
+        return null;
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<RotaryRoleService> Delete Rotary Role By RoleId >>> ERROR: ${e.toString()}');
+      developer.log(
+        'deleteRotaryRoleByRoleId',
+        name: 'RotaryRoleService',
+        error: 'Delete Rotary Role By RoleId >>> ERROR: ${e.toString()}',
       );
       return null;
     }
