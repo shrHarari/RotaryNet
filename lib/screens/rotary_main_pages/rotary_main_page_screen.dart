@@ -4,8 +4,7 @@ import 'package:rotary_net/BLoCs/bloc_provider.dart';
 import 'package:rotary_net/BLoCs/messages_list_bloc.dart';
 import 'package:rotary_net/objects/connected_user_global.dart';
 import 'package:rotary_net/objects/connected_user_object.dart';
-import 'package:rotary_net/objects/login_object.dart';
-import 'package:rotary_net/objects/message_with_description_object.dart';
+import 'package:rotary_net/objects/message_populated_object.dart';
 import 'package:rotary_net/screens/debug_setting_screen.dart';
 import 'package:rotary_net/screens/event_search_result_pages/event_search_result_page_screen.dart';
 import 'package:rotary_net/screens/message_detail_pages/rotary_main_page_message_list_tile.dart';
@@ -21,9 +20,6 @@ import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class RotaryMainPageScreen extends StatefulWidget {
   static const routeName = '/RotaryMainPage';
-  final LoginObject argLoginObject;
-
-  RotaryMainPageScreen({Key key, @required this.argLoginObject}) : super(key: key);
 
   @override
   _RotaryMainPageScreenState createState() => _RotaryMainPageScreenState();
@@ -43,13 +39,13 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
   TextEditingController searchController = new TextEditingController();
 
   MessagesListBloc messagesBloc;
-  List<MessageWithDescriptionObject> currentMessagesList;
+  List<MessagePopulatedObject> currentMessagesList;
 
   @override
   void initState() {
 
     messagesBloc = BlocProvider.of<MessagesListBloc>(context);
-    messagesBloc.getMessagesListWithDescription();
+    messagesBloc.getMessagesListPopulated('');
 
     //#region Lock Screen orientation
     SystemChrome.setPreferredOrientations([
@@ -103,7 +99,7 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DebugSettingsScreen(argLoginObject: widget.argLoginObject,),
+        builder: (context) => DebugSettingsScreen(),
       ),
     );
   }
@@ -208,13 +204,13 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
   @override
   Widget build(BuildContext context) {
     return loading ? Loading() :
-      StreamBuilder<List<MessageWithDescriptionObject>>(
-        stream: messagesBloc.messagesWithDescriptionStream,
-        initialData: messagesBloc.messagesListWithDescription,
+      StreamBuilder<List<MessagePopulatedObject>>(
+        stream: messagesBloc.messagesPopulatedStream,
+        initialData: messagesBloc.messagesListPopulated,
         builder: (context, snapshot) {
           currentMessagesList =
           (snapshot.connectionState == ConnectionState.waiting)
-              ? messagesBloc.messagesListWithDescription
+              ? messagesBloc.messagesListPopulated
               : snapshot.data;
 
         return Scaffold(
@@ -285,7 +281,7 @@ class _RotaryMainPageScreenState extends State<RotaryMainPageScreen> {
                             itemExtent: 220.0,
                             delegate: SliverChildBuilderDelegate((context, index) {
                                 return RotaryMainPageMessageListTile(
-                                  argMessageWithDescriptionObject: currentMessagesList[index],
+                                  argMessagePopulatedObject: currentMessagesList[index],
                                 );
                               },
                               childCount: currentMessagesList.length,

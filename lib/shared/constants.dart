@@ -19,7 +19,6 @@ const String rotaryLoggerFileName = 'Rotary_Log.txt';
 const Map<String, String> rotaryUrlHeader = {"Content-type": "application/json"};
 
 const String rotaryUserRegistrationUrl = 'http://159.89.225.231:7775/api/registration/';
-const String rotaryUserLoginUrl = 'http://159.89.225.231:7775/api/login/';
 
 // const String rotaryGetUsersUrl = 'http://localhost:3030/api/user/';
 /////// ----------------------- localhost = 10.100.102.6 [using ipconfig <command on cmd>]
@@ -29,8 +28,11 @@ const String rotaryAreaUrl = 'http://10.100.102.6:3030/api/area';
 const String rotaryClusterUrl = 'http://10.100.102.6:3030/api/cluster';
 const String rotaryClubUrl = 'http://10.100.102.6:3030/api/club';
 const String rotaryUserUrl = 'http://10.100.102.6:3030/api/user';
-const String rotaryPersonUrl = 'http://10.100.102.6:3030/api/person';
+const String rotaryPersonCardUrl = 'http://10.100.102.6:3030/api/personcard';
 const String rotaryEventUrl = 'http://10.100.102.6:3030/api/event';
+const String rotaryMessageUrl = 'http://10.100.102.6:3030/api/message';
+
+const String rotaryUserLoginUrl = 'http://10.100.102.6:3030/api/user/login';
 
 const String rotaryGetPersonCardListUrl = 'http://159.89.225.231:7775/api/registration/';
 const String rotaryPersonCardWriteToDataBaseRequestUrl = 'http://159.89.225.231:7775/api/registration/';
@@ -46,6 +48,7 @@ const String rotaryAssetEventImageUrl = 'C:/FLUTTER_OCTIA/rotary_net/assets/imag
 //#region User Data: Secure Storage [Key Name]
 // ==============================================================
 const String rotaryUserGuidId = 'Rotary User Guid ID';
+const String rotaryUserPersonCardId = 'Rotary User Person Card ID';
 const String rotaryUserEmail = 'Rotary User Email';
 const String rotaryUserFirstName = 'Rotary User First Name';
 const String rotaryUserLastName = 'Rotary User Family Name';
@@ -75,7 +78,6 @@ enum SearchTypeEnum{PersonCard, Event}
 enum RotaryRolesEnum{RotaryManager, Gizbar, AreaManager, ClusterManager, ClubManager, Member}
 
 extension RotaryRolesEnumExtension on RotaryRolesEnum {
-
   int get value {
     switch (this) {
       case RotaryRolesEnum.RotaryManager:

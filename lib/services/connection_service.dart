@@ -13,15 +13,18 @@ class ConnectionService {
           _connectivity = result;
         });
 
-      if(_connectivity != ConnectivityResult.none) {
+      if (_connectivity != ConnectivityResult.none) {
+        print('<ConnectionService> Check Connection >>> OK');
         await LoggerService.log('<ConnectionService> Check Connection >>> OK');
         return true;
       } else {
+        print('<ConnectionService> Check Connection >>> Failed >>> $_connectivity');
         await LoggerService.log('<ConnectionService> Check Connection >>> Failed >>> $_connectivity');
         return false;
       }
     }
     catch  (e) {
+      print('<ConnectionService> Check Connection >>> ERROR: ${e.toString()}');
       await LoggerService.log('<ConnectionService> Check Connection >>> ERROR: ${e.toString()}');
       developer.log(
         'checkConnection',

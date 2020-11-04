@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:rotary_net/database/init_database_data.dart';
-import 'package:rotary_net/database/rotary_database_provider.dart';
 import 'package:rotary_net/objects/event_object.dart';
 import 'package:rotary_net/objects/message_object.dart';
-import 'package:rotary_net/objects/message_queue_object.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
 import 'package:rotary_net/objects/rotary_area_object.dart';
 import 'package:rotary_net/objects/rotary_club_object.dart';
@@ -161,42 +159,7 @@ class InitDatabaseService {
 
     starterMessagesList = await initializeMessagesTableData();
 
-    starterMessagesList.forEach((MessageObject messageObj) async => await RotaryDataBaseProvider.rotaryDB.insertMessage(messageObj));
-  }
-  //#endregion
-
-  //#region Initialize MessageQueue Table Data [INIT MessageQueue BY JSON DATA]
-  // ========================================================================
-  Future initializeMessageQueueTableData() async {
-    try {
-      String initializeMessageQueueJsonForDebug = InitDataBaseData.createJsonRowsForMessageQueue();
-
-      var initializeMessageQueueListForDebug = jsonDecode(initializeMessageQueueJsonForDebug) as List;    // List of Users to display;
-      List<MessageQueueObject> messageQueueObjListForDebug = initializeMessageQueueListForDebug.map((messageQueueJsonDebug) =>
-          MessageQueueObject.fromJson(messageQueueJsonDebug)).toList();
-
-      messageQueueObjListForDebug.sort((a, b) => a.messageGuidId.compareTo(b.messageGuidId));
-      return messageQueueObjListForDebug;
-    }
-    catch (e) {
-      await LoggerService.log('<InitDatabaseService> Get MessageQueue List From Server >>> ERROR: ${e.toString()}');
-      developer.log(
-        'initializeMessageQueueTableData',
-        name: 'InitDatabaseService',
-        error: 'MessageQueue List >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-  //#endregion
-
-  //#region insert All Started MessageQueue To DB
-  Future insertAllStartedMessageQueueToDb() async {
-    List<MessageQueueObject> starterMessageQueueList;
-
-    starterMessageQueueList = await initializeMessageQueueTableData();
-
-    starterMessageQueueList.forEach((MessageQueueObject messageQueueObj) async => await RotaryDataBaseProvider.rotaryDB.insertMessageQueue(messageQueueObj));
+    // starterMessagesList.forEach((MessageObject messageObj) async => await RotaryDataBaseProvider.rotaryDB.insertMessage(messageObj));
   }
   //#endregion
 

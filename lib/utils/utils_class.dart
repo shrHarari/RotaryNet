@@ -153,17 +153,14 @@ class Utils {
   Future<void> launchInMapByPosition(String aAddress) async {
     try {
       List<Placemark> placeMarksList = await Geolocator().placemarkFromAddress(aAddress);
-//      print ('>>>>>>>> Placemarks: ${placemarks[0].toJson()}');
 
       if (placeMarksList != null && placeMarksList.isNotEmpty) {
         final List<String> position = placeMarksList.map((placeMark) =>
         placeMark.position?.latitude.toString() + ', ' + placeMark.position?.longitude.toString()).toList();
-//        print ('>>>>>>>> coords: ${position}');
 
         final Placemark pos = placeMarksList[0];
         double latitude = pos.position?.latitude;
         double longitude = pos.position?.longitude;
-//        print ('>>>>>>>> Latitude: $latitude, Longitude: $longitude');
 
         String googleUrl = 'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
         if (await canLaunch(googleUrl)) {

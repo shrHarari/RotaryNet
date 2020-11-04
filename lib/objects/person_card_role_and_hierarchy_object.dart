@@ -90,3 +90,51 @@ class PersonCardRoleAndHierarchyListObject {
     this.rotaryClubObjectList,
   });
 }
+
+class PersonCardRoleAndHierarchyIdObject {
+  String areaId;
+  String clusterId;
+  String clubId;
+  String roleId;
+  int roleEnum;
+
+  PersonCardRoleAndHierarchyIdObject({
+    this.areaId,
+    this.clusterId,
+    this.clubId,
+    this.roleId,
+    this.roleEnum,
+  });
+
+  //#region Create RoleAndHierarchyId As Object
+  //=============================================================================
+  static PersonCardRoleAndHierarchyIdObject createPersonCardRoleAndHierarchyIdAsObject(
+      String aAreaId,
+      String aClusterId,
+      String aClubId,
+      String aRoleId,
+      int aRoleEnum,
+      )
+  {
+    if (aRoleId == null)
+      return PersonCardRoleAndHierarchyIdObject(
+        areaId: null,
+        clusterId: null,
+        clubId: null,
+        roleId: null,
+        roleEnum: null,
+      );
+    else
+      return PersonCardRoleAndHierarchyIdObject(
+        areaId: aAreaId,
+        clusterId: aClusterId,
+        clubId: aClubId,
+        roleId: aRoleId,
+        roleEnum: aRoleEnum,
+      );
+  }
+  //#endregion
+
+}
+
+

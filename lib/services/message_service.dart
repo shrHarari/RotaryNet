@@ -1,14 +1,12 @@
 import 'dart:async';
-import 'package:rotary_net/database/rotary_database_provider.dart';
-import 'package:rotary_net/objects/connected_user_object.dart';
+import 'dart:convert';
+import 'package:http/http.dart';
 import 'package:rotary_net/objects/message_object.dart';
-import 'package:rotary_net/objects/message_queue_object.dart';
-import 'package:rotary_net/objects/message_with_description_object.dart';
-import 'package:rotary_net/services/connected_user_service.dart';
+import 'package:rotary_net/objects/message_populated_object.dart';
 import 'package:rotary_net/services/logger_service.dart';
+import 'package:rotary_net/services/person_card_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 import 'dart:developer' as developer;
-import 'globals_service.dart';
 
 class MessageService {
 
@@ -24,32 +22,30 @@ class MessageService {
     if (aMessageGuidId == null)
       return MessageObject(
         messageGuidId: '',
-        composerGuidId: '',
+        composerId: '',
         messageText: '',
         messageCreatedDateTime: null,
       );
     else
       return MessageObject(
         messageGuidId: aMessageGuidId,
-        composerGuidId: aComposerGuidId,
+        composerId: aComposerGuidId,
         messageText: aMessageText,
         messageCreatedDateTime: aMessageCreatedDateTime,
       );
   }
   //#endregion
 
-  //#region Create Message With Description As Object
+  //#region Create Message Populated As Object
   //=============================================================================
-  MessageWithDescriptionObject createMessageWithDescriptionAsObject(
+  MessagePopulatedObject createMessagePopulatedAsObject(
       String aMessageGuidId,
-      String aComposerGuidId,
+      String aComposerId,
       String aComposerFirstName,
       String aComposerLastName,
       String aComposerEmail,
       String aMessageText,
       DateTime aMessageCreatedDateTime,
-      Constants.RotaryRolesEnum aRoleId,
-      String aRoleName,
       String aAreaId,
       String aAreaName,
       String aClusterId,
@@ -59,19 +55,21 @@ class MessageService {
       String aClubAddress,
       String aClubMail,
       String aClubManagerGuidId,
+      String aRoleId,
+      int aRoleEnum,
+      String aRoleName,
+      List<String> aPersonCards,
       )
   {
     if (aMessageGuidId == null)
-      return MessageWithDescriptionObject(
+      return MessagePopulatedObject(
         messageGuidId: '',
-        composerGuidId: '',
+        composerId: '',
         composerFirstName: '',
         composerLastName: '',
         composerEmail: '',
         messageText: '',
         messageCreatedDateTime: null,
-        roleId: null,
-        roleName: '',
         areaId: null,
         areaName: '',
         clusterId: null,
@@ -81,18 +79,20 @@ class MessageService {
         clubAddress: '',
         clubMail: '',
         clubManagerGuidId: '',
+        roleId: '',
+        roleEnum: null,
+        roleName: '',
+        personCards: []
       );
     else
-      return MessageWithDescriptionObject(
+      return MessagePopulatedObject(
         messageGuidId: aMessageGuidId,
-        composerGuidId: aComposerGuidId,
+        composerId: aComposerId,
         composerFirstName: aComposerFirstName,
         composerLastName: aComposerLastName,
         composerEmail: aComposerEmail,
         messageText: aMessageText,
         messageCreatedDateTime: aMessageCreatedDateTime,
-        roleId: aRoleId,
-        roleName: aRoleName,
         areaId: aAreaId,
         areaName: aAreaName,
         clusterId: aClusterId,
@@ -102,40 +102,42 @@ class MessageService {
         clubAddress: aClubAddress,
         clubMail: aClubMail,
         clubManagerGuidId: aClubManagerGuidId,
+        roleId: aRoleId,
+        roleEnum: aRoleEnum,
+        roleName: aRoleName,
+        personCards: aPersonCards,
       );
   }
   //#endregion
 
-  //#region Get Messages List By Composer GuidId From Server [GET]
+  //#region * Get Messages List [GET]
   // =========================================================
-  Future getMessagesListByComposerGuidIdFromServer(String aComposerGuidId) async {
+  Future getMessagesList() async {
     try {
+      String _getUrl = Constants.rotaryMessageUrl;
 
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
+      Response response = await get(_getUrl);
 
-      // Because of RotaryUsersListBloc >>> Need to initialize GlobalService here too
-      bool debugMode = await GlobalsService.getDebugMode();
-      await GlobalsService.setDebugMode(debugMode);
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+        await LoggerService.log('<MessageService> Get Messages List >>> OK\nHeader: $contentType \nMessagesListFromJSON: $jsonResponse');
 
-      if (GlobalsService.isDebugMode) {
-        List<MessageObject> messageObjListForDebug = await RotaryDataBaseProvider.rotaryDB.getMessagesByComposerGuidId(aComposerGuidId);
-        if (messageObjListForDebug == null) {
-        } else {
-          messageObjListForDebug.sort((a, b) => a.messageCreatedDateTime.compareTo(b.messageCreatedDateTime));
-        }
+        var messagesList = jsonDecode(jsonResponse) as List;    // List of PersonCard to display;
+        List<MessageObject> messagesObjList = messagesList.map((messageJson) => MessageObject.fromJson(messageJson)).toList();
 
-        return messageObjListForDebug;
+        return messagesObjList;
       } else {
-        await LoggerService.log('<MessageService> Get Messages List By Composer GuidId From Server >>> Failed');
-        print('<MessageService> Get Messages List By Composer GuidId From Server >>> Failed');
+        await LoggerService.log('<MessageService> Get Messages List >>> Failed: ${response.statusCode}');
+        print('<MessageService> Get Messages List >>> Failed: ${response.statusCode}');
         return null;
       }
     }
     catch (e) {
-      await LoggerService.log('<MessageService> Get Messages List By Composer GuidId From Server >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<MessageService> Get Messages List >>> ERROR: ${e.toString()}');
       developer.log(
-        'getMessagesListByComposerGuidIdFromServer',
+        'getMessagesList',
         name: 'MessageService',
         error: 'Messages List >>> ERROR: ${e.toString()}',
       );
@@ -144,36 +146,34 @@ class MessageService {
   }
   //#endregion
 
-  //#region Get Messages List From Server [GET]
+  //#region * Get Messages List By Composer Id [GET]
   // =========================================================
-  Future getMessagesListFromServer() async {
+  Future getMessagesListByComposerId(String aComposerId) async {
     try {
+      String _getUrl = Constants.rotaryMessageUrl + "/composerId/$aComposerId";
 
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
+      Response response = await get(_getUrl);
 
-      // Because of RotaryUsersListBloc >>> Need to initialize GlobalService here too
-      bool debugMode = await GlobalsService.getDebugMode();
-      await GlobalsService.setDebugMode(debugMode);
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+        await LoggerService.log('<MessageService> Get Messages List By Composer Id >>> OK\nHeader: $contentType \nMessagesListFromJSON: $jsonResponse');
 
-      if (GlobalsService.isDebugMode) {
-        List<MessageObject> messageObjListForDebug = await RotaryDataBaseProvider.rotaryDB.getAllMessages();
-        if (messageObjListForDebug == null) {
-        } else {
-          messageObjListForDebug.sort((a, b) => a.messageCreatedDateTime.compareTo(b.messageCreatedDateTime));
-        }
+        var messagesList = jsonDecode(jsonResponse) as List;
+        List<MessageObject> messagesObjList = messagesList.map((messageJson) => MessageObject.fromJson(messageJson)).toList();
 
-        return messageObjListForDebug;
+        return messagesObjList;
       } else {
-        await LoggerService.log('<MessageService> Get Messages List From Server >>> Failed');
-        print('<MessageService> Get Messages List From Server >>> Failed');
+        await LoggerService.log('<MessageService> Get Messages List By Composer Id >>> Failed: ${response.statusCode}');
+        print('<MessageService> Get Messages List By Composer Id >>> Failed: ${response.statusCode}');
         return null;
       }
     }
     catch (e) {
-      await LoggerService.log('<MessageService> Get Messages List From Server >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<MessageService> Get Messages List By Composer Id >>> ERROR: ${e.toString()}');
       developer.log(
-        'getMessagesListFromServer',
+        'getMessagesListByComposerId',
         name: 'MessageService',
         error: 'Messages List >>> ERROR: ${e.toString()}',
       );
@@ -182,123 +182,22 @@ class MessageService {
   }
   //#endregion
 
-  //#region Get Messages List Using MessageQueue From Server [GET]
+  //#region * Get Messages List Populated By PersonCardId [GET]
   // =========================================================
-  Future getMessagesListUsingMessageQueueFromServer() async {
+  Future getMessagesListPopulatedByPersonCardId(String aPersonCardId) async {
     try {
+      PersonCardService personCardService = PersonCardService();
+      List<dynamic> _messagesList = await personCardService.getPersonCardByIdMessagePopulated(aPersonCardId);
 
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
+      List<MessagePopulatedObject> messagesObjectList = _messagesList.map((parsedJson) =>
+            MessagePopulatedObject.fromJsonAllPopulated(parsedJson)).toList();
 
-      // Because of RotaryUsersListBloc >>> Need to initialize GlobalService here too
-      bool debugMode = await GlobalsService.getDebugMode();
-      await GlobalsService.setDebugMode(debugMode);
-
-      if (GlobalsService.isDebugMode) {
-        // List<MessageObject> messageObjListForDebug = await RotaryDataBaseProvider.rotaryDB.getAllMessages();
-
-        final ConnectedUserService connectedUserService = ConnectedUserService();
-        ConnectedUserObject _connectedUserObj = await connectedUserService.readConnectedUserObjectDataFromSecureStorage();
-        // ConnectedUserObject _connectedUserObj = ConnectedUserGlobal.currentConnectedUserObject;
-        List<MessageObject> messageObjListForDebug = await RotaryDataBaseProvider.rotaryDB.getAllMessagesUsingMessageQueue(_connectedUserObj.userGuidId);
-        if (messageObjListForDebug == null) {
-        } else {
-          messageObjListForDebug.sort((a, b) => a.messageCreatedDateTime.compareTo(b.messageCreatedDateTime));
-        }
-
-        return messageObjListForDebug;
-      } else {
-        await LoggerService.log('<MessageService> Get Messages List Using MessageQueue From Server >>> Failed');
-        print('<MessageService> Get Messages List Using MessageQueue From Server >>> Failed');
-        return null;
-      }
+      return messagesObjectList;
     }
     catch (e) {
-      await LoggerService.log('<MessageService> Get Messages List Using MessageQueue From Server >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<MessageService> Get Messages List Populated By PersonCardId >>> ERROR: ${e.toString()}');
       developer.log(
-        'getMessagesListUsingMessageQueueFromServer',
-        name: 'MessageService',
-        error: 'Messages List >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-  //#endregion
-
-  //#region Get Messages List With Description From Server [GET]
-  // =========================================================
-  Future getMessagesListWithDescriptionFromServer() async {
-    try {
-
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-
-      // Because of RotaryUsersListBloc >>> Need to initialize GlobalService here too
-      bool debugMode = await GlobalsService.getDebugMode();
-      await GlobalsService.setDebugMode(debugMode);
-
-      if (GlobalsService.isDebugMode) {
-        List<MessageWithDescriptionObject> messageObjListForDebug = await RotaryDataBaseProvider.rotaryDB.getAllMessagesWithDescription();
-        if (messageObjListForDebug == null) {
-        } else {
-          messageObjListForDebug.sort((a, b) => b.messageCreatedDateTime.compareTo(a.messageCreatedDateTime));
-        }
-
-        return messageObjListForDebug;
-      } else {
-        await LoggerService.log('<MessageService> Get Messages List With Description From Server >>> Failed');
-        print('<MessageService> Get Messages List With Description From Server >>> Failed');
-        return null;
-      }
-    }
-    catch (e) {
-      await LoggerService.log('<MessageService> Get Messages List With Description From Server >>> ERROR: ${e.toString()}');
-      developer.log(
-        'getMessagesListWithDescriptionFromServer',
-        name: 'MessageService',
-        error: 'Messages List >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-  //#endregion
-
-  //#region Get Messages List With Description Using MessageQueue From Server [GET]
-  // =========================================================
-  Future getMessagesListWithDescriptionUsingMessageQueueFromServer() async {
-    try {
-
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-
-      // Because of RotaryUsersListBloc >>> Need to initialize GlobalService here too
-      bool debugMode = await GlobalsService.getDebugMode();
-      await GlobalsService.setDebugMode(debugMode);
-
-      if (GlobalsService.isDebugMode) {
-        // List<MessageWithDescriptionObject> messageObjListForDebug = await RotaryDataBaseProvider.rotaryDB.getAllMessagesWithDescription();
-
-        final ConnectedUserService connectedUserService = ConnectedUserService();
-        ConnectedUserObject _connectedUserObj = await connectedUserService.readConnectedUserObjectDataFromSecureStorage();
-        // ConnectedUserObject _connectedUserObj = ConnectedUserGlobal.currentConnectedUserObject;
-        List<MessageWithDescriptionObject> messageObjListForDebug =
-                await RotaryDataBaseProvider.rotaryDB.getAllMessagesWithDescriptionUsingMessageQueue(_connectedUserObj.userGuidId);
-        if (messageObjListForDebug == null) {
-        } else {
-          messageObjListForDebug.sort((a, b) => b.messageCreatedDateTime.compareTo(a.messageCreatedDateTime));
-        }
-
-        return messageObjListForDebug;
-      } else {
-        await LoggerService.log('<MessageService> Get Messages List With Description Using MessageQueue From Server >>> Failed');
-        print('<MessageService> Get Messages List With Description Using MessageQueue From Server >>> Failed');
-        return null;
-      }
-    }
-    catch (e) {
-      await LoggerService.log('<MessageService> Get Messages List With Description Using MessageQueue From Server >>> ERROR: ${e.toString()}');
-      developer.log(
-        'getMessagesListWithDescriptionUsingMessageQueueFromServer',
+        'getMessagesListPopulatedByPersonCardId',
         name: 'MessageService',
         error: 'Messages List >>> ERROR: ${e.toString()}',
       );
@@ -309,164 +208,190 @@ class MessageService {
 
   //#region CRUD: Messages
 
-  //#region Insert Message To DataBase [WriteToDB]
+  //#region * Insert Message [WriteToDB]
   //=============================================================================
-  Future insertMessageToDataBase(MessageObject aMessageObj) async {
-    try{
-      //***** for debug *****
-      if (GlobalsService.isDebugMode) {
-        var dbResult = await RotaryDataBaseProvider.rotaryDB.insertMessage(aMessageObj);
-        return dbResult;
-        //***** for debug *****
+  Future insertMessage(MessageObject aMessageObj) async {
+    try {
+      String _getUrl = Constants.rotaryMessageUrl;
+      print ("_getUrl: $_getUrl");
+
+      String jsonToPost = aMessageObj.messageObjectToJson(aMessageObj);
+
+      Response response = await post(_getUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+
+        await LoggerService.log('<MessageService> Insert Message >>> OK');
+        return jsonResponse;
+      } else {
+        await LoggerService.log('<MessageService> Insert Message >>> Failed >>> ${response.statusCode}');
+        print('<MessageService> Insert Message >>> Failed >>> ${response.statusCode}');
+        return null;
       }
     }
     catch (e) {
-      await LoggerService.log('<MessageService> Insert Message To DataBase >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<MessageService> Insert Message >>> ERROR: ${e.toString()}');
       developer.log(
-        'insertMessageToDataBase',
+        'insertMessage',
         name: 'MessageService',
-        error: 'Insert Message To DataBase >>> ERROR: ${e.toString()}',
+        error: 'Insert Message >>> ERROR: ${e.toString()}',
       );
       return null;
     }
   }
   //#endregion
 
-  //#region Insert Message And MessageQueue By Hierarchy Permission To DataBase [WriteToDB]
+  //#region * Update Message By Id [WriteToDB]
   //=============================================================================
-  // InsertMessage ===>>> One Transaction: Insert to MessageTable AND to MessageQueueTable
-  Future insertMessageAndMessageQueueByHierarchyPermissionToDataBase(
-          MessageObject aMessageObj,
-          MessageWithDescriptionObject aMessageWithDescriptionObj) async {
-    try{
-      //***** for debug *****
-      var dbResult;
-      if (GlobalsService.isDebugMode) {
+  Future updateMessageById(MessageObject aMessageObj) async {
+    try {
+      String jsonToPost = aMessageObj.messageObjectToJson(aMessageObj);
+      print ('updateMessageById / MessageObject / jsonToPost: $jsonToPost');
 
-        dbResult = await RotaryDataBaseProvider.rotaryDB.insertMessage(aMessageObj);
-        if (dbResult > 0)
-        {
-          /// Insert Message: Success ===>>> Insert Rows to MessageQueueTable Using Hierarchy Permission
-          dbResult = await RotaryDataBaseProvider.rotaryDB.insertMessageQueueByHierarchyPermission(aMessageWithDescriptionObj);
+      String _updateUrl = Constants.rotaryMessageUrl + "/${aMessageObj.messageGuidId}";
+      print ("_updateUrl: $_updateUrl");
+
+      Response response = await put(_updateUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+        print ('<MessageService> Update Message By Id >>> MessageObject / jsonResponse: $jsonResponse');
+
+        await LoggerService.log('<MessageService> Update Message By Id >>> OK');
+        return jsonResponse;
+      } else {
+        await LoggerService.log('<MessageService> Update Message By Id >>> Failed >>> ${response.statusCode}');
+        print('<MessageService> Update Message By Id >>> Failed >>> ${response.statusCode}');
+        return null;
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<MessageService> Update Message By Id >>> ERROR: ${e.toString()}');
+      developer.log(
+        'updateMessageById',
+        name: 'MessageService',
+        error: 'Update Message By Id >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+  //#endregion
+
+  //#region * Delete Message By Id [WriteToDB]
+  //=============================================================================
+  Future deleteMessageById(MessageObject aMessageObj) async {
+    try {
+      String _deleteUrl = Constants.rotaryMessageUrl + "/${aMessageObj.messageGuidId}";
+
+      Response response = await delete(_deleteUrl, headers: Constants.rotaryUrlHeader);
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+        print ('deleteMessageById / MessageObject / jsonResponse: $jsonResponse');
+
+        bool returnVal = jsonResponse.toLowerCase() == 'true';
+        if (returnVal) {
+          await LoggerService.log('<MessageService> Delete Message By Id >>> OK');
+          return returnVal;
+        } else {
+          await LoggerService.log('<MessageService> Delete Message By Id >>> Failed');
+          print('<MessageService> Delete Message By Id >>> Failed');
+          return null;
         }
-        return dbResult;
-        //***** for debug *****
+      } else {
+        await LoggerService.log('<MessageService> Delete Message By Id >>> Failed >>> ${response.statusCode}');
+        print('<MessageService> Delete Message By Id >>> Failed >>> ${response.statusCode}');
+        return null;
       }
     }
     catch (e) {
-      await LoggerService.log('<MessageService> Insert Message And MessageQueue By Hierarchy Permission To DataBase >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<MessageService> Delete Message By Id >>> ERROR: ${e.toString()}');
       developer.log(
-        'insertMessageAndMessageQueueByHierarchyPermissionToDataBase',
+        'deleteMessageById',
         name: 'MessageService',
-        error: 'Insert Message And MessageQueue By Hierarchy Permission To DataBase >>> ERROR: ${e.toString()}',
+        error: 'Delete Message By Id >>> ERROR: ${e.toString()}',
       );
       return null;
     }
   }
   //#endregion
 
-  //#region Update Message By MessageGuidId To DataBase [WriteToDB]
+  //#region * Remove Message From PersonCard MessageQueue [WriteToDB]
   //=============================================================================
-  Future updateMessageByMessageGuidIdToDataBase(MessageObject aMessageObj) async {
-    try{
-      // String jsonToPost = jsonEncode(aMessageObj);
+  Future removeMessageFromPersonCardMessageQueue(MessageObject aMessageObj, String aPersonCardId) async {
+    try {
+      String _deleteUrl = Constants.rotaryMessageUrl + "/removeMessageQueue/${aMessageObj.messageGuidId}/personCard/$aPersonCardId";
 
-      //***** for debug *****
-      if (GlobalsService.isDebugMode) {
-        // print(">>>>>>>>>>>BLOC / _newMessageObj: $aMessageObj");
-        var dbResult = await RotaryDataBaseProvider.rotaryDB.updateMessageByMessageGuidId(aMessageObj);
-        return dbResult;
-        //***** for debug *****
+      Response response = await put(_deleteUrl, headers: Constants.rotaryUrlHeader);
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+        print ('deleteMessageFromPersonCardMessageQueue / MessageObject / jsonResponse: $jsonResponse');
+
+        bool returnVal = jsonResponse.toLowerCase() == 'true';
+        if (returnVal) {
+          await LoggerService.log('<MessageService> Delete Message From PersonCard MessageQueue >>> OK');
+          return returnVal;
+        } else {
+          await LoggerService.log('<MessageService> Delete Message From PersonCard MessageQueue >>> Failed');
+          print('<MessageService> Delete Message By Id >>> Failed');
+          return null;
+        }
+      } else {
+        await LoggerService.log('<MessageService> Delete Message From PersonCard MessageQueue >>> Failed >>> ${response.statusCode}');
+        print('<MessageService> Delete Message From PersonCard MessageQueue >>> Failed >>> ${response.statusCode}');
+        return null;
       }
     }
     catch (e) {
-      await LoggerService.log('<MessageService> Update Message By MessageGuidId To DataBase >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<MessageService> Delete Message From PersonCard MessageQueue >>> ERROR: ${e.toString()}');
       developer.log(
-        'updateMessageByMessageGuidIdToDataBase',
+        'deleteMessageFromPersonCardMessageQueue',
         name: 'MessageService',
-        error: 'Update Message By MessageGuidId To DataBase >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-  //#endregion
-
-  //#region Delete Message By MessageGuidId From DataBase [WriteToDB]
-  //=============================================================================
-  Future deleteMessageByMessageGuidIdFromDataBase(MessageObject aMessageObj) async {
-    try{
-      //***** for debug *****
-      if (GlobalsService.isDebugMode) {
-        var dbResult = await RotaryDataBaseProvider.rotaryDB.deleteMessageByMessageGuidId(aMessageObj);
-        return dbResult;
-        //***** for debug *****
-      }
-    }
-    catch (e) {
-      await LoggerService.log('<MessageService> Delete Message By MessageGuidId To DataBase >>> ERROR: ${e.toString()}');
-      developer.log(
-        'deleteMessageByMessageGuidIdFromDataBase',
-        name: 'MessageService',
-        error: 'Delete Message By MessageGuidId To DataBase >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-  //#endregion
-  
-  //#endregion
-
-  //#region CRUD: Message Queue
-
-  //#region Insert MessageQueue To DataBase [WriteToDB]
-  //=============================================================================
-  Future insertMessageQueueToDataBase(MessageQueueObject aMessageQueueObject) async {
-    try{
-      //***** for debug *****
-      if (GlobalsService.isDebugMode) {
-        var dbResult = await RotaryDataBaseProvider.rotaryDB.insertMessageQueue(aMessageQueueObject);
-        return dbResult;
-        //***** for debug *****
-      }
-    }
-    catch (e) {
-      await LoggerService.log('<MessageService> Insert MessageQueue To DataBase >>> ERROR: ${e.toString()}');
-      developer.log(
-        'insertMessageQueueToDataBase',
-        name: 'MessageService',
-        error: 'Insert MessageQueue To DataBase >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-  //#endregion
-
-  //#region Delete MessageQueue By MessageAndPerson GuidId From DataBase [WriteToDB]
-  //=============================================================================
-  Future deleteMessageQueueByMessageAndPersonGuidIdFromDataBase(
-                MessageObject aMessageObj,
-                MessageWithDescriptionObject aMessageWithDescriptionObj) async {
-    try{
-      //***** for debug *****
-      MessageQueueObject _messageQueueObject = await MessageQueueObject.getMessageQueueObjectFromMessageWithDescriptionObject(aMessageWithDescriptionObj);
-      if (GlobalsService.isDebugMode) {
-
-        var dbResult = await RotaryDataBaseProvider.rotaryDB.deleteMessageQueueByMessageAndPersonGuidId(_messageQueueObject);
-        return dbResult;
-        //***** for debug *****
-      }
-    }
-    catch (e) {
-      await LoggerService.log('<MessageService> Insert MessageQueue To DataBase >>> ERROR: ${e.toString()}');
-      developer.log(
-        'insertMessageQueueToDataBase',
-        name: 'MessageService',
-        error: 'Insert MessageQueue To DataBase >>> ERROR: ${e.toString()}',
+        error: 'Delete Message From PersonCard MessageQueue >>> ERROR: ${e.toString()}',
       );
       return null;
     }
   }
 //#endregion
 
-  //#endregion
+  //#region * Add Message Back To PersonCard MessageQueue [GET]
+  //=============================================================================
+  Future addMessageBackToPersonCardMessageQueue(MessageObject aMessageObj, String aPersonCardId) async {
+    try {
+      String _addMessageUrl = Constants.rotaryMessageUrl + "/addMessageQueue/${aMessageObj.messageGuidId}/personCard/$aPersonCardId";
+      print ("_addUrl: $_addMessageUrl");
+
+      Response response = await put(_addMessageUrl, headers: Constants.rotaryUrlHeader);
+      if (response.statusCode <= 300) {
+        Map<String, String> headers = response.headers;
+        String contentType = headers['content-type'];
+        String jsonResponse = response.body;
+
+        await LoggerService.log('<MessageService> Insert Message Back To MessageQueue >>> OK');
+        return jsonResponse;
+      } else {
+        await LoggerService.log('<MessageService> Insert Message Back To MessageQueue >>> Failed >>> ${response.statusCode}');
+        print('<MessageService> Insert Message Back To MessageQueue >>> Failed >>> ${response.statusCode}');
+        return null;
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<MessageService> Insert Message Back To MessageQueue >>> ERROR: ${e.toString()}');
+      developer.log(
+        'insertMessageBackToMessageQueue',
+        name: 'MessageService',
+        error: 'Insert Message Back To MessageQueue >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+//#endregion
+
+//#endregion
 }

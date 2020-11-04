@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/connected_user_global.dart';
 import 'package:rotary_net/objects/connected_user_object.dart';
-import 'package:rotary_net/objects/message_with_description_object.dart';
+import 'package:rotary_net/objects/message_populated_object.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
 import 'package:rotary_net/screens/message_detail_pages/message_detail_edit_page_screen.dart';
 import 'package:rotary_net/screens/person_card_detail_pages/person_card_detail_page_screen.dart';
@@ -13,10 +13,10 @@ import 'package:rotary_net/utils/utils_class.dart';
 
 class MessageDetailPageScreen extends StatefulWidget {
   static const routeName = '/MessageDetailPageScreen';
-  final MessageWithDescriptionObject argMessageWithDescriptionObject;
+  final MessagePopulatedObject argMessagePopulatedObject;
   final Widget argHebrewMessageCreatedTimeLabel;
 
-  MessageDetailPageScreen({Key key, @required this.argMessageWithDescriptionObject, this.argHebrewMessageCreatedTimeLabel}) : super(key: key);
+  MessageDetailPageScreen({Key key, @required this.argMessagePopulatedObject, this.argHebrewMessageCreatedTimeLabel}) : super(key: key);
 
   @override
   _MessageDetailPageScreenState createState() => _MessageDetailPageScreenState();
@@ -24,7 +24,7 @@ class MessageDetailPageScreen extends StatefulWidget {
 
 class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
 
-  MessageWithDescriptionObject displayMessageWithDescriptionObject;
+  MessagePopulatedObject displayMessagePopulatedObject;
   Widget hebrewMessageCreatedTimeLabel;
 
   bool allowUpdate = false;
@@ -33,7 +33,7 @@ class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
 
   @override
   void initState() {
-    displayMessageWithDescriptionObject = widget.argMessageWithDescriptionObject;
+    displayMessagePopulatedObject = widget.argMessagePopulatedObject;
     hebrewMessageCreatedTimeLabel = widget.argHebrewMessageCreatedTimeLabel;
 
     allowUpdate = getUpdatePermission();
@@ -61,12 +61,12 @@ class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
   //#endregion
 
   //#region Open Message Detail Edit Screen
-  openMessageDetailEditScreen(MessageWithDescriptionObject aMessageObj) async {
+  openMessageDetailEditScreen(MessagePopulatedObject aMessageObj) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => MessageDetailEditPageScreen(
-            argMessageWithDescriptionObject: displayMessageWithDescriptionObject,
+            argMessagePopulatedObject: displayMessagePopulatedObject,
             argHebrewMessageCreatedTimeLabel: hebrewMessageCreatedTimeLabel
         ),
       ),
@@ -74,7 +74,7 @@ class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
 
     if (result != null) {
       setState(() {
-        displayMessageWithDescriptionObject = result;
+        displayMessagePopulatedObject = result;
       });
     }
   }
@@ -88,7 +88,7 @@ class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
       text: TextSpan(
         children: [
           TextSpan(
-            text: '${displayMessageWithDescriptionObject.messageText} ',
+            text: '${displayMessagePopulatedObject.messageText} ',
             style: TextStyle(
                 fontFamily: 'Heebo-Light',
                 fontSize: 20.0,
@@ -106,7 +106,7 @@ class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
   openComposerPersonCardDetailScreen(String aComposerGuidId) async {
 
     PersonCardService _personCardService = PersonCardService();
-    PersonCardObject _personCardObj = await _personCardService.getPersonalCardByUserGuidIdFromServer(aComposerGuidId);
+    PersonCardObject _personCardObj = await _personCardService.getPersonCardByPersonId(aComposerGuidId);
 
     Navigator.push(
       context,
@@ -208,7 +208,7 @@ class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
           Expanded(
             child: Container(
               width: double.infinity,
-              child: buildMessageDetailDisplay(displayMessageWithDescriptionObject),
+              child: buildMessageDetailDisplay(displayMessagePopulatedObject),
             ),
           ),
         ]
@@ -217,7 +217,7 @@ class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
   }
 
   /// ====================== Message All Fields ==========================
-  Widget buildMessageDetailDisplay(MessageWithDescriptionObject aMessageObj) {
+  Widget buildMessageDetailDisplay(MessagePopulatedObject aMessageObj) {
     return Column(
       children: <Widget>[
         /// ---------------- Message Content ----------------------
@@ -258,7 +258,7 @@ class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
   //#region Composer Detail Section
 
   //#region Build Composer Detail Section
-  Widget buildComposerDetailSection(MessageWithDescriptionObject aMessageWithDescriptionObj) {
+  Widget buildComposerDetailSection(MessagePopulatedObject aMessagePopulatedObj) {
 
     return Container(
       padding: const EdgeInsets.only(top: 20.0, left: 20.0, right: 10.0),
@@ -281,11 +281,11 @@ class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
           mainAxisSize: MainAxisSize.min,
           textDirection: TextDirection.rtl,
           children: <Widget>[
-            if (aMessageWithDescriptionObj.composerFirstName != "")
-              buildComposerDetailName(Icons.person, aMessageWithDescriptionObj, openComposerPersonCardDetailScreen),
+            if (aMessagePopulatedObj.composerFirstName != "")
+              buildComposerDetailName(Icons.person, aMessagePopulatedObj, openComposerPersonCardDetailScreen),
 
-            if (aMessageWithDescriptionObj.areaName != "")
-              buildComposerDetailAreaClusterClub(Icons.location_on, aMessageWithDescriptionObj, Utils.launchInMapByAddress),
+            if (aMessagePopulatedObj.areaName != "")
+              buildComposerDetailAreaClusterClub(Icons.location_on, aMessagePopulatedObj, Utils.launchInMapByAddress),
           ],
         ),
       ),
@@ -294,7 +294,7 @@ class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
   //#endregion
 
   //#region Build Composer Detail Name
-  Widget buildComposerDetailName(IconData aIcon, MessageWithDescriptionObject aMessageObj, Function aFunc) {
+  Widget buildComposerDetailName(IconData aIcon, MessagePopulatedObject aMessageObj, Function aFunc) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 5.0),
       child: Row(
@@ -305,7 +305,7 @@ class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
             MaterialButton(
               elevation: 0.0,
               onPressed: () {
-                aFunc(aMessageObj.composerGuidId);
+                aFunc(aMessageObj.composerId);
                 },
               color: Colors.blue[10],
               child:
@@ -343,7 +343,7 @@ class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
   //#endregion
 
   //#region Build Composer Detail Area Cluster Club
-  Widget buildComposerDetailAreaClusterClub(IconData aIcon, MessageWithDescriptionObject aMessageObj, Function aFunc) {
+  Widget buildComposerDetailAreaClusterClub(IconData aIcon, MessagePopulatedObject aMessageObj, Function aFunc) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
       child: Row(
@@ -438,7 +438,7 @@ class _MessageDetailPageScreenState extends State<MessageDetailPageScreen> {
     return MaterialButton(
       elevation: 0.0,
       onPressed: () async {
-        await aFunc(widget.argMessageWithDescriptionObject);
+        await aFunc(widget.argMessagePopulatedObject);
       },
       color: Colors.white,
       padding: EdgeInsets.all(10),

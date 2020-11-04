@@ -1,26 +1,18 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:rotary_net/database/init_database_service.dart';
-import 'package:rotary_net/database/rotary_database_provider.dart';
 import 'package:rotary_net/objects/connected_user_global.dart';
 import 'package:rotary_net/objects/connected_user_object.dart';
 import 'package:rotary_net/screens/debug_setting_screen.dart';
+import 'package:rotary_net/screens/rotary_main_pages/rotary_main_page_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/login_screen.dart';
-import 'package:rotary_net/screens/wellcome_pages/login_state_message_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/wellcome_decoration_style.dart';
 import 'package:rotary_net/services/connected_user_service.dart';
-import 'package:rotary_net/services/login_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
-import 'package:rotary_net/objects/login_object.dart';
 import 'package:rotary_net/services/registration_service.dart';
 import 'package:rotary_net/shared/loading.dart';
-import 'package:rotary_net/utils/utils_class.dart';
 
 class RegisterScreen extends StatefulWidget {
   static const routeName = '/RegisterScreen';
-  final LoginObject argLoginObject;
-
-  RegisterScreen({Key key, @required this.argLoginObject}) : super(key: key);
 
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
@@ -32,9 +24,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final ConnectedUserService connectedUserService = ConnectedUserService();
   final formKey = GlobalKey<FormState>();
   ConnectedUserObject newConnectedUserObj;
-  LoginObject newLoginObject;
 
-  /// Fields Param
+  //#region Fields Param
   TextEditingController eMailController;
   TextEditingController firstNameController;
   TextEditingController lastNameController;
@@ -49,6 +40,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool registrationConfirmationCheck;
   String error = '';
   bool loading = false;
+  //#endregion
 
   @override
   void initState() {
@@ -56,9 +48,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.initState();
   }
 
+  //#region Set As Register State
   void setAsRegisterState() {
-    newLoginObject = widget.argLoginObject;
-
     eMailController = TextEditingController(text: '');
     firstNameController = TextEditingController(text: '');
     lastNameController = TextEditingController(text: '');
@@ -66,7 +57,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     newStayConnected = false;
     registrationConfirmationCheck = true;
   }
+  //#endregion
 
+  //#region Set Fields Functions
   void setEmailValueFunc(String aEmail){
     newEmail = aEmail;
   }
@@ -79,18 +72,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void setPasswordValueFunc(String aPassword){
     newPassword = aPassword;
   }
+  //#endregion
 
+  //#region Registration Login Process
   Future performRegistrationProcess() async {
     if (formKey.currentState.validate()){
       setState(() {
         loading = true;
       });
 
-      // Create GUID for GuidUserId
-      final String _userGuidId = await Utils.createGuidUserId();
-
       newConnectedUserObj = connectedUserService.createConnectedUserAsObject(
-          _userGuidId,
+          null,
+          null,
           newEmail.trim(),
           newFirstName.trim(),
           newLastName.trim(),
@@ -98,17 +91,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
           Constants.UserTypeEnum.Guest,
           newStayConnected);
 
-      newLoginObject = LoginService.createLoginAsObject(Constants.LoginStatusEnum.NoRequest);
-
-      /// 1. SAVE Registered User to DataBase: Insert the New User Data
+      /// 1. SAVE Registered User: Insert the New User Data
       Map<String, dynamic> resultMap = await registrationService.userRegistrationAddNewUser(newConnectedUserObj);
+      ConnectedUserObject connectedUserObj;
       if (resultMap["returnCode"] == "0") {
+        /// Registration >>> Success
+        connectedUserObj = newConnectedUserObj.connectedUserFromJson(resultMap["newUserObj"]);
         setState(() {
           registrationConfirmationCheck = true;
           error = "";
           loading = false;
         });
       } else {
+        /// Registration >>> Failed
         setState(() {
           registrationConfirmationCheck = false;
           error = resultMap["errorMessage"];
@@ -118,46 +113,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       if (registrationConfirmationCheck)
       {
-        /// Login Object: Update loginStatus >>> LoginStatusEnum.Waiting
-        newLoginObject.setLoginStatus(Constants.LoginStatusEnum.Waiting);
-        /// Secure Storage: Write LoginObject to storage
-        await LoginService.writeLoginObjectDataToSecureStorage(Constants.LoginStatusEnum.Waiting);
-
         /// 2. Secure Storage: Write ConnectedUserObject to storage
-        await connectedUserService.writeConnectedUserObjectDataToSecureStorage(newConnectedUserObj);
+        await connectedUserService.writeConnectedUserObjectDataToSecureStorage(connectedUserObj);
 
         /// 3. App Global: Update Global Current Connected User
         var userGlobal = ConnectedUserGlobal();
-        userGlobal.setConnectedUserObject(newConnectedUserObj);
+        userGlobal.setConnectedUserObject(connectedUserObj);
 
-        openLoginStateMessageScreen();
+        // openLoginStateMessageScreen();
+        openRotaryMainPageScreen();
       }
     }
   }
+  //#endregion
 
-  ///--- If Registration succeeded --->> wait for Approve --->> Open Message Screen
+  //#region --- If Registration succeeded --->> Open Rotary MainPage Screen
   ///------------------------------------------------------------------------------
-  void openLoginStateMessageScreen() {
+  void openRotaryMainPageScreen() {
     /// Navigate to MessageTrackerRequest Screen
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => LoginStateMessageScreen(argConnectedUserObject: newConnectedUserObj, argLoginObject: newLoginObject),
+        builder: (context) => RotaryMainPageScreen(),
       ),
     );
   }
+  //#endregion
 
-  ///------>> Open Debug Settings Screen
-  ///------------------------------------------------------------------------------
+  //#region Open Debug Settings Screen
   Future<void> openDebugSettingsScreen() async {
     //Navigate to DebugSettings Screen
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DebugSettingsScreen(argLoginObject: newLoginObject),
+        builder: (context) => DebugSettingsScreen(),
       ),
     );
   }
+  //#endregion
 
   /// ============================== Main Screen ==============================
   @override
@@ -370,7 +363,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return InkWell(
       onTap: () {
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => LoginScreen(argLoginObject: newLoginObject)));
+            context, MaterialPageRoute(builder: (context) => LoginScreen()));
       },
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 10),

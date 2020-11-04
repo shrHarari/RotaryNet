@@ -1,27 +1,30 @@
 import 'dart:convert';
-
-import 'package:rotary_net/objects/message_with_description_object.dart';
+import 'package:rotary_net/objects/message_populated_object.dart';
 
 class MessageObject {
   final String messageGuidId;
-  final String composerGuidId;
+  final String composerId;
   final String messageText;
   final DateTime messageCreatedDateTime;
+  final List<String> personCards;
 
   MessageObject({
     this.messageGuidId,
-    this.composerGuidId,
+    this.composerId,
     this.messageText,
-    this.messageCreatedDateTime,});
+    this.messageCreatedDateTime,
+    this.personCards,});
 
-  // get MessageObject From MessageWithDescriptionObject
+  // get MessageObject From MessagePopulatedObject
   //=======================================================
-  static Future <MessageObject> getMessageObjectFromMessageWithDescriptionObject(MessageWithDescriptionObject aMessageWithDescriptionObject) async {
+  static Future <MessageObject> getMessageObjectFromMessagePopulatedObject(MessagePopulatedObject aMessagePopulatedObject) async {
+
     return MessageObject(
-        messageGuidId: aMessageWithDescriptionObject.messageGuidId,
-        composerGuidId: aMessageWithDescriptionObject.composerGuidId,
-        messageText: aMessageWithDescriptionObject.messageText,
-        messageCreatedDateTime: aMessageWithDescriptionObject.messageCreatedDateTime,
+      messageGuidId: aMessagePopulatedObject.messageGuidId,
+      composerId: aMessagePopulatedObject.composerId,
+      messageText: aMessagePopulatedObject.messageText,
+      messageCreatedDateTime: aMessagePopulatedObject.messageCreatedDateTime,
+      personCards: aMessagePopulatedObject.personCards,
     );
   }
 
@@ -30,12 +33,17 @@ class MessageObject {
   String toString() {
     // DateTime: Convert [DateTime] to [String]
     String _messageCreatedDateTime = this.messageCreatedDateTime.toIso8601String();
+
+    /// Check if Necessary
+    // var jsonPersonCardIdsList = jsonEncode(aPersonCardIdsList.map((personCard) => personCard).toList());
+
     return
       '{'
         ' ${this.messageGuidId},'
-        ' ${this.composerGuidId},'
+        ' ${this.composerId},'
         ' ${this.messageText},'
         ' $_messageCreatedDateTime,'
+        ' ${this.personCards},'
       '}';
   }
 
@@ -43,11 +51,16 @@ class MessageObject {
     // DateTime: Convert [String] to [DateTime]
     DateTime _messageCreatedDateTime = DateTime.parse(parsedJson['messageCreatedDateTime']);
 
+    List<dynamic> dynPersonCardsList = parsedJson['personCards'] as List<dynamic>;
+    List<String> personCardsList;
+    if (dynPersonCardsList != null) personCardsList = dynPersonCardsList.cast<String>();
+
     return MessageObject(
-      messageGuidId: parsedJson['messageGuidId'],
-      composerGuidId: parsedJson['composerGuidId'],
+      messageGuidId: parsedJson['_id'],
+      composerId: parsedJson['composerId'],
       messageText: parsedJson['messageText'],
       messageCreatedDateTime: _messageCreatedDateTime,
+      personCards: personCardsList,
     );
   }
 
@@ -68,10 +81,11 @@ class MessageObject {
     DateTime _messageCreatedDateTime = DateTime.parse(jsonFromMap['messageCreatedDateTime']);
 
     return MessageObject(
-      messageGuidId: jsonFromMap['messageGuidId'],
-      composerGuidId: jsonFromMap['composerGuidId'],
+      // messageGuidId: jsonFromMap['_id'],
+      composerId: jsonFromMap['composerId'],
       messageText: jsonFromMap['messageText'],
       messageCreatedDateTime: _messageCreatedDateTime,
+      personCards: jsonFromMap['personCards'],
     );
   }
 
@@ -80,10 +94,11 @@ class MessageObject {
     String _messageCreatedDateTime = messageCreatedDateTime.toIso8601String();
 
     return {
-      'messageGuidId': messageGuidId,
-      'composerGuidId': composerGuidId,
+      if ((messageGuidId != null) && (messageGuidId != '')) '_id': messageGuidId,
+      'composerId': composerId,
       'messageText': messageText,
       'messageCreatedDateTime': _messageCreatedDateTime,
+      'personCards': personCards,
     };
   }
 }

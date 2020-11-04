@@ -3,27 +3,20 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:rotary_net/database/init_database_service.dart';
-import 'package:rotary_net/database/rotary_database_provider.dart';
 import 'package:rotary_net/objects/connected_user_global.dart';
 import 'package:rotary_net/objects/connected_user_object.dart';
-import 'package:rotary_net/objects/login_object.dart';
 import 'package:rotary_net/objects/user_object.dart';
 import 'package:rotary_net/services/connected_user_service.dart';
 import 'package:rotary_net/services/globals_service.dart';
 import 'package:rotary_net/services/login_service.dart';
-import 'package:rotary_net/services/registration_service.dart';
 import 'package:rotary_net/services/rotary_area_service.dart';
 import 'package:rotary_net/services/user_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
-import 'package:rotary_net/shared/error_message_screen.dart';
 import 'package:rotary_net/shared/loading.dart';
 import 'package:rotary_net/shared/user_type_label_radio.dart';
 
 class DebugSettingsScreen extends StatefulWidget {
   static const routeName = '/DebugSettingsScreen';
-  final LoginObject argLoginObject;
-
-  DebugSettingsScreen({Key key, @required this.argLoginObject}) : super(key: key);
 
   @override
   _DebugSettingsScreen createState() => _DebugSettingsScreen();
@@ -59,11 +52,11 @@ class _DebugSettingsScreen extends State<DebugSettingsScreen> {
     ConnectedUserObject _currentConnectedUserObj = ConnectedUserGlobal.currentConnectedUserObject;
 
     UserService _userService = UserService();
-    List<UserObject> _userObjList = await _userService.getAllUsersListFromServer();
+    List<UserObject> _userObjList = await _userService.getAllUsersList();
     _userObjList = [];
     setUserDropdownMenuItems(_userObjList, _currentConnectedUserObj);
 
-    setCurrentLoginState();
+    // setCurrentLoginState();
     setCurrentUserType(_currentConnectedUserObj);
 
     setState(() {
@@ -77,27 +70,12 @@ class _DebugSettingsScreen extends State<DebugSettingsScreen> {
   }
   //#endregion
 
-  //#region Set Current LoginState
-  void setCurrentLoginState() async {
-    if (widget.argLoginObject == null) isNoRequestStatus = true;
-  }
-  //#endregion
-
   //#region Set Current UserType
   void setCurrentUserType(ConnectedUserObject aConnectedUserObj) async {
     if (aConnectedUserObj.userType == null)
       userType = Constants.UserTypeEnum.SystemAdmin;
     else
       userType = aConnectedUserObj.userType;
-  }
-  //#endregion
-
-  //#region Update Login Phase
-  Future updateLoginPhase(String aLoginStatus) async {
-    Constants.LoginStatusEnum loginStatus;
-    loginStatus = EnumToString.fromString(Constants.LoginStatusEnum.values, aLoginStatus);
-    await LoginService.writeLoginObjectDataToSecureStorage(loginStatus);
-    exitFromApp();
   }
   //#endregion
 
@@ -110,7 +88,7 @@ class _DebugSettingsScreen extends State<DebugSettingsScreen> {
     UserObject _userObject = await UserObject.getUserObjectFromConnectedUserObject(currentDataRequired.connectedUserObj);
     _userObject.setUserType(aUserType);
     UserService _userService = UserService();
-    _userService.updateUserByGuidIdToDataBase(_userObject);
+    _userService.updateUserById(_userObject);
   }
   //#endregion
 
@@ -125,22 +103,7 @@ class _DebugSettingsScreen extends State<DebugSettingsScreen> {
   Future startAllOver() async {
     /// LoginStatus='NoRequest' ==>>> Clear all data from SecureStorage
     await connectedUserService.clearConnectedUserObjectDataFromSecureStorage();
-    await LoginService.clearLoginObjectDataFromSecureStorage();
     exitFromApp();
-  }
-  //#endregion
-
-  //#region Waiting To Accept User Registration
-  Future waitingToAcceptUserRegistration() async {
-    newLoginStatus = 'Waiting';         /// ==>>> Waiting to PersonCard Confirmation [MessagePersonCardRequest]
-    updateLoginPhase(newLoginStatus);
-  }
-  //#endregion
-
-  //#region Accept User Registration
-  Future acceptUserRegistration() async {
-    newLoginStatus = 'Accepted';        /// ==>>> Register PersonCard Accepted [DisplayRotaryMainScreen]
-    updateLoginPhase(newLoginStatus);
   }
   //#endregion
 
@@ -239,23 +202,7 @@ class _DebugSettingsScreen extends State<DebugSettingsScreen> {
             if (snapshot.connectionState == ConnectionState.waiting)
               return Loading();
             else
-              /////////////
               return buildMainScaffoldBody();
-              // if (snapshot.hasError) {
-              //   return RotaryErrorMessageScreen(
-              //     errTitle: 'שגיאה בשליפת נתונים',
-              //     errMsg: 'אנא פנה למנהל המערכת',
-              //   );
-              // } else {
-              //   if (snapshot.hasData)
-              //   {
-              //     currentDataRequired = snapshot.data;
-              //     return buildMainScaffoldBody();
-              //   }
-              //   else
-              //     return Center(child: Text('שגיאה בטעינת נתוני מסך'));
-              // }
-              /////////////
           }
       ),
     );
@@ -284,32 +231,6 @@ class _DebugSettingsScreen extends State<DebugSettingsScreen> {
               ),
 
               SizedBox(height: 10.0),
-              RaisedButton(
-                  elevation: 0.0,
-                  disabledElevation: 0.0,
-                  color: Colors.green,
-                  child: Text(
-                    'Waiting To Accept User Registration',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: isNoRequestStatus ? null : () async {
-                    await waitingToAcceptUserRegistration();
-                  }
-              ),
-
-              SizedBox(height: 10.0),
-              RaisedButton(
-                  elevation: 0.0,
-                  disabledElevation: 0.0,
-                  color: Colors.green,
-                  child: Text(
-                    'Accept User Registration',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: isNoRequestStatus ? null : () async {
-                    await acceptUserRegistration();
-                  }
-              ),
 
               ///============ Debug Mode SETTINGS ============
               SizedBox(height: 30.0,),
@@ -450,9 +371,9 @@ class _DebugSettingsScreen extends State<DebugSettingsScreen> {
                           // await _initDatabaseService.insertAllStartedRotaryAreaToDb();
                           // await _initDatabaseService.insertAllStartedRotaryClusterToDb();
                           // await _initDatabaseService.insertAllStartedRotaryClubToDb();
-                          // await _initDatabaseService.insertAllStartedUsersToDb();
 
-                          await _initDatabaseService.insertAllStartedPersonCardsToDb();
+                          // await _initDatabaseService.insertAllStartedUsersToDb();
+                          // await _initDatabaseService.insertAllStartedPersonCardsToDb();
                           // await _initDatabaseService.insertAllStartedEventsToDb();
                           // await _initDatabaseService.insertAllStartedMessagesToDb();
                           // await _initDatabaseService.insertAllStartedMessageQueueToDb();
@@ -460,6 +381,7 @@ class _DebugSettingsScreen extends State<DebugSettingsScreen> {
                     ),
                   ),
                   SizedBox(width: 10.0,),
+
                   Expanded(
                     flex: 1,
                     child: RaisedButton(
@@ -471,7 +393,7 @@ class _DebugSettingsScreen extends State<DebugSettingsScreen> {
                           style: TextStyle(color: Colors.white),
                         ),
                         onPressed: () async {
-                          await RotaryDataBaseProvider.rotaryDB.deleteRotaryDatabase();
+                          // await RotaryDataBaseProvider.rotaryDB.deleteRotaryDatabase();
                         }
                     ),
                   ),
@@ -508,9 +430,9 @@ class _DebugSettingsScreen extends State<DebugSettingsScreen> {
                           style: TextStyle(color: Colors.white),
                         ),
                         onPressed: () async {
-                          RegistrationService _registrationService = RegistrationService();
-                          ConnectedUserObject _connectedUserObject;
-                          await _registrationService.sendUserRegistrationRequest(_connectedUserObject);
+                          // RegistrationService _registrationService = RegistrationService();
+                          // ConnectedUserObject _connectedUserObject;
+                          // await _registrationService.sendUserRegistrationRequest(_connectedUserObject);
                         }
                     ),
                   ),

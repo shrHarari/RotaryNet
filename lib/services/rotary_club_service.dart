@@ -1,78 +1,35 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
-import 'package:rotary_net/database/rotary_database_provider.dart';
 import 'package:rotary_net/objects/rotary_club_object.dart';
 import 'package:rotary_net/services/logger_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 import 'dart:developer' as developer;
-import 'globals_service.dart';
 
 class RotaryClubService {
 
   //#region Create RotaryClub As Object
   //=============================================================================
   RotaryClubObject createRotaryClubAsObject(
-      String aAreaId,
-      String aClusterId,
       String aClubId,
       String aClubName,
+      String aClubAddress,
+      String aClubMail,
+      String aClubManagerId
       )
   {
-    if (aAreaId == null)
       return RotaryClubObject(
-        // areaId: 0,
-        // clusterId: 0,
-        clubId: '0',
-        clubName: '',
-      );
-    else
-      return RotaryClubObject(
-        // areaId: aAreaId,
-        // clusterId: aClusterId,
         clubId: aClubId,
         clubName: aClubName,
+        clubAddress: aClubAddress,
+        clubMail:  aClubMail,
+        clubManagerId:  aClubManagerId
       );
   }
   //#endregion
 
   //#region * Get All RotaryClub List [GET]
   // =========================================================
-  Future getAllRotaryClubListFromServer() async {
-    try {
-
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-
-      // Because of RotaryUsersListBloc >>> Need to initialize GlobalService here too
-      bool debugMode = await GlobalsService.getDebugMode();
-      await GlobalsService.setDebugMode(debugMode);
-
-      if (GlobalsService.isDebugMode) {
-        List<RotaryClubObject> rotaryClubObjListForDebug = await RotaryDataBaseProvider.rotaryDB.getAllRotaryClub();
-        if (rotaryClubObjListForDebug == null) {
-        } else {
-          rotaryClubObjListForDebug.sort((a, b) => a.clubName.toLowerCase().compareTo(b.clubName.toLowerCase()));
-        }
-        return rotaryClubObjListForDebug;
-      } else {
-        await LoggerService.log('<RotaryClubService> Get RotaryClub List From Server >>> Failed');
-        print('<RotaryClubService> Get RotaryClub List From Server >>> Failed');
-        return null;
-      }
-      //***** for debug *****
-    }
-    catch (e) {
-      await LoggerService.log('<RotaryAreaService> Get All RotaryClub List From Server >>> ERROR: ${e.toString()}');
-      developer.log(
-        'getAllRotaryClubListFromServer',
-        name: 'RotaryClubService',
-        error: 'Get All RotaryClub List From Server >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-
   Future getAllRotaryClubList() async {
     try {
       Response response = await get(Constants.rotaryClubUrl);
@@ -105,42 +62,9 @@ class RotaryClubService {
   }
   //#endregion
 
-  //#region * Get RotaryClub By AreaClusterClubId [GET]
+  //#region * Get RotaryClub By ClubId [GET]
   // =========================================================
-  Future getRotaryClubByAreaClusterClubIdFromServer(String aAreaId, String aClusterId, String aClubId) async {
-    try {
-
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-
-      // Because of RotaryUsersListBloc >>> Need to initialize GlobalService here too
-      bool debugMode = await GlobalsService.getDebugMode();
-      await GlobalsService.setDebugMode(debugMode);
-
-      if (GlobalsService.isDebugMode) {
-        RotaryClubObject rotaryClubObj = await RotaryDataBaseProvider.rotaryDB.getRotaryClubByAreaClusterClubId(
-            aAreaId, aClusterId, aClubId);
-
-        return rotaryClubObj;
-      } else {
-        await LoggerService.log('<RotaryClubService> Get RotaryClub By AreaClusterClubId From Server >>> Failed');
-        print('<RotaryClubService> Get RotaryClub By AreaClusterClubId From Server >>> Failed');
-        return null;
-      }
-      //***** for debug *****
-    }
-    catch (e) {
-      await LoggerService.log('<RotaryAreaService> Get All RotaryClub By AreaClusterClubId From Server >>> ERROR: ${e.toString()}');
-      developer.log(
-        'getAllRotaryClubByAreaClusterClubIdFromServer',
-        name: 'RotaryClubService',
-        error: 'Get All RotaryClub By AreaClusterClubId From Server >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-
-  Future getRotaryClubByAreaClusterClubId(String aAreaId, String aClusterId, String aClubId) async {
+  Future getRotaryClubByClubId(String aClubId) async {
     try {
       String _getUrl = Constants.rotaryClubUrl + "/$aClubId";
 
@@ -210,26 +134,6 @@ class RotaryClubService {
 
   //#region * Insert RotaryClub [WriteToDB]
   //=============================================================================
-  Future insertRotaryClubToDataBase(RotaryClubObject aRotaryClubObj) async {
-    try{
-      //***** for debug *****
-      if (GlobalsService.isDebugMode) {
-        var dbResult = await RotaryDataBaseProvider.rotaryDB.insertRotaryClub(aRotaryClubObj);
-        return dbResult;
-        //***** for debug *****
-      }
-    }
-    catch (e) {
-      await LoggerService.log('<RotaryClubService> Insert RotaryCluster To DataBase >>> ERROR: ${e.toString()}');
-      developer.log(
-        'insertRotaryClusterToDataBase',
-        name: 'RotaryClubService',
-        error: 'Insert RotaryCluster To DataBase >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-
   Future insertRotaryClub(RotaryClubObject aRotaryClubObj) async {
     try{
       String jsonToPost = aRotaryClubObj.rotaryClubObjectToJson(aRotaryClubObj);
@@ -313,29 +217,9 @@ class RotaryClubService {
   }
   //#endregion
 
-  //#region * Update RotaryClub By AreaClusterClubId [WriteToDB]
+  //#region * Update RotaryClub By ClubId [WriteToDB]
   //=============================================================================
-  Future updateRotaryClubByAreaClusterClubIdToDataBase(RotaryClubObject aRotaryClubObj) async {
-    try{
-      //***** for debug *****
-      if (GlobalsService.isDebugMode) {
-        var dbResult = await RotaryDataBaseProvider.rotaryDB.updateRotaryClubByAreaClusterClubId(aRotaryClubObj);
-        return dbResult;
-        //***** for debug *****
-      }
-    }
-    catch (e) {
-      await LoggerService.log('<RotaryClubService> Update RotaryClub By AreaClusterClubId To DataBase >>> ERROR: ${e.toString()}');
-      developer.log(
-        'updateRotaryClubByAreaClusterClubIdToDataBase',
-        name: 'RotaryClubService',
-        error: 'Update RotaryClub By AreaClusterClubId To DataBase >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-
-  Future updateRotaryClubByAreaClusterClubId(RotaryClubObject aRotaryClubObj) async {
+  Future updateRotaryClubByClubId(RotaryClubObject aRotaryClubObj) async {
     try {
       String jsonToPost = aRotaryClubObj.rotaryClubObjectToJson(aRotaryClubObj);
       print ('updateRotaryClubByAreaClusterClubId / RotaryClubObject / jsonToPost: $jsonToPost');
@@ -373,29 +257,9 @@ class RotaryClubService {
   }
   //#endregion
 
-  //#region * Delete RotaryClub By AreaClusterClubId [WriteToDB]
+  //#region * Delete RotaryClub By ClubId [WriteToDB]
   //=============================================================================
-  Future deleteRotaryClubByAreaClusterClubIdFromDataBase(RotaryClubObject aRotaryClubObj) async {
-    try{
-      //***** for debug *****
-      if (GlobalsService.isDebugMode) {
-        var dbResult = await RotaryDataBaseProvider.rotaryDB.deleteRotaryClubByAreaClusterClubId(aRotaryClubObj);
-        return dbResult;
-        //***** for debug *****
-      }
-    }
-    catch (e) {
-      await LoggerService.log('<RotaryClubService> Delete Rotary Club By AreaClusterClubId From DataBase >>> ERROR: ${e.toString()}');
-      developer.log(
-        'deleteRotaryClubByAreaClusterClubIdFromDataBase',
-        name: 'RotaryClubService',
-        error: 'Delete Rotary Club By AreaClusterClubId From DataBase >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-
-  Future deleteRotaryClubByAreaClusterClubId(RotaryClubObject aRotaryClubObj) async {
+  Future deleteRotaryClubByClubId(RotaryClubObject aRotaryClubObj) async {
     try {
       String _deleteUrl = Constants.rotaryClubUrl + "/${aRotaryClubObj.clubId}";
 

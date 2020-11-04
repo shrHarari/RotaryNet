@@ -175,8 +175,9 @@ class _ApplicationMenuDrawerState extends State<ApplicationMenuDrawer> {
                         MaterialPageRoute(
                             builder: (context) =>
                                 MessageDetailEditPageScreen(
-                                  argMessageWithDescriptionObject: null,
-                                  argHebrewMessageCreatedTimeLabel: hebrewMessageCreatedTimeLabel)
+                                  argMessagePopulatedObject: null,
+                                  argHebrewMessageCreatedTimeLabel: hebrewMessageCreatedTimeLabel
+                                )
                         ),
                       ),
                     },

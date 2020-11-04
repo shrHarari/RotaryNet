@@ -73,6 +73,7 @@ class _PersonalAreaPageTabUserState extends State<PersonalAreaPageTabUser> {
 
       ConnectedUserObject newConnectedUserObj = connectedUserService.createConnectedUserAsObject(
           widget.argConnectedUser.userGuidId,
+          widget.argConnectedUser.personCardId,
           _email, _firstName, _lastName, _password,
           widget.argConnectedUser.userType, newStayConnected);
 
@@ -87,7 +88,7 @@ class _PersonalAreaPageTabUserState extends State<PersonalAreaPageTabUser> {
       /// 3. DataBase: Update the User Data
       UserObject _usrObj = await  UserObject.getUserObjectFromConnectedUserObject(newConnectedUserObj);
       UserService _userService = UserService();
-      _userService.updateUserByGuidIdToDataBase(_usrObj);
+      _userService.updateUserById(_usrObj);
 
       Navigator.pop(context, newConnectedUserObj);
     }

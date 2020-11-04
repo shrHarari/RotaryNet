@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:rotary_net/BLoCs/bloc_provider.dart';
 import 'package:rotary_net/BLoCs/messages_list_bloc.dart';
-import 'package:rotary_net/objects/message_queue_object.dart';
-import 'package:rotary_net/objects/message_with_description_object.dart';
+import 'package:rotary_net/objects/connected_user_global.dart';
+import 'package:rotary_net/objects/message_populated_object.dart';
 import 'package:rotary_net/screens/message_detail_pages/message_detail_page_screen.dart';
 import 'package:rotary_net/screens/message_detail_pages/message_detail_page_widgets.dart';
 import 'package:rotary_net/shared/bubble_box_rotary_message.dart';
@@ -16,9 +16,9 @@ import 'package:rotary_net/widgets/message_dialog_widget.dart';
 import 'package:rotary_net/widgets/message_paragraph_painter.dart';
 
 class RotaryMainPageMessageListTile extends StatelessWidget {
-  final MessageWithDescriptionObject argMessageWithDescriptionObject;
+  final MessagePopulatedObject argMessagePopulatedObject;
 
-  const RotaryMainPageMessageListTile({Key key, this.argMessageWithDescriptionObject}) : super(key: key);
+  const RotaryMainPageMessageListTile({Key key, this.argMessagePopulatedObject}) : super(key: key);
 
   //#region Message Content
 
@@ -47,7 +47,7 @@ class RotaryMainPageMessageListTile extends StatelessWidget {
     return RichText(
       textDirection: TextDirection.rtl,
       text: TextSpan(
-        text: '[${argMessageWithDescriptionObject.composerFirstName} ${argMessageWithDescriptionObject.composerLastName}]: ',
+        text: '[${argMessagePopulatedObject.composerFirstName} ${argMessagePopulatedObject.composerLastName}]: ',
         style: messageTextSpanStyle,
       ),
     );
@@ -118,7 +118,7 @@ class RotaryMainPageMessageListTile extends StatelessWidget {
   RichText getHebrewMessageCreatedDateTime() {
     SymbolData.initializeDateFormatting("he", null);
     var formatterStartDate = Intl.DateFormat.yMMMMEEEEd('he');
-    String hebrewMessageCreatedDateTime = formatterStartDate.format(argMessageWithDescriptionObject.messageCreatedDateTime);
+    String hebrewMessageCreatedDateTime = formatterStartDate.format(argMessagePopulatedObject.messageCreatedDateTime);
 
     return RichText(
       textDirection: TextDirection.rtl,
@@ -171,13 +171,13 @@ class RotaryMainPageMessageListTile extends StatelessWidget {
   //#region Open Message Detail Screen
   openMessageDetailScreen(BuildContext context) async {
 
-    Widget hebrewMessageCreatedTimeLabel = await MessageDetailWidgets.buildMessageCreatedTimeLabel(argMessageWithDescriptionObject.messageCreatedDateTime);
+    Widget hebrewMessageCreatedTimeLabel = await MessageDetailWidgets.buildMessageCreatedTimeLabel(argMessagePopulatedObject.messageCreatedDateTime);
 
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => MessageDetailPageScreen(
-          argMessageWithDescriptionObject: argMessageWithDescriptionObject,
+          argMessagePopulatedObject: argMessagePopulatedObject,
           argHebrewMessageCreatedTimeLabel: hebrewMessageCreatedTimeLabel,
         ),
       ),
@@ -189,29 +189,33 @@ class RotaryMainPageMessageListTile extends StatelessWidget {
   Widget build(BuildContext context) {
 
     //#region Remove Message From List
-    void removeMessageFromList(MessageWithDescriptionObject aMessageWithDescriptionObject) async {
+    void removeMessageFromList(MessagePopulatedObject aMessagePopulatedObject) async {
+
+      var userGlobal = ConnectedUserGlobal();
+      String connectedPersonCardId = userGlobal.getConnectedUserObject().personCardId;
 
       final messagesBloc = BlocProvider.of<MessagesListBloc>(context);
-      await messagesBloc.deleteMessageQueueByMessageAndPersonGuidIdFromDataBase(aMessageWithDescriptionObject);
+      await messagesBloc.removeMessageFromPersonCardMessageQueue(aMessagePopulatedObject, connectedPersonCardId);
     }
     //#endregion
 
     //#region Undo And Add Message Back To List
-    void undoAndAddMessageBackToList(MessageWithDescriptionObject aMessageWithDescriptionObject) async {
+    void undoAndAddMessageBackToList(MessagePopulatedObject aMessagePopulatedObject) async {
+
+      var userGlobal = ConnectedUserGlobal();
+      String connectedPersonCardId = userGlobal.getConnectedUserObject().personCardId;
 
       final messagesBloc = BlocProvider.of<MessagesListBloc>(context);
-      MessageQueueObject _messageQueueObj = await MessageQueueObject.getMessageQueueObjectFromMessageWithDescriptionObject(aMessageWithDescriptionObject);
-
-      await messagesBloc.insertMessageQueue(aMessageWithDescriptionObject, _messageQueueObj);
+      await messagesBloc.addMessageBackToPersonCardMessageQueue(aMessagePopulatedObject, connectedPersonCardId);
     }
     //#endregion
 
     //#region Handle Dismiss
     handleDismiss() {
       // Get a reference to the swiped item
-      final copiedMessageWithDescriptionObject = MessageWithDescriptionObject.copy(argMessageWithDescriptionObject);
+      final copiedMessagePopulatedObject = MessagePopulatedObject.copy(argMessagePopulatedObject);
       // Remove it from the list
-      removeMessageFromList(argMessageWithDescriptionObject);
+      removeMessageFromList(argMessagePopulatedObject);
 
       final scaffold = Scaffold.of(context);
       scaffold.showSnackBar(
@@ -224,8 +228,8 @@ class RotaryMainPageMessageListTile extends StatelessWidget {
                 textDirection: TextDirection.rtl,
                 children: [
                   Text('ההודעה של ' +
-                      argMessageWithDescriptionObject.composerFirstName + " " +
-                      argMessageWithDescriptionObject.composerLastName + " נמחקה",
+                      argMessagePopulatedObject.composerFirstName + " " +
+                      argMessagePopulatedObject.composerLastName + " נמחקה",
                     style: TextStyle(color: Colors.white, fontSize: 14.0, ),
                     textDirection: TextDirection.rtl,
                   ),
@@ -247,7 +251,7 @@ class RotaryMainPageMessageListTile extends StatelessWidget {
                     ),
                     onPressed: () {
                       // Undo ===>>> Insert Back Message
-                      undoAndAddMessageBackToList(copiedMessageWithDescriptionObject);
+                      undoAndAddMessageBackToList(copiedMessagePopulatedObject);
                       Scaffold.of(context).hideCurrentSnackBar(reason: SnackBarClosedReason.action);
                     },
                   ),
@@ -297,12 +301,12 @@ class RotaryMainPageMessageListTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 15.0, top: 15.0, right: 15.0, bottom:10.0),
       child: Dismissible(
-        key: ObjectKey(argMessageWithDescriptionObject),
+        key: ObjectKey(argMessagePopulatedObject),
         direction: DismissDirection.startToEnd,
         confirmDismiss: (_) => openMessageDialogToConfirmDeleting(),
         child: GestureDetector(
           child: BubblesBoxRotaryMessage(
-            argContent: getMessageContent(argMessageWithDescriptionObject.messageText, messageTextSpanStyleBold),
+            argContent: getMessageContent(argMessagePopulatedObject.messageText, messageTextSpanStyleBold),
             argBubbleBackgroundColor: Colors.white,
             argBubbleBorderColor: Colors.amber,
           ),
@@ -327,8 +331,8 @@ class RotaryMainPageMessageListTile extends StatelessWidget {
               Icon(Icons.delete, color: Colors.red, size: 36.0),
               Text(
                 "מחיקת הודעה של "
-                    "[${argMessageWithDescriptionObject.composerFirstName} "
-                    "${argMessageWithDescriptionObject.composerLastName}]",
+                    "[${argMessagePopulatedObject.composerFirstName} "
+                    "${argMessagePopulatedObject.composerLastName}]",
                 style: TextStyle(color: Colors.red),
                 textAlign: TextAlign.right,
               ),
@@ -366,8 +370,8 @@ class RotaryMainPageMessageListTile extends StatelessWidget {
             textDirection: TextDirection.rtl,
             children: [
               Text('האם למחוק את ההודעה של ' +
-                  argMessageWithDescriptionObject.composerFirstName + " " +
-                  argMessageWithDescriptionObject.composerLastName + " ?",
+                  argMessagePopulatedObject.composerFirstName + " " +
+                  argMessagePopulatedObject.composerLastName + " ?",
                 style: TextStyle(color: Colors.red, fontSize: 14.0, ),
                 textDirection: TextDirection.rtl,
               ),

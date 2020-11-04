@@ -3,9 +3,10 @@ import 'package:rotary_net/BLoCs/bloc_provider.dart';
 import 'package:rotary_net/BLoCs/messages_list_bloc.dart';
 import 'package:rotary_net/objects/connected_user_global.dart';
 import 'package:rotary_net/objects/connected_user_object.dart';
-import 'package:rotary_net/objects/message_with_description_object.dart';
+import 'package:rotary_net/objects/message_populated_object.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
-import 'package:rotary_net/objects/person_card_with_description_object.dart';
+import 'package:rotary_net/objects/person_card_populated_object.dart';
+import 'package:rotary_net/objects/person_card_role_and_hierarchy_object.dart';
 import 'package:rotary_net/screens/person_card_detail_pages/person_card_detail_page_screen.dart';
 import 'package:rotary_net/services/message_service.dart';
 import 'package:rotary_net/services/person_card_service.dart';
@@ -17,10 +18,10 @@ import 'package:rotary_net/utils/utils_class.dart';
 
 class MessageDetailEditPageScreen extends StatefulWidget {
   static const routeName = '/MessageDetailEditPageScreen';
-  final MessageWithDescriptionObject argMessageWithDescriptionObject;
+  final MessagePopulatedObject argMessagePopulatedObject;
   final Widget argHebrewMessageCreatedTimeLabel;
 
-  MessageDetailEditPageScreen({Key key, @required this.argMessageWithDescriptionObject, this.argHebrewMessageCreatedTimeLabel}) : super(key: key);
+  MessageDetailEditPageScreen({Key key, @required this.argMessagePopulatedObject, this.argHebrewMessageCreatedTimeLabel}) : super(key: key);
 
   @override
   _MessageDetailEditPageScreenState createState() => _MessageDetailEditPageScreenState();
@@ -49,7 +50,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
   void initState() {
     dataRequiredForBuild = getAllRequiredDataForBuild();
 
-    setMessageVariables(widget.argMessageWithDescriptionObject);
+    setMessageVariables(widget.argMessagePopulatedObject);
 
     super.initState();
   }
@@ -64,34 +65,35 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
 
     PersonCardService _personCardService = PersonCardService();
     String _personCardGuidId;
-    if (widget.argMessageWithDescriptionObject == null)
-      _personCardGuidId = _connectedUserObj.userGuidId;
+    if (widget.argMessagePopulatedObject == null)
+      _personCardGuidId = _connectedUserObj.personCardId;
     else
-      _personCardGuidId = widget.argMessageWithDescriptionObject.composerGuidId;
+      _personCardGuidId = widget.argMessagePopulatedObject.composerId;
 
-    PersonCardWithDescriptionObject _personCardWithDescriptionObject =
-              await _personCardService.getPersonCardWithDescriptionByGuidIdFromServer(_personCardGuidId);
+    PersonCardPopulatedObject _personCardPopulatedObject =
+              await _personCardService.getPersonCardByIdPopulated(_personCardGuidId);
 
     setState(() {
       loading = false;
     });
 
     return DataRequiredForBuild(
-      personCardWithDescriptionObject: _personCardWithDescriptionObject,
+      // personCardWithDescriptionObject: _personCardWithDescriptionObject,
+      personCardPopulatedObject: _personCardPopulatedObject,
     );
   }
   //#endregion
 
   //#region Set Message Variables
-  Future<void> setMessageVariables(MessageWithDescriptionObject aMessageWithDescriptionObj) async {
+  Future<void> setMessageVariables(MessagePopulatedObject aMessagePopulatedObj) async {
 
     currentHebrewMessageCreatedTimeLabel = widget.argHebrewMessageCreatedTimeLabel;
 
     /// If Exist ? Update(has Guid) : Insert(copy Guid)
-    if (aMessageWithDescriptionObj != null)
+    if (aMessagePopulatedObj != null)
     {
       isMessageExist = true;
-      messageController = TextEditingController(text: aMessageWithDescriptionObj.messageText);
+      messageController = TextEditingController(text: aMessagePopulatedObj.messageText);
     } else {
       isMessageExist = false;
       messageController = TextEditingController(text: '');
@@ -111,75 +113,101 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
   }
   //#endregion
 
+  //#region Get PersonCardList By RoleHierarchyPermission
+  Future getPersonCardListByRoleHierarchyPermission(PersonCardPopulatedObject aPersonCardPopulatedObject) async {
+
+    PersonCardRoleAndHierarchyIdObject _personCardHierarchyObject =
+        PersonCardRoleAndHierarchyIdObject.createPersonCardRoleAndHierarchyIdAsObject(
+            aPersonCardPopulatedObject.areaId,
+            aPersonCardPopulatedObject.clusterId,
+            aPersonCardPopulatedObject.clubId,
+            aPersonCardPopulatedObject.roleId,
+            aPersonCardPopulatedObject.roleEnum
+        );
+
+    PersonCardService personCardService = PersonCardService();
+    List<dynamic> personCardsList = await personCardService.getPersonCardListByRoleHierarchyPermission(_personCardHierarchyObject);
+
+    // var personCardsList = personCardIdList.map((personCardJson) => personCardJson).toList().cast<String>();
+    List<String> personCardIdList = personCardsList.map((personCardJson) => personCardJson['_id']).toList().cast<String>();
+
+    return personCardIdList;
+  }
+  //#endregion
+
   //#region Update Message
   Future updateMessage(MessagesListBloc aMessageBloc) async {
-
     bool validationVal = await checkValidation();
 
     if (validationVal){
 
       String _messageText = (messageController.text != null) ? (messageController.text) : '';
 
-      MessageWithDescriptionObject _newMessageWithDescriptionObj;
+      MessagePopulatedObject _newMessagePopulatedObj;
 
       if (isMessageExist) {
-        _newMessageWithDescriptionObj = messageService.createMessageWithDescriptionAsObject(
-            widget.argMessageWithDescriptionObject.messageGuidId,
-            widget.argMessageWithDescriptionObject.composerGuidId,
-            widget.argMessageWithDescriptionObject.composerFirstName,
-            widget.argMessageWithDescriptionObject.composerLastName,
-            widget.argMessageWithDescriptionObject.composerEmail,
+        _newMessagePopulatedObj = messageService.createMessagePopulatedAsObject(
+            widget.argMessagePopulatedObject.messageGuidId,
+            widget.argMessagePopulatedObject.composerId,
+            widget.argMessagePopulatedObject.composerFirstName,
+            widget.argMessagePopulatedObject.composerLastName,
+            widget.argMessagePopulatedObject.composerEmail,
             _messageText,
-            widget.argMessageWithDescriptionObject.messageCreatedDateTime,
-            widget.argMessageWithDescriptionObject.roleId,
-            widget.argMessageWithDescriptionObject.roleName,
-            widget.argMessageWithDescriptionObject.areaId,
-            widget.argMessageWithDescriptionObject.areaName,
-            widget.argMessageWithDescriptionObject.clusterId,
-            widget.argMessageWithDescriptionObject.clusterName,
-            widget.argMessageWithDescriptionObject.clubId,
-            widget.argMessageWithDescriptionObject.clubName,
-            widget.argMessageWithDescriptionObject.clubAddress,
-            widget.argMessageWithDescriptionObject.clubMail,
-            widget.argMessageWithDescriptionObject.clubManagerGuidId
+            widget.argMessagePopulatedObject.messageCreatedDateTime,
+            widget.argMessagePopulatedObject.areaId,
+            widget.argMessagePopulatedObject.areaName,
+            widget.argMessagePopulatedObject.clusterId,
+            widget.argMessagePopulatedObject.clusterName,
+            widget.argMessagePopulatedObject.clubId,
+            widget.argMessagePopulatedObject.clubName,
+            widget.argMessagePopulatedObject.clubAddress,
+            widget.argMessagePopulatedObject.clubMail,
+            widget.argMessagePopulatedObject.clubManagerGuidId,
+            widget.argMessagePopulatedObject.roleId,
+            widget.argMessagePopulatedObject.roleEnum,
+            widget.argMessagePopulatedObject.roleName,
+            widget.argMessagePopulatedObject.personCards,
         );
 
         await aMessageBloc.updateMessage(
-            widget.argMessageWithDescriptionObject,
-            _newMessageWithDescriptionObj);
+            widget.argMessagePopulatedObject,
+            _newMessagePopulatedObj);
       }
       else {
         /// Message NOT Exists --->>> Insert
         /// Using personCardWithDescriptionObject ===>>> Because there is no Current Message (Insert State)
-        String _messageGuidId = await Utils.createGuidUserId();
         DateTime _messageCreatedDateTime = DateTime.now();
 
-        _newMessageWithDescriptionObj = messageService.createMessageWithDescriptionAsObject(
-            _messageGuidId,
-            currentDataRequired.personCardWithDescriptionObject.personCardGuidId,
-            currentDataRequired.personCardWithDescriptionObject.firstName,
-            currentDataRequired.personCardWithDescriptionObject.lastName,
-            currentDataRequired.personCardWithDescriptionObject.email,
+        List<String> personCardIdList = await getPersonCardListByRoleHierarchyPermission(currentDataRequired.personCardPopulatedObject);
+
+        _newMessagePopulatedObj = messageService.createMessagePopulatedAsObject(
+            '',
+            currentDataRequired.personCardPopulatedObject.personCardGuidId,
+            currentDataRequired.personCardPopulatedObject.firstName,
+            currentDataRequired.personCardPopulatedObject.lastName,
+            currentDataRequired.personCardPopulatedObject.email,
             _messageText,
             _messageCreatedDateTime,
-            currentDataRequired.personCardWithDescriptionObject.roleId,
-            currentDataRequired.personCardWithDescriptionObject.roleName,
-            currentDataRequired.personCardWithDescriptionObject.areaId,
-            currentDataRequired.personCardWithDescriptionObject.areaName,
-            currentDataRequired.personCardWithDescriptionObject.clusterId,
-            currentDataRequired.personCardWithDescriptionObject.clusterName,
-            currentDataRequired.personCardWithDescriptionObject.clubId,
-            currentDataRequired.personCardWithDescriptionObject.clubName,
-            currentDataRequired.personCardWithDescriptionObject.clubAddress,
-            currentDataRequired.personCardWithDescriptionObject.clubMail,
-            currentDataRequired.personCardWithDescriptionObject.clubManagerGuidId
+            currentDataRequired.personCardPopulatedObject.areaId,
+            currentDataRequired.personCardPopulatedObject.areaName,
+            currentDataRequired.personCardPopulatedObject.clusterId,
+            currentDataRequired.personCardPopulatedObject.clusterName,
+            currentDataRequired.personCardPopulatedObject.clubId,
+            currentDataRequired.personCardPopulatedObject.clubName,
+            currentDataRequired.personCardPopulatedObject.clubAddress,
+            currentDataRequired.personCardPopulatedObject.clubMail,
+            currentDataRequired.personCardPopulatedObject.clubManagerGuidId,
+            currentDataRequired.personCardPopulatedObject.roleId,
+            currentDataRequired.personCardPopulatedObject.roleEnum,
+            currentDataRequired.personCardPopulatedObject.roleName,
+            personCardIdList,
         );
 
-        await aMessageBloc.insertMessage(_newMessageWithDescriptionObj);
+        await aMessageBloc.insertMessage(_newMessagePopulatedObj);
       }
 
       FocusScope.of(context).requestFocus(FocusNode());
-      Navigator.pop(context, _newMessageWithDescriptionObj);
+      Navigator.pop(context, _newMessagePopulatedObj);
     }
   }
   //#endregion
@@ -188,7 +216,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
   openComposerPersonCardDetailScreen(String aComposerGuidId) async {
 
     PersonCardService _personCardService = PersonCardService();
-    PersonCardObject _personCardObj = await _personCardService.getPersonalCardByUserGuidIdFromServer(aComposerGuidId);
+    PersonCardObject _personCardObj = await _personCardService.getPersonCardByPersonId(aComposerGuidId);
 
     Navigator.push(
       context,
@@ -316,7 +344,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
             ),
 
             Expanded(
-              child: buildMessageDetailDisplay(currentDataRequired.personCardWithDescriptionObject),
+              child: buildMessageDetailDisplay(currentDataRequired.personCardPopulatedObject),
             ),
           ]
       ),
@@ -324,7 +352,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
   }
 
   /// ====================== Message All Fields ==========================
-  Widget buildMessageDetailDisplay(PersonCardWithDescriptionObject aPersonCardWithDescriptionObj) {
+  Widget buildMessageDetailDisplay(PersonCardPopulatedObject aPersonCardPopulatedObj) {
     return Column(
       children: <Widget>[
         /// ---------------- Message Content ----------------------
@@ -335,7 +363,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
               child: Column(
                 children: <Widget>[
                   /// --------------- MessageWithDescriptionObj Details [Metadata]---------------------
-                  buildComposerDetailSection(aPersonCardWithDescriptionObj),
+                  buildComposerDetailSection(aPersonCardPopulatedObj),
 
                   Padding(
                     padding: const EdgeInsets.only(top: 30.0, left: 30.0, right: 30.0, bottom: 0.0),
@@ -407,7 +435,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
   //#region Composer Detail Section
 
   //#region Build Composer Detail Section
-  Widget buildComposerDetailSection(PersonCardWithDescriptionObject aPersonCardWithDescriptionObj) {
+  Widget buildComposerDetailSection(PersonCardPopulatedObject aPersonCardPopulatedObj) {
 
     return Container(
       // color: Colors.grey[200],
@@ -431,11 +459,11 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
           mainAxisSize: MainAxisSize.min,
           textDirection: TextDirection.rtl,
           children: <Widget>[
-            if (aPersonCardWithDescriptionObj.firstName != "")
-              buildComposerDetailName(Icons.person, aPersonCardWithDescriptionObj, openComposerPersonCardDetailScreen),
+            if (aPersonCardPopulatedObj.firstName != "")
+              buildComposerDetailName(Icons.person, aPersonCardPopulatedObj, openComposerPersonCardDetailScreen),
 
-            if (aPersonCardWithDescriptionObj.areaName != "")
-              buildComposerDetailAreaClusterClub(Icons.location_on, aPersonCardWithDescriptionObj, Utils.launchInMapByAddress),
+            if (aPersonCardPopulatedObj.areaName != "")
+              buildComposerDetailAreaClusterClub(Icons.location_on, aPersonCardPopulatedObj, Utils.launchInMapByAddress),
           ],
         ),
       ),
@@ -444,7 +472,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
   //#endregion
 
   //#region Build Composer Detail Name
-  Widget buildComposerDetailName(IconData aIcon, PersonCardWithDescriptionObject aPersonCardWithDescriptionObj, Function aFunc) {
+  Widget buildComposerDetailName(IconData aIcon, PersonCardPopulatedObject aPersonCardPopulatedObj, Function aFunc) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 5.0),
       child: Row(
@@ -455,7 +483,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
             MaterialButton(
               elevation: 0.0,
               onPressed: () {
-                aFunc(aPersonCardWithDescriptionObj.personCardGuidId);
+                aFunc(aPersonCardPopulatedObj.personCardGuidId);
               },
               color: Colors.blue[10],
               child:
@@ -475,13 +503,13 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
             Padding(
               padding: const EdgeInsets.only(left: 10.0),
               child: Text(
-                aPersonCardWithDescriptionObj.firstName + ' ' + aPersonCardWithDescriptionObj.lastName,
+                aPersonCardPopulatedObj.firstName + ' ' + aPersonCardPopulatedObj.lastName,
                 style: TextStyle(color: Colors.grey[900], fontSize: 18.0, fontWeight: FontWeight.bold),
               ),
             ),
 
             Text(
-              '[${aPersonCardWithDescriptionObj.roleName}]',
+              '[${aPersonCardPopulatedObj.roleName}]',
               style: TextStyle(
                   color: Colors.black,
                   fontSize: 14.0),
@@ -493,7 +521,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
   //#endregion
 
   //#region Build Composer Detail Area Cluster Club
-  Widget buildComposerDetailAreaClusterClub(IconData aIcon, PersonCardWithDescriptionObject aPersonCardWithDescriptionObj, Function aFunc) {
+  Widget buildComposerDetailAreaClusterClub(IconData aIcon, PersonCardPopulatedObject aPersonCardPopulatedObj, Function aFunc) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
       child: Row(
@@ -503,7 +531,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
           children: <Widget>[
             MaterialButton(
               elevation: 0.0,
-              onPressed: () {aFunc(aPersonCardWithDescriptionObj.clubAddress);},
+              onPressed: () {aFunc(aPersonCardPopulatedObj.clubAddress);},
               color: Colors.blue[10],
               child:
               IconTheme(
@@ -534,7 +562,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
                     Padding(
                       padding: const EdgeInsets.only(left: 15.0),
                       child: Text(
-                        '${aPersonCardWithDescriptionObj.clubName}',
+                        '${aPersonCardPopulatedObj.clubName}',
                         style: TextStyle(color: Colors.grey[900], fontSize: 14.0, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -548,7 +576,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
                     ),
 
                     Text(
-                      '${aPersonCardWithDescriptionObj.areaName} / ${aPersonCardWithDescriptionObj.clusterName}',
+                      '${aPersonCardPopulatedObj.areaName} / ${aPersonCardPopulatedObj.clusterName}',
                       style: TextStyle(color: Colors.grey[900], fontSize: 14.0, fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -560,11 +588,11 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
                     children: <Widget>[
                       InkWell(
                         onTap: () async {
-                          await Utils.sendEmail(aPersonCardWithDescriptionObj.clubMail);
+                          await Utils.sendEmail(aPersonCardPopulatedObj.clubMail);
                         },
                         child: Text(
                           // '${aMessageObj.clubMail}',
-                          '${aPersonCardWithDescriptionObj.clubMail}',
+                          '${aPersonCardPopulatedObj.clubMail}',
                           style: TextStyle(color: Colors.blue,
                             fontSize: 14.0,
                             decoration: TextDecoration.underline,
@@ -589,13 +617,13 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
 
     final messagesBloc = BlocProvider.of<MessagesListBloc>(context);
 
-    return StreamBuilder<List<MessageWithDescriptionObject>>(
-      stream: messagesBloc.messagesWithDescriptionStream,
-      initialData: messagesBloc.messagesListWithDescription,
+    return StreamBuilder<List<MessagePopulatedObject>>(
+      stream: messagesBloc.messagesPopulatedStream,
+      initialData: messagesBloc.messagesListPopulated,
       builder: (context, snapshot) {
-        List<MessageWithDescriptionObject> currentMessagesList =
+        List<MessagePopulatedObject> currentMessagesList =
         (snapshot.connectionState == ConnectionState.waiting)
-            ? messagesBloc.messagesListWithDescription
+            ? messagesBloc.messagesListPopulated
             : snapshot.data;
 
         return MaterialButton(
@@ -626,13 +654,13 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
 
     final messagesBloc = BlocProvider.of<MessagesListBloc>(context);
 
-    return StreamBuilder<List<MessageWithDescriptionObject>>(
-        stream: messagesBloc.messagesWithDescriptionStream,
-        initialData: messagesBloc.messagesListWithDescription,
+    return StreamBuilder<List<MessagePopulatedObject>>(
+        stream: messagesBloc.messagesPopulatedStream,
+        initialData: messagesBloc.messagesListPopulated,
         builder: (context, snapshot) {
-          List<MessageWithDescriptionObject> currentMessagesList =
+          List<MessagePopulatedObject> currentMessagesList =
           (snapshot.connectionState == ConnectionState.waiting)
-              ? messagesBloc.messagesListWithDescription
+              ? messagesBloc.messagesListPopulated
               : snapshot.data;
 
           return RaisedButton.icon(
@@ -662,9 +690,9 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
 }
 
 class DataRequiredForBuild {
-  PersonCardWithDescriptionObject personCardWithDescriptionObject;
+  PersonCardPopulatedObject personCardPopulatedObject;
 
   DataRequiredForBuild({
-    this.personCardWithDescriptionObject,
+    this.personCardPopulatedObject,
   });
 }

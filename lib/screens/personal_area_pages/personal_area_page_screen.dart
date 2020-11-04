@@ -35,7 +35,7 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
   @override
   void initState() {
     currentConnectedUserObj = ConnectedUserGlobal.currentConnectedUserObject;
-    personCardForBuild = getPersonalCardFromServer(currentConnectedUserObj.userGuidId);
+    personCardForBuild = getPersonalCardFromServer(currentConnectedUserObj.personCardId);
     allowDisplayPersonCard = getPersonCardPermission();
 
     super.initState();
@@ -58,8 +58,8 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
     return _allowDisplayPersonCard;
   }
 
-  Future<PersonCardObject> getPersonalCardFromServer(String aUserGuidId) async {
-    dynamic personCardsObj = await personCardService.getPersonalCardByUserGuidIdFromServer(aUserGuidId);
+  Future<PersonCardObject> getPersonalCardFromServer(String aPersonCardId) async {
+    dynamic personCardsObj = await personCardService.getPersonCardByPersonId(aPersonCardId);
     return personCardsObj;
   }
 
@@ -107,8 +107,8 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
                 (snapshot.hasData) || (currentConnectedUserObj != null) ?
                 Expanded(
                   child: DefaultTabController(
-                      length: allowDisplayPersonCard ? 2 : 1,
-                      initialIndex: allowDisplayPersonCard ? 1 : 0,
+                      length: (allowDisplayPersonCard) ? 2 : 1,
+                      initialIndex: (allowDisplayPersonCard) ? 1 : 0,
                       child: Scaffold(
                         appBar: PreferredSize(
                           preferredSize: Size.fromHeight(25),
@@ -137,7 +137,8 @@ class _PersonalAreaScreenState extends State<PersonalAreaScreen> {
                         body: TabBarView(
                           children: [
                             /// --------------- TAB: PersonCard ---------------------
-                            if (allowDisplayPersonCard) PersonalAreaPageTabPersonCard(
+                            if (allowDisplayPersonCard)
+                              PersonalAreaPageTabPersonCard(
                                 argPersonCardObject: currentPersonCard,
                                 argConnectedUserGuidId: currentConnectedUserObj.userGuidId
                             ),

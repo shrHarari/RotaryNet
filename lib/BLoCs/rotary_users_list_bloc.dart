@@ -64,11 +64,7 @@ class RotaryUsersListBloc implements BloC {
 
   Future<void> insertUser(UserObject aUserObj) async {
     if (_usersList.contains(aUserObj)) {
-      await userService.insertUserToDataBase(aUserObj);
-
-      //***** MongoDB *****
       await userService.insertUser(aUserObj);
-      //***** MongoDB *****
 
       _usersList.add(aUserObj);
       _usersList.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
@@ -78,11 +74,7 @@ class RotaryUsersListBloc implements BloC {
 
   Future<void> updateUserByGuidId(UserObject aOldUserObj, UserObject aNewUserObj) async {
     if (_usersList.contains(aOldUserObj)) {
-      // await userService.updateUserByGuidIdToDataBase(aNewUserObj);
-
-      //***** MongoDB *****
       await userService.updateUserById(aNewUserObj);
-      //***** MongoDB *****
 
       _usersList.remove(aOldUserObj);
       _usersList.add(aNewUserObj);
@@ -93,11 +85,7 @@ class RotaryUsersListBloc implements BloC {
 
   Future<void> deleteUserByGuidId(UserObject aUserObj) async {
     if (_usersList.contains(aUserObj)) {
-      await userService.deleteUserByGuidIdFromDataBase(aUserObj);
-
-      //***** MongoDB *****
       await userService.deleteUserById(aUserObj);
-      //***** MongoDB *****
 
       _usersList.remove(aUserObj);
       _usersController.sink.add(_usersList);

@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rotary_net/objects/connected_user_global.dart';
 import 'package:rotary_net/objects/connected_user_object.dart';
-import 'package:rotary_net/objects/login_object.dart';
 import 'package:rotary_net/screens/debug_setting_screen.dart';
 import 'package:rotary_net/screens/rotary_main_pages/rotary_main_page_screen.dart';
 import 'package:rotary_net/screens/wellcome_pages/register_screen.dart';
@@ -14,9 +13,6 @@ import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class LoginScreen extends StatefulWidget {
   static const routeName = '/LoginScreen';
-  final LoginObject argLoginObject;
-
-  LoginScreen({Key key, @required this.argLoginObject}) : super(key: key);
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -27,7 +23,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final ConnectedUserService connectedUserService = ConnectedUserService();
   final formKey = GlobalKey<FormState>();
   ConnectedUserObject newConnectedUserObj;
-  LoginObject newLoginObject;
 
   //#region Fields Param
   TextEditingController eMailController;
@@ -48,21 +43,23 @@ class _LoginScreenState extends State<LoginScreen> {
     super.initState();
   }
 
+  //#region Set As Login State
   void setAsLoginState() {
-    newLoginObject = widget.argLoginObject;
-
     eMailController = TextEditingController(text: '');
     passwordController = TextEditingController(text: '');
     newStayConnected = false;
     loginConfirmationCheck = true;
   }
+  //#endregion
 
+  //#region Set Fields Functions
   void setEmailValueFunc(String aEmail){
     newEmail = aEmail;
   }
   void setPasswordValueFunc(String aPassword){
     newPassword = aPassword;
   }
+  //#endregion
 
   //#region Perform Login Process
   Future performLoginProcess() async {
@@ -72,6 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
       });
 
       newConnectedUserObj = connectedUserService.createConnectedUserAsObject(
+          '',
           '',
           newEmail.trim(),
           '',
@@ -95,12 +93,6 @@ class _LoginScreenState extends State<LoginScreen> {
           loading = false;
         });
 
-        /// Login Status --->>> Accepted --->>> Update And write to Secure Storage
-        Constants.LoginStatusEnum _loginStatus = Constants.LoginStatusEnum.Accepted;
-        await LoginService.writeLoginObjectDataToSecureStorage(_loginStatus);
-        LoginObject _loginObject = LoginService.createLoginAsObject(_loginStatus);
-        await LoginService.setLogin(_loginObject);
-
         /// Update ConnectedUserObject.StayConnected
         await currentConnectedUserObj.setStayConnected(newStayConnected);
 
@@ -123,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => RotaryMainPageScreen(argLoginObject: newLoginObject),
+        builder: (context) => RotaryMainPageScreen(),
       ),
     );
   }
@@ -135,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DebugSettingsScreen(argLoginObject: newLoginObject),
+        builder: (context) => DebugSettingsScreen(),
       ),
     );
   }
@@ -473,7 +465,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // argToRegisterScreen = ArgDataConnectedUserObject(newConnectedUserObj, newLoginObject);
 
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => RegisterScreen(argLoginObject: newLoginObject)));
+            context, MaterialPageRoute(builder: (context) => RegisterScreen()));
       },
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 20),

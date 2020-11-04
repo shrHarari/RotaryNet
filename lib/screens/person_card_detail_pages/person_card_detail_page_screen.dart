@@ -69,12 +69,10 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
     RotaryAreaObject _rotaryAreaObj = await _rotaryAreaService.getRotaryAreaByAreaId(displayPersonCardObject.areaId);
 
     RotaryClusterService _rotaryClusterService = RotaryClusterService();
-    RotaryClusterObject _rotaryClusterObj = await _rotaryClusterService.getRotaryClusterByAreaClusterId(
-              displayPersonCardObject.areaId, displayPersonCardObject.clusterId);
+    RotaryClusterObject _rotaryClusterObj = await _rotaryClusterService.getRotaryClusterByClusterId(displayPersonCardObject.clusterId);
 
     RotaryClubService _rotaryClubService = RotaryClubService();
-    RotaryClubObject _rotaryClubObj = await _rotaryClubService.getRotaryClubByAreaClusterClubId(
-              displayPersonCardObject.areaId, displayPersonCardObject.clusterId, displayPersonCardObject.clubId);
+    RotaryClubObject _rotaryClubObj = await _rotaryClubService.getRotaryClubByClubId(displayPersonCardObject.clubId);
 
     displayPersonCardHierarchyTitle = PersonCardRoleAndHierarchyObject.getPersonCardHierarchyTitleRichText(
               _rotaryRoleObj.roleName, _rotaryAreaObj.areaName, _rotaryClusterObj.clusterName, _rotaryClubObj.clubName);

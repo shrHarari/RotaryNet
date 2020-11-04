@@ -73,14 +73,17 @@ class DisplayErrorTextAndRetryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Text(
-            errorText,
-            style: Theme.of(context).textTheme.headline5,
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Text(
+              errorText,
+              style: Theme.of(context).textTheme.headline5,
+            ),
           ),
           RaisedButton(
             color: Theme.of(context).primaryColor,

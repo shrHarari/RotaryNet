@@ -1,113 +1,107 @@
 import 'package:rotary_net/BLoCs/bloc.dart';
 import 'package:rotary_net/objects/message_object.dart';
-import 'package:rotary_net/objects/message_queue_object.dart';
-import 'package:rotary_net/objects/message_with_description_object.dart';
+import 'package:rotary_net/objects/message_populated_object.dart';
 import 'package:rotary_net/services/message_service.dart';
 import 'dart:async';
 
 class MessagesListBloc implements BloC {
+  final String argPersonCardId;
 
-  MessagesListBloc(){
-    getMessagesListWithDescription();
+  MessagesListBloc(this.argPersonCardId){
+    getMessagesListPopulated(argPersonCardId);
   }
 
   final MessageService messageService = MessageService();
 
   // a getter of the Bloc List --> to be called from outside
-  var _messagesListWithDescription = <MessageWithDescriptionObject>[];
-  List<MessageWithDescriptionObject> get messagesListWithDescription => _messagesListWithDescription;
+  var _messagesListPopulated = <MessagePopulatedObject>[];
+  List<MessagePopulatedObject> get messagesListPopulated => _messagesListPopulated;
 
   // 1. private StreamController is declared that will manage the stream and sink for this BLoC.
-  final _messagesWithDescriptionController = StreamController<List<MessageWithDescriptionObject>>.broadcast();
+  final _messagesPopulatedController = StreamController<List<MessagePopulatedObject>>.broadcast();
 
   // 2. exposes a public getter to the StreamController’s stream.
-  Stream<List<MessageWithDescriptionObject>> get messagesWithDescriptionStream => _messagesWithDescriptionController.stream;
+  Stream<List<MessagePopulatedObject>> get messagesPopulatedStream => _messagesPopulatedController.stream;
 
   // 3. represents the input for the BLoC
-  void getMessagesListWithDescription() async {
-    _messagesListWithDescription = await messageService.getMessagesListWithDescriptionUsingMessageQueueFromServer();
-    _messagesWithDescriptionController.sink.add(_messagesListWithDescription);
+  void getMessagesListPopulated(String aPersonCardId) async {
+    _messagesListPopulated = await messageService.getMessagesListPopulatedByPersonCardId(argPersonCardId);
+    _messagesListPopulated.sort((a, b) => b.messageCreatedDateTime.compareTo(a.messageCreatedDateTime));
+    _messagesPopulatedController.sink.add(_messagesListPopulated);
   }
 
   Future<void> clearMessagesList() async {
-    _messagesListWithDescription = <MessageWithDescriptionObject>[];
+    _messagesListPopulated = <MessagePopulatedObject>[];
   }
 
   // 4. clean up method, the StreamController is closed when this object is deAllocated
   @override
   void dispose() {
-    _messagesWithDescriptionController.close();
+    _messagesPopulatedController.close();
   }
 
   //#region CRUD: Message
 
-  Future insertMessage(
-      MessageWithDescriptionObject aMessageWithDescriptionObj) async {
+  Future insertMessage(MessagePopulatedObject aMessagePopulatedObj) async {
 
     // InsertMessage ===>>> One Transaction: Insert to MessageTable AND to MessageQueueTable
-    MessageObject _messageObj = await MessageObject.getMessageObjectFromMessageWithDescriptionObject(aMessageWithDescriptionObj);
-    var dbResult = await messageService.insertMessageAndMessageQueueByHierarchyPermissionToDataBase(_messageObj, aMessageWithDescriptionObj);
+    MessageObject _messageObj = await MessageObject.getMessageObjectFromMessagePopulatedObject(aMessagePopulatedObj);
+    var dbResult = await messageService.insertMessage(_messageObj);
 
-    _messagesListWithDescription.add(aMessageWithDescriptionObj);
-    _messagesListWithDescription.sort((a, b) => b.messageCreatedDateTime.compareTo(a.messageCreatedDateTime));
-    _messagesWithDescriptionController.sink.add(_messagesListWithDescription);
+    _messagesListPopulated.add(aMessagePopulatedObj);
+    _messagesListPopulated.sort((a, b) => b.messageCreatedDateTime.compareTo(a.messageCreatedDateTime));
+    _messagesPopulatedController.sink.add(_messagesListPopulated);
 
     return dbResult;
   }
 
   Future<void> updateMessage(
-      MessageWithDescriptionObject aOldMessageWithDescriptionObj,
-      MessageWithDescriptionObject aNewMessageWithDescriptionObj) async {
+      MessagePopulatedObject aOldMessagePopulatedObj,
+      MessagePopulatedObject aNewMessagePopulatedObj) async {
 
-    if (_messagesListWithDescription.contains(aOldMessageWithDescriptionObj)) {
-      MessageObject _messageObj = await MessageObject.getMessageObjectFromMessageWithDescriptionObject(aNewMessageWithDescriptionObj);
-      await messageService.updateMessageByMessageGuidIdToDataBase(_messageObj);
+    if (_messagesListPopulated.contains(aOldMessagePopulatedObj)) {
+      MessageObject _messageObj = await MessageObject.getMessageObjectFromMessagePopulatedObject(aNewMessagePopulatedObj);
+      await messageService.updateMessageById(_messageObj);
 
-      _messagesListWithDescription.remove(aOldMessageWithDescriptionObj);
-      _messagesListWithDescription.add(aNewMessageWithDescriptionObj);
-      _messagesListWithDescription.sort((a, b) => b.messageCreatedDateTime.compareTo(a.messageCreatedDateTime));
-      _messagesWithDescriptionController.sink.add(_messagesListWithDescription);
+      _messagesListPopulated.remove(aOldMessagePopulatedObj);
+      _messagesListPopulated.add(aNewMessagePopulatedObj);
+      _messagesListPopulated.sort((a, b) => b.messageCreatedDateTime.compareTo(a.messageCreatedDateTime));
+      _messagesPopulatedController.sink.add(_messagesListPopulated);
     }
   }
 
-  Future<void> deleteMessageByMessageGuidId(
-      MessageWithDescriptionObject aMessageWithDescriptionObj) async {
+  Future<void> deleteMessageById(MessagePopulatedObject aMessagePopulatedObj) async {
 
-    if (_messagesListWithDescription.contains(aMessageWithDescriptionObj)) {
-      MessageObject _messageObj = await MessageObject.getMessageObjectFromMessageWithDescriptionObject(aMessageWithDescriptionObj);
-      await messageService.deleteMessageByMessageGuidIdFromDataBase(_messageObj);
+    if (_messagesListPopulated.contains(aMessagePopulatedObj)) {
+      MessageObject _messageObj = await MessageObject.getMessageObjectFromMessagePopulatedObject(aMessagePopulatedObj);
+      await messageService.deleteMessageById(_messageObj);
 
-      _messagesListWithDescription.remove(aMessageWithDescriptionObj);
-      _messagesWithDescriptionController.sink.add(_messagesListWithDescription);
+      _messagesListPopulated.remove(aMessagePopulatedObj);
+      _messagesListPopulated.sort((a, b) => b.messageCreatedDateTime.compareTo(a.messageCreatedDateTime));
+      _messagesPopulatedController.sink.add(_messagesListPopulated);
     }
   }
-  //#endregion
 
-  //#region CRUD: Message Queue
+  Future<void> removeMessageFromPersonCardMessageQueue(MessagePopulatedObject aMessagePopulatedObj, String aPersonCardId) async {
 
-  Future insertMessageQueue(
-      MessageWithDescriptionObject aMessageWithDescriptionObj,
-      MessageQueueObject aMessageQueueObj) async {
+    if (_messagesListPopulated.contains(aMessagePopulatedObj)) {
+      MessageObject _messageObj = await MessageObject.getMessageObjectFromMessagePopulatedObject(aMessagePopulatedObj);
+      await messageService.removeMessageFromPersonCardMessageQueue(_messageObj, aPersonCardId);
 
-    var dbResult = await messageService.insertMessageQueueToDataBase(aMessageQueueObj);
-
-    _messagesListWithDescription.add(aMessageWithDescriptionObj);
-    _messagesListWithDescription.sort((a, b) => b.messageCreatedDateTime.compareTo(a.messageCreatedDateTime));
-    _messagesWithDescriptionController.sink.add(_messagesListWithDescription);
-
-    return dbResult;
+      _messagesListPopulated.remove(aMessagePopulatedObj);
+      _messagesListPopulated.sort((a, b) => b.messageCreatedDateTime.compareTo(a.messageCreatedDateTime));
+      _messagesPopulatedController.sink.add(_messagesListPopulated);
+    }
   }
 
-  Future<void> deleteMessageQueueByMessageAndPersonGuidIdFromDataBase(
-      MessageWithDescriptionObject aMessageWithDescriptionObj) async {
+  Future<void> addMessageBackToPersonCardMessageQueue(MessagePopulatedObject aMessagePopulatedObj, String aPersonCardId) async {
 
-    if (_messagesListWithDescription.contains(aMessageWithDescriptionObj)) {
-      MessageObject _messageObj = await MessageObject.getMessageObjectFromMessageWithDescriptionObject(aMessageWithDescriptionObj);
-      await messageService.deleteMessageQueueByMessageAndPersonGuidIdFromDataBase(_messageObj, aMessageWithDescriptionObj);
+    MessageObject _messageObj = await MessageObject.getMessageObjectFromMessagePopulatedObject(aMessagePopulatedObj);
+    await messageService.addMessageBackToPersonCardMessageQueue(_messageObj, aPersonCardId);
 
-      _messagesListWithDescription.remove(aMessageWithDescriptionObj);
-      _messagesWithDescriptionController.sink.add(_messagesListWithDescription);
-    }
+    _messagesListPopulated.add(aMessagePopulatedObj);
+    _messagesListPopulated.sort((a, b) => b.messageCreatedDateTime.compareTo(a.messageCreatedDateTime));
+    _messagesPopulatedController.sink.add(_messagesListPopulated);
   }
   //#endregion
 }

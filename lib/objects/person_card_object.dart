@@ -20,7 +20,7 @@ class PersonCardObject {
   String clusterId;
   String clubId;
   String roleId;
-  // Constants.RotaryRolesEnum roleEnum;
+  final List<String> messages;
 
   PersonCardObject({
     this.personCardGuidId,
@@ -41,7 +41,7 @@ class PersonCardObject {
     this.clusterId,
     this.clubId,
     this.roleId,
-    // this.roleEnum,
+    this.messages,
   });
 
   //#region Update PersonCard Object with Sets Calls
@@ -98,14 +98,18 @@ class PersonCardObject {
           ' ${this.clusterId},'
           ' ${this.clubId},'
           ' ${this.roleId},'
-        // ' ${this.roleEnum},'
-      ' }';
+          ' ${this.messages},'
+      '}';
   }
 
   factory PersonCardObject.fromJson(Map<String, dynamic> parsedJson){
     // RoleId: Convert [int] to [Enum]
-    // Constants.RotaryRolesEnum _roleEnum;
-    // Constants.RotaryRolesEnum _roleEnumValue = _roleEnum.convertToEnum(parsedJson['roleId']);
+    Constants.RotaryRolesEnum _roleEnum;
+    Constants.RotaryRolesEnum _roleEnumValue = _roleEnum.convertToEnum(parsedJson['roleId']);
+
+    List<dynamic> dynMessagesList = parsedJson['messages'] as List<dynamic>;
+    List<String> messagesList;
+    if (dynMessagesList != null) messagesList = dynMessagesList.cast<String>();
 
     return PersonCardObject(
       personCardGuidId: parsedJson['_id'],
@@ -126,7 +130,7 @@ class PersonCardObject {
       clusterId : parsedJson['clusterId'],
       clubId : parsedJson['clubId'],
       roleId : parsedJson['roleId'],
-      // roleEnum : _roleEnumValue,
+      messages : messagesList,
     );
   }
 
@@ -145,11 +149,11 @@ class PersonCardObject {
   factory PersonCardObject.fromMap(Map<String, dynamic> jsonFromMap) {
 
     // RoleId: Convert [int] to [Enum]
-    Constants.RotaryRolesEnum _roleEnum;
-    Constants.RotaryRolesEnum _roleEnumValue = _roleEnum.convertToEnum(jsonFromMap['roleEnum']);
+    // Constants.RotaryRolesEnum _roleEnum;
+    // Constants.RotaryRolesEnum _roleEnumValue = _roleEnum.convertToEnum(jsonFromMap['roleEnum']);
 
     return PersonCardObject(
-      personCardGuidId: jsonFromMap['_id'],
+      // personCardGuidId: jsonFromMap['_id'],
       email: jsonFromMap['email'],
       firstName: jsonFromMap['firstName'],
       lastName: jsonFromMap['lastName'],
@@ -167,7 +171,7 @@ class PersonCardObject {
       clusterId: jsonFromMap['clusterId'],
       clubId: jsonFromMap['clubId'],
       roleId: jsonFromMap['roleId'],
-      // roleEnum: _roleEnumValue,
+      messages: jsonFromMap['messages'],
     );
   }
 
@@ -177,50 +181,26 @@ class PersonCardObject {
     // Constants.RotaryRolesEnum _roleEnum = roleEnum;
     // int _roleEnumValue = _roleEnum.value;
 
-    if (personCardGuidId == null) {
-      return {
-        // '_id': personCardGuidId,
-        'email': email,
-        'firstName': firstName,
-        'lastName': lastName,
-        'firstNameEng': firstNameEng,
-        'lastNameEng': lastNameEng,
-        'phoneNumber': phoneNumber,
-        'phoneNumberDialCode': phoneNumberDialCode,
-        'phoneNumberParse': phoneNumberParse,
-        'phoneNumberCleanLongFormat': phoneNumberCleanLongFormat,
-        'pictureUrl': pictureUrl,
-        'cardDescription': cardDescription,
-        'internetSiteUrl': internetSiteUrl,
-        'address': address,
-        'areaId': areaId,
-        'clusterId': clusterId,
-        'clubId': clubId,
-        'roleId': roleId,
-        // 'roleEnum': _roleEnumValue,
-      };
-    } else {
-      return {
-        '_id': personCardGuidId,
-        'email': email,
-        'firstName': firstName,
-        'lastName': lastName,
-        'firstNameEng': firstNameEng,
-        'lastNameEng': lastNameEng,
-        'phoneNumber': phoneNumber,
-        'phoneNumberDialCode': phoneNumberDialCode,
-        'phoneNumberParse': phoneNumberParse,
-        'phoneNumberCleanLongFormat': phoneNumberCleanLongFormat,
-        'pictureUrl': pictureUrl,
-        'cardDescription': cardDescription,
-        'internetSiteUrl': internetSiteUrl,
-        'address': address,
-        'areaId': areaId,
-        'clusterId': clusterId,
-        'clubId': clubId,
-        'roleId': roleId,
-        // 'roleEnum': _roleEnumValue,
-      };
-    }
+    return {
+      if ((personCardGuidId != null) && (personCardGuidId != '')) '_id': personCardGuidId,
+      'email': email,
+      'firstName': firstName,
+      'lastName': lastName,
+      'firstNameEng': firstNameEng,
+      'lastNameEng': lastNameEng,
+      'phoneNumber': phoneNumber,
+      'phoneNumberDialCode': phoneNumberDialCode,
+      'phoneNumberParse': phoneNumberParse,
+      'phoneNumberCleanLongFormat': phoneNumberCleanLongFormat,
+      'pictureUrl': pictureUrl,
+      'cardDescription': cardDescription,
+      'internetSiteUrl': internetSiteUrl,
+      'address': address,
+      'areaId': areaId,
+      'clusterId': clusterId,
+      'clubId': clubId,
+      'roleId': roleId,
+      'messages': messages,
+    };
   }
 }

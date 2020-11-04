@@ -5,6 +5,7 @@ import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class UserObject {
   final String userGuidId;
+  final String personCardId;
   final String email;
   final String firstName;
   final String lastName;
@@ -14,6 +15,7 @@ class UserObject {
 
   UserObject({
     this.userGuidId,
+    this.personCardId,
     this.email,
     this.firstName,
     this.lastName,
@@ -26,6 +28,7 @@ class UserObject {
   static Future <UserObject> getUserObjectFromConnectedUserObject(ConnectedUserObject aConnectedUserObject) async {
     return UserObject(
         userGuidId: aConnectedUserObject.userGuidId,
+        personCardId: aConnectedUserObject.personCardId,
         email: aConnectedUserObject.email,
         firstName : aConnectedUserObject.firstName,
         lastName : aConnectedUserObject.lastName,
@@ -53,6 +56,7 @@ class UserObject {
     return
       '{'
         ' ${this.userGuidId},'
+        ' ${this.personCardId},'
         ' ${this.email},'
         ' ${this.firstName},'
         ' ${this.lastName},'
@@ -72,15 +76,29 @@ class UserObject {
     bool _stayConnected;
     parsedJson['stayConnected'] == 0 ? _stayConnected = false : _stayConnected = true;
 
-    return UserObject(
-        userGuidId: parsedJson['_id'],
-        email: parsedJson['email'],
-        firstName : parsedJson['firstName'],
-        lastName : parsedJson['lastName'],
-        password : parsedJson['password'],
-        userType : _userType,
-        stayConnected : _stayConnected
-    );
+    if (parsedJson['_id'] == null) {
+      return UserObject(
+          userGuidId: '',
+          personCardId: parsedJson['personCardId'],
+          email: parsedJson['email'],
+          firstName : parsedJson['firstName'],
+          lastName : parsedJson['lastName'],
+          password : parsedJson['password'],
+          userType : _userType,
+          stayConnected : _stayConnected
+      );
+    } else {
+      return UserObject(
+          userGuidId: parsedJson['_id'],
+          personCardId: parsedJson['personCardId'],
+          email: parsedJson['email'],
+          firstName : parsedJson['firstName'],
+          lastName : parsedJson['lastName'],
+          password : parsedJson['password'],
+          userType : _userType,
+          stayConnected : _stayConnected
+      );
+    }
   }
 
   /// DataBase: Madel for User
@@ -106,40 +124,30 @@ class UserObject {
     jsonFromMap['stayConnected'] == 0 ? _stayConnected = false : _stayConnected = true;
 
     return UserObject(
-          userGuidId: jsonFromMap['_id'],
-          email: jsonFromMap['email'],
-          firstName : jsonFromMap['firstName'],
-          lastName : jsonFromMap['lastName'],
-          password : jsonFromMap['password'],
-          userType : _userType,
-          stayConnected : _stayConnected,
-      );
+      // userGuidId: jsonFromMap['_id'],
+      personCardId: jsonFromMap['personCardId'],
+      email: jsonFromMap['email'],
+      firstName : jsonFromMap['firstName'],
+      lastName : jsonFromMap['lastName'],
+      password : jsonFromMap['password'],
+      userType : _userType,
+      stayConnected : _stayConnected,
+    );
   }
 
   Map<String, dynamic> toMap() {
-    // UserType: Convert [Enum] to [String]
+    /// UserType: Convert [Enum] to [String]
     String _userType = EnumToString.parse(userType);
 
-    if (userGuidId == null) {
-      return {
-        // '_id': userGuidId,
-        'email': email,
-        'firstName': firstName,
-        'lastName': lastName,
-        'password': password,
-        'userType': _userType,
-        'stayConnected': stayConnected ? 1 : 0,
-      };
-    } else {
-      return {
-        '_id': userGuidId,
-        'email': email,
-        'firstName': firstName,
-        'lastName': lastName,
-        'password': password,
-        'userType': _userType,
-        'stayConnected': stayConnected ? 1 : 0,
-      };
-    }
+    return {
+      if ((userGuidId != null) && (userGuidId != '')) '_id': userGuidId,
+      if ((personCardId != null) && (personCardId != '')) 'personCardId': personCardId,
+      'email': email,
+      'firstName': firstName,
+      'lastName': lastName,
+      'password': password,
+      'userType': _userType,
+      'stayConnected': stayConnected ? 1 : 0,
+    };
   }
 }

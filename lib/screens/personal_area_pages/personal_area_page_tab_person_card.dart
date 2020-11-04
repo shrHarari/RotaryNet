@@ -65,7 +65,9 @@ class _PersonalAreaPageTabPersonCardState extends State<PersonalAreaPageTabPerso
   @override
   void initState() {
     setPersonCardVariables(widget.argPersonCardObject);
-    personCardRoleAndHierarchyListObjectForBuild = getPersonCardRoleAndHierarchyListForBuild();
+
+    if (widget.argPersonCardObject != null)
+      personCardRoleAndHierarchyListObjectForBuild = getPersonCardRoleAndHierarchyListForBuild();
 
     super.initState();
   }
@@ -77,20 +79,37 @@ class _PersonalAreaPageTabPersonCardState extends State<PersonalAreaPageTabPerso
     });
 
     RotaryRoleService _rotaryRoleService = RotaryRoleService();
-    List<RotaryRoleObject> _rotaryRoleObjList = await _rotaryRoleService.getAllRotaryRoleListFromServer();
+    List<RotaryRoleObject> _rotaryRoleObjList = await _rotaryRoleService.getAllRotaryRolesList();
     setRotaryRoleDropdownMenuItems(_rotaryRoleObjList);
 
+    //////////////////////////////// Rotary Area
     RotaryAreaService _rotaryAreaService = RotaryAreaService();
-    List<RotaryAreaObject> _rotaryAreaObjList = await _rotaryAreaService.getAllRotaryAreaListFromServer();
+    List<RotaryAreaObject> _rotaryAreaObjList = await _rotaryAreaService.getAllRotaryAreaList();
     setRotaryAreaDropdownMenuItems(_rotaryAreaObjList);
 
-    RotaryClusterService _rotaryClusterService = RotaryClusterService();
-    List<RotaryClusterObject> _rotaryClusterObjList = await _rotaryClusterService.getAllRotaryClusterListFromServer();
-    setRotaryClusterDropdownMenuItems(_rotaryClusterObjList);
+    /// Find the AreaObject Element in a AreaList By areaId ===>>> Get Clusters List
+    /// Get ClustersList from current Area [widget.argPersonCardObject.areaId]
+    int _initialAreaListIndex = _rotaryAreaObjList.indexWhere((listElement) =>
+        (listElement.areaId == widget.argPersonCardObject.areaId));
 
+    List<String> clustersOfArea = _rotaryAreaObjList[_initialAreaListIndex].clusters;
+
+    //////////////////////////////// Rotary Cluster
+    RotaryClusterService _rotaryClusterService = RotaryClusterService();
+    List<RotaryClusterObject> _rotaryClusterObjList = await _rotaryClusterService.getAllRotaryClusterList();
+    setRotaryClusterDropdownMenuItems(clustersOfArea, _rotaryClusterObjList);
+
+    /// Find the ClusterObject Element in a ClusterList By clusterId ===>>> Get Clubs List
+    /// Get ClubsList from current Cluster [widget.argPersonCardObject.clusterId]
+    int _initialClustersListIndex = _rotaryClusterObjList.indexWhere((listElement) =>
+        (listElement.clusterId == widget.argPersonCardObject.clusterId));
+
+    List<String> clubsOfCluster = _rotaryClusterObjList[_initialClustersListIndex].clubs;
+
+    //////////////////////////////// Rotary Club
     RotaryClubService _rotaryClubService = RotaryClubService();
-    List<RotaryClubObject> _rotaryClubObjList = await _rotaryClubService.getAllRotaryClubListFromServer();
-    setRotaryClubDropdownMenuItems(_rotaryClubObjList);
+    List<RotaryClubObject> _rotaryClubObjList = await _rotaryClubService.getAllRotaryClubList();
+    setRotaryClubDropdownMenuItems(clubsOfCluster, widget.argPersonCardObject.clusterId, _rotaryClubObjList);
 
     setState(() {
       loading = false;
@@ -173,13 +192,12 @@ class _PersonalAreaPageTabPersonCardState extends State<PersonalAreaPageTabPerso
   }
 
   void filterRotaryAreaDropdownMenuItems(String aAreaId) {
-    // Filter list & Find the ClusterObject Element in a ClusterList By clusterId ===>>> Set DropDown Initial Value
+    // Filter list & Find the AreaObject Element in a AreaList By areaId ===>>> Set DropDown Initial Value
     int _initialListIndex;
 
-    // Find the RoleObject Element in a RoleList By roleId ===>>> Set DropDown Initial Value
     if (aAreaId != null) {
       _initialListIndex = dropdownRotaryAreaItems.indexWhere((listElement) =>
-      (listElement.value.areaId == aAreaId));
+          (listElement.value.areaId == aAreaId));
 
       selectedRotaryAreaObj = dropdownRotaryAreaItems[_initialListIndex].value;
     } else {
@@ -192,8 +210,8 @@ class _PersonalAreaPageTabPersonCardState extends State<PersonalAreaPageTabPerso
     FocusScope.of(context).requestFocus(FocusNode());
     setState(() {
       selectedRotaryAreaObj = aSelectedRotaryAreaObject;
-      filterRotaryClusterDropdownMenuItems(selectedRotaryAreaObj.areaId, null);
-      filterRotaryClubDropdownMenuItems(selectedRotaryAreaObj.areaId, null, null);
+      filterRotaryClusterDropdownMenuItems(aSelectedRotaryAreaObject.clusters, null);
+      filterRotaryClubDropdownMenuItems(null, null);
     });
   }
   //#endregion
@@ -203,7 +221,7 @@ class _PersonalAreaPageTabPersonCardState extends State<PersonalAreaPageTabPerso
   List<DropdownMenuItem<RotaryClusterObject>> dropdownRotaryClusterFilteredItems;
   RotaryClusterObject selectedRotaryClusterObj;
 
-  void setRotaryClusterDropdownMenuItems(List<RotaryClusterObject> aRotaryClusterObjectsList) {
+  void setRotaryClusterDropdownMenuItems(List<String> aClustersOfArea, List<RotaryClusterObject> aRotaryClusterObjectsList) {
     List<DropdownMenuItem<RotaryClusterObject>> _rotaryClusterDropDownItems = List();
     for (RotaryClusterObject _rotaryClusterObj in aRotaryClusterObjectsList) {
       _rotaryClusterDropDownItems.add(
@@ -221,19 +239,18 @@ class _PersonalAreaPageTabPersonCardState extends State<PersonalAreaPageTabPerso
     }
     dropdownRotaryClusterItems = _rotaryClusterDropDownItems;
     filterRotaryClusterDropdownMenuItems(
-        widget.argPersonCardObject.areaId,
+        aClustersOfArea,
         widget.argPersonCardObject.clusterId);
   }
 
-  void filterRotaryClusterDropdownMenuItems(String aAreaId, String aClusterId) {
+  void filterRotaryClusterDropdownMenuItems(List<String> aClustersOfArea, String aClusterId) {
     // Filter list & Find the ClusterObject Element in a ClusterList By clusterId ===>>> Set DropDown Initial Value
     int _initialListIndex;
     dropdownRotaryClusterFilteredItems = dropdownRotaryClusterItems.where((item) =>
-    (item.value.areaId == selectedRotaryAreaObj.areaId)).toList();
+        aClustersOfArea.contains(item.value.clusterId)).toList();
 
     if (aClusterId != null) {
       _initialListIndex = dropdownRotaryClusterFilteredItems.indexWhere((listElement) =>
-      (listElement.value.areaId == aAreaId) &&
           (listElement.value.clusterId == aClusterId));
       selectedRotaryClusterObj = dropdownRotaryClusterFilteredItems[_initialListIndex].value;
     } else {
@@ -246,7 +263,7 @@ class _PersonalAreaPageTabPersonCardState extends State<PersonalAreaPageTabPerso
     FocusScope.of(context).requestFocus(FocusNode());
     setState(() {
       selectedRotaryClusterObj = aSelectedRotaryClusterObject;
-      filterRotaryClubDropdownMenuItems(selectedRotaryAreaObj.areaId, selectedRotaryClusterObj.clusterId, null);
+      filterRotaryClubDropdownMenuItems(aSelectedRotaryClusterObject.clubs, null);
     });
   }
   //#endregion
@@ -256,7 +273,7 @@ class _PersonalAreaPageTabPersonCardState extends State<PersonalAreaPageTabPerso
   List<DropdownMenuItem<RotaryClubObject>> dropdownRotaryClubFilteredItems;
   RotaryClubObject selectedRotaryClubObj;
 
-  void setRotaryClubDropdownMenuItems(List<RotaryClubObject> aRotaryClubObjectsList) {
+  void setRotaryClubDropdownMenuItems(List<String> aClubsOfCluster, String aClusterId, List<RotaryClubObject> aRotaryClubObjectsList) {
     List<DropdownMenuItem<RotaryClubObject>> _rotaryClubDropDownItems = List();
     for (RotaryClubObject _rotaryClubObj in aRotaryClubObjectsList) {
       _rotaryClubDropDownItems.add(
@@ -274,23 +291,19 @@ class _PersonalAreaPageTabPersonCardState extends State<PersonalAreaPageTabPerso
     }
     dropdownRotaryClubItems = _rotaryClubDropDownItems;
     filterRotaryClubDropdownMenuItems(
-        widget.argPersonCardObject.areaId,
-        widget.argPersonCardObject.clusterId,
+        aClubsOfCluster,
         widget.argPersonCardObject.clubId);
   }
 
-  void filterRotaryClubDropdownMenuItems(String aAreaId, String aClusterId, String aClubId) {
+  void filterRotaryClubDropdownMenuItems(List<String> aClubsOfCluster, String aClubId) {
     // Filter list & Find the ClubObject Element in a ClubList By clubId ===>>> Set DropDown Initial Value
     int _initialListIndex;
-    if (aClusterId != null) {
+    if (aClubsOfCluster != null) {
       dropdownRotaryClubFilteredItems = dropdownRotaryClubItems.where((item) =>
-      (item.value.areaId == selectedRotaryAreaObj.areaId) &&
-          (item.value.clusterId == selectedRotaryClusterObj.clusterId)).toList();
+          aClubsOfCluster.contains(item.value.clubId)).toList();
 
       if (aClubId != null) {
         _initialListIndex = dropdownRotaryClubFilteredItems.indexWhere((listElement) =>
-        (listElement.value.areaId == aAreaId) &&
-            (listElement.value.clusterId == aClusterId) &&
             (listElement.value.clubId == aClubId));
         selectedRotaryClubObj = dropdownRotaryClubFilteredItems[_initialListIndex].value;
       } else {
@@ -404,21 +417,21 @@ class _PersonalAreaPageTabPersonCardState extends State<PersonalAreaPageTabPerso
       RotaryRolesEnum _rotaryRolesEnum;
       PersonCardObject newPersonCardObj =
           personCardService.createPersonCardAsObject(
-              widget.argConnectedUserGuidId,
+              widget.argPersonCardObject.personCardGuidId,
               _email, _firstName, _lastName, _firstNameEng, _lastNameEng,
               _phoneNumber, _phoneNumberDialCode, _phoneNumberParse, _phoneNumberCleanLongFormat,
               _pictureUrl, _cardDescription, _internetSiteUrl, _address,
+              selectedRotaryAreaObj.areaId, selectedRotaryClusterObj.clusterId, selectedRotaryClubObj.clubId,
               // _rotaryRolesEnum.convertToEnum(selectedRotaryRoleObj.roleId),
-              selectedRotaryRoleObj.roleId,
-              selectedRotaryAreaObj.areaId, selectedRotaryClusterObj.clusterId, selectedRotaryClubObj.clubId);
+              selectedRotaryRoleObj.roleId);
 
-      int returnVal;
+      String returnVal;
       if (isPersonCardExist)
-        returnVal = await personCardService.updatePersonCardByGuidIdToDataBase(newPersonCardObj);
+        returnVal = await personCardService.updatePersonCardById(newPersonCardObj);
       else
-        returnVal = await personCardService.insertPersonCardToDataBase(newPersonCardObj);
+        returnVal = await personCardService.insertPersonCard(widget.argConnectedUserGuidId, newPersonCardObj);
 
-      if (returnVal > 0) {
+      if (returnVal != '') {
         Navigator.pop(context);
       } else {
         setState(() {

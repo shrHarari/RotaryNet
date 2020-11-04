@@ -33,7 +33,7 @@ class PersonCardsListBloc implements BloC {
       clearPersonCardsList();
     else
       {
-        _personCardsList = await personCardService.getPersonCardsListBySearchQueryFromServer(_textToSearch);
+        _personCardsList = await personCardService.getPersonCardsListBySearchQuery(_textToSearch);
       }
 
     _personCardsController.sink.add(_personCardsList);
@@ -51,9 +51,9 @@ class PersonCardsListBloc implements BloC {
 
   //#region CRUD: Person Card
 
-  Future<void> insertPersonCard(PersonCardObject aPersonCardObj) async {
+  Future<void> insertPersonCard(String aUserId, PersonCardObject aPersonCardObj) async {
     if (_personCardsList.contains(aPersonCardObj)) {
-      await personCardService.insertPersonCardToDataBase(aPersonCardObj);
+      await personCardService.insertPersonCard(aUserId, aPersonCardObj);
 
       _personCardsList.add(aPersonCardObj);
       _personCardsList.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
@@ -64,7 +64,7 @@ class PersonCardsListBloc implements BloC {
   Future<void> updatePersonCardByGuidId(PersonCardObject aOldPersonCardObj, PersonCardObject aNewPersonCardObj) async {
     if (_personCardsList.contains(aOldPersonCardObj)) {
 
-      await personCardService.updatePersonCardByGuidIdToDataBase(aNewPersonCardObj);
+      await personCardService.updatePersonCardById(aNewPersonCardObj);
 
       _personCardsList.remove(aOldPersonCardObj);
       _personCardsList.add(aNewPersonCardObj);
@@ -75,7 +75,7 @@ class PersonCardsListBloc implements BloC {
 
   Future<void> deletePersonCardByGuidId(PersonCardObject aUsrObj) async {
     if (_personCardsList.contains(aUsrObj)) {
-      await personCardService.deletePersonCardByGuidIdFromDataBase(aUsrObj);
+      await personCardService.deletePersonCardById(aUsrObj);
 
       _personCardsList.remove(aUsrObj);
       _personCardsController.sink.add(_personCardsList);

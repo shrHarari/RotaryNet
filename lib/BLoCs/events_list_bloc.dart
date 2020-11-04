@@ -28,7 +28,7 @@ class EventsListBloc implements BloC {
     if (_textToSearch == null || _textToSearch.length == 0)
       clearEventsList();
     else
-      _eventsList = await eventService.getEventsListBySearchQueryFromServer(_textToSearch);
+      _eventsList = await eventService.getEventsListBySearchQuery(_textToSearch);
 
     _eventsController.sink.add(_eventsList);
   }
@@ -46,7 +46,7 @@ class EventsListBloc implements BloC {
   //#region CRUD: Event
 
   Future<void> insertEvent(EventObject aEventObj) async {
-      await eventService.insertEventToDataBase(aEventObj);
+      await eventService.insertEvent(aEventObj);
       _eventsList.add(aEventObj);
       _eventsList.sort((b, a) => a.eventStartDateTime.compareTo(b.eventStartDateTime));
       _eventsController.sink.add(_eventsList);
@@ -55,7 +55,7 @@ class EventsListBloc implements BloC {
   Future<void> updateEvent(EventObject aOldEventObj, EventObject aNewEventObj) async {
     if (_eventsList.contains(aOldEventObj)) {
 
-      await eventService.updateEventByEventGuidIdToDataBase(aNewEventObj);
+      await eventService.updateEventById(aNewEventObj);
 
       _eventsList.remove(aOldEventObj);
       _eventsList.add(aNewEventObj);
@@ -66,7 +66,7 @@ class EventsListBloc implements BloC {
 
   Future<void> deleteEventByEventGuidId(EventObject aEventObj) async {
     if (_eventsList.contains(aEventObj)) {
-      await eventService.deleteEventByEventGuidIdFromDataBase(aEventObj);
+      await eventService.deleteEventById(aEventObj);
 
       _eventsList.remove(aEventObj);
       _eventsController.sink.add(_eventsList);

@@ -51,16 +51,30 @@ class EventObject {
   }
 
   factory EventObject.fromJson(Map<String, dynamic> parsedJson){
-    return EventObject(
-        eventGuidId: parsedJson['_id'],
-        eventName: parsedJson['eventName'],
-        eventPictureUrl : parsedJson['eventPictureUrl'],
-        eventDescription : parsedJson['eventDescription'],
-        eventStartDateTime : DateTime.parse(parsedJson['eventStartDateTime']),
-        eventEndDateTime : DateTime.parse(parsedJson['eventEndDateTime']),
-        eventLocation : parsedJson['eventLocation'],
-        eventManager : parsedJson['eventManager']
-    );
+
+    if (parsedJson['_id'] == null) {
+      return EventObject(
+          eventGuidId: '',
+          eventName: parsedJson['eventName'],
+          eventPictureUrl : parsedJson['eventPictureUrl'],
+          eventDescription : parsedJson['eventDescription'],
+          eventStartDateTime : DateTime.parse(parsedJson['eventStartDateTime']),
+          eventEndDateTime : DateTime.parse(parsedJson['eventEndDateTime']),
+          eventLocation : parsedJson['eventLocation'],
+          eventManager : parsedJson['eventManager']
+      );
+    } else {
+      return EventObject(
+          eventGuidId: parsedJson['_id'],
+          eventName: parsedJson['eventName'],
+          eventPictureUrl : parsedJson['eventPictureUrl'],
+          eventDescription : parsedJson['eventDescription'],
+          eventStartDateTime : DateTime.parse(parsedJson['eventStartDateTime']),
+          eventEndDateTime : DateTime.parse(parsedJson['eventEndDateTime']),
+          eventLocation : parsedJson['eventLocation'],
+          eventManager : parsedJson['eventManager']
+      );
+    }
   }
 
   /// DataBase: Madel for Event
@@ -82,7 +96,7 @@ class EventObject {
     DateTime _eventEndDateTime = DateTime.parse(jsonFromMap['eventEndDateTime']);
 
     return EventObject(
-          eventGuidId: jsonFromMap['_id'],
+          // eventGuidId: jsonFromMap['_id'],
           eventName: jsonFromMap['eventName'],
           eventPictureUrl : jsonFromMap['eventPictureUrl'],
           eventDescription : jsonFromMap['eventDescription'],
@@ -100,7 +114,7 @@ class EventObject {
     String _eventEndDateTime = eventEndDateTime.toIso8601String();
 
     return {
-      '_id': eventGuidId,
+      if ((eventGuidId != null) && (eventGuidId != '')) '_id': eventGuidId,
       'eventName': eventName,
       'eventPictureUrl': eventPictureUrl,
       'eventDescription': eventDescription,

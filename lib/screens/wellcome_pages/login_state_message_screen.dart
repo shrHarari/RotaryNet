@@ -1,9 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:enum_to_string/enum_to_string.dart';
 import 'package:rotary_net/objects/connected_user_global.dart';
 import 'package:rotary_net/objects/connected_user_object.dart';
-import 'package:rotary_net/objects/login_object.dart';
 import 'package:rotary_net/screens/debug_setting_screen.dart';
 import 'package:rotary_net/shared/circle_button.dart';
 import 'package:rotary_net/shared/loading.dart';
@@ -11,9 +9,8 @@ import 'package:rotary_net/shared/loading.dart';
 class LoginStateMessageScreen extends StatefulWidget {
   static const routeName = '/LoginStateMessageScreen';
   final ConnectedUserObject argConnectedUserObject;
-  final LoginObject argLoginObject;
 
-  LoginStateMessageScreen({Key key, @required this.argConnectedUserObject, @required this.argLoginObject}) : super(key: key);
+  LoginStateMessageScreen({Key key, @required this.argConnectedUserObject}) : super(key: key);
 
   @override
   _LoginStateMessageScreen createState() => _LoginStateMessageScreen();
@@ -69,8 +66,7 @@ class _LoginStateMessageScreen extends State<LoginStateMessageScreen> {
             'User EmailId: ${currentConnectedUserObj.email}\n'
             'User Name: ${currentConnectedUserObj.firstName} '
                        '${currentConnectedUserObj.lastName}\n'
-            'User Password: ${currentConnectedUserObj.password}\n'
-            'Login Status: ${EnumToString.parse(widget.argLoginObject.loginStatus)}';
+            'User Password: ${currentConnectedUserObj.password}\n';
         loading = false;
       });
     }
@@ -80,7 +76,7 @@ class _LoginStateMessageScreen extends State<LoginStateMessageScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DebugSettingsScreen(argLoginObject: widget.argLoginObject),
+        builder: (context) => DebugSettingsScreen(),
       ),
     );
   }

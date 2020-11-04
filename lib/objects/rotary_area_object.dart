@@ -3,10 +3,12 @@ import 'dart:convert';
 class RotaryAreaObject {
   final String areaId;
   final String areaName;
+  final List<String> clusters;
 
   RotaryAreaObject({
     this.areaId,
-    this.areaName});
+    this.areaName,
+    this.clusters});
 
   /// Convert JsonStringStructure to String
   @override
@@ -15,13 +17,20 @@ class RotaryAreaObject {
       '{'
         ' ${this.areaId},'
         ' ${this.areaName},'
+        ' ${this.clusters},'
       '}';
   }
 
   factory RotaryAreaObject.fromJson(Map<String, dynamic> parsedJson){
+
+    List<dynamic> dynClustersList = parsedJson['clusters'] as List<dynamic>;
+    List<String> clustersList;
+    if (dynClustersList != null) clustersList = dynClustersList.cast<String>();
+
     return RotaryAreaObject(
       areaId: parsedJson['_id'],
       areaName: parsedJson['areaName'],
+      clusters: clustersList,
     );
   }
 
@@ -41,20 +50,15 @@ class RotaryAreaObject {
     return RotaryAreaObject(
       // areaId: jsonFromMap['_id'],
       areaName: jsonFromMap['areaName'],
+      clusters: jsonFromMap['clusters'],
     );
   }
 
   Map<String, dynamic> toMap() {
-    if (areaId == null) {
-      return {
-        // '_id': areaId,
-        'areaName': areaName,
-      };
-    } else {
-      return {
-        '_id': areaId,
-        'areaName': areaName,
-      };
-    }
+    return {
+      if ((areaId != null) && (areaId != '')) '_id': areaId,
+      'areaName': areaName,
+      'clusters': clusters,
+    };
   }
 }

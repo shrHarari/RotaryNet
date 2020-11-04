@@ -1,21 +1,23 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
-import 'package:rotary_net/database/rotary_database_provider.dart';
+import 'package:rotary_net/objects/message_populated_object.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
-import 'package:rotary_net/objects/person_card_with_description_object.dart';
+import 'package:rotary_net/objects/person_card_populated_object.dart';
+import 'package:rotary_net/objects/person_card_role_and_hierarchy_object.dart';
 import 'package:rotary_net/objects/rotary_area_object.dart';
 import 'package:rotary_net/objects/rotary_club_object.dart';
 import 'package:rotary_net/objects/rotary_cluster_object.dart';
 import 'package:rotary_net/objects/rotary_role_object.dart';
+import 'package:rotary_net/objects/user_object.dart';
 import 'package:rotary_net/services/logger_service.dart';
 import 'package:rotary_net/services/rotary_area_service.dart';
 import 'package:rotary_net/services/rotary_club_service.dart';
 import 'package:rotary_net/services/rotary_cluster_service.dart';
 import 'package:rotary_net/services/rotary_role_service.dart';
+import 'package:rotary_net/services/user_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 import 'dart:developer' as developer;
-import 'globals_service.dart';
 
 class PersonCardService {
 
@@ -40,7 +42,6 @@ class PersonCardService {
       String aClusterId,
       String aClubId,
       String aRoleId,
-      // Constants.RotaryRolesEnum aRoleId
       )
     {
       if (aPersonCardGuidId == null)
@@ -63,7 +64,6 @@ class PersonCardService {
             clusterId: null,
             clubId: null,
             roleId: null,
-            // roleEnum: null
         );
       else
         return PersonCardObject(
@@ -85,76 +85,18 @@ class PersonCardService {
             clusterId: aClusterId,
             clubId: aClubId,
             roleId: aRoleId,
-            // roleEnum: aRoleId
         );
     }
   //#endregion
 
   //#region * Get PersonCards List By Search Query (w/o Populate) [GET]
   // ==================================================================
-  Future getPersonCardsListBySearchQueryFromServer(String aValueToSearch) async {
-    try {
-
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-
-      // Because of RotaryUsersListBloc >>> Need to initialize GlobalService here too
-      bool debugMode = await GlobalsService.getDebugMode();
-      await GlobalsService.setDebugMode(debugMode);
-
-      if (GlobalsService.isDebugMode) {
-        //// Using DB
-        List<PersonCardObject> personCardObjListForDebug = await RotaryDataBaseProvider.rotaryDB.getPersonCardsListBySearchQuery(aValueToSearch);
-        if (personCardObjListForDebug == null) {
-          // print('>>>>>>>>>> userObjListForDebug: Empty');
-        } else {
-          // print('>>>>>>>>>> personCardObjListForDebug: ${personCardObjListForDebug[4].email}');
-          personCardObjListForDebug.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
-        }
-
-        return personCardObjListForDebug;
-      }
-      //***** for debug *****
-
-      /// UserListUrl: 'http://.......'
-      Response response = await get(Constants.rotaryUserUrl);
-
-      if (response.statusCode <= 300) {
-        Map<String, String> headers = response.headers;
-        String contentType = headers['content-type'];
-        String jsonResponse = response.body;
-        await LoggerService.log('<PersonCardService> Get PersonCards List By Search Query From Server >>> OK\nHeader: $contentType \nPersonCardsListFromJSON: $jsonResponse');
-
-        var personCardsList = jsonDecode(jsonResponse) as List;    // List of PersonCard to display;
-        List<PersonCardObject> personCardsObjList = personCardsList.map((userJson) => PersonCardObject.fromJson(userJson)).toList();
-
-        personCardsObjList.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
-
-        return personCardsObjList;
-
-      } else {
-        await LoggerService.log('<PersonCardService> Get PersonCards List By Search Query From Server >>> Failed: ${response.statusCode}');
-        print('<PersonCardService> Get PersonCards List By Search Query From Server >>> Failed: ${response.statusCode}');
-        return null;
-      }
-    }
-    catch (e) {
-      await LoggerService.log('<PersonCardService> Get PersonCards List By Search Query From Server >>> ERROR: ${e.toString()}');
-      developer.log(
-        'getPersonCardsListBySearchQueryFromServer',
-        name: 'PersonCardService',
-        error: 'UserCards List >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-
   Future getPersonCardsListBySearchQuery(String aValueToSearch, {bool withPopulate = false}) async {
     try {
       String _getUrl;
 
-      if (withPopulate) _getUrl = Constants.rotaryPersonUrl + "/query/$aValueToSearch/populated";
-      else _getUrl = Constants.rotaryPersonUrl + "/query/$aValueToSearch";
+      if (withPopulate) _getUrl = Constants.rotaryPersonCardUrl + "/query/$aValueToSearch/populated";
+      else _getUrl = Constants.rotaryPersonCardUrl + "/query/$aValueToSearch";
       print ("_getUrl: $_getUrl");
 
       Response response = await get(_getUrl);
@@ -190,72 +132,96 @@ class PersonCardService {
   }
   //#endregion
 
-  //#region * Get Personal Card By PersonId [GET]
-  // =========================================================
-  Future getPersonalCardByUserGuidIdFromServer(String aPersonCardGuidId) async {
+  //#region * Get PersonCards List By Role Hierarchy Permission [GET]
+  // ==================================================================
+  Future getPersonCardListByRoleHierarchyPermission(PersonCardRoleAndHierarchyIdObject aPersonCardRoleAndHierarchyIdObject) async {
     try {
+      /// RoleEnum: Convert [int] to [EnumValue]
+      Constants.RotaryRolesEnum _roleEnum;
+      Constants.RotaryRolesEnum _roleEnumValue = _roleEnum.convertToEnum(aPersonCardRoleAndHierarchyIdObject.roleEnum);
 
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-      if (GlobalsService.isDebugMode) {
-        PersonCardObject _personCardObj = await RotaryDataBaseProvider.rotaryDB.getPersonCardByGuidId(aPersonCardGuidId);
-        return _personCardObj;
+      String _getUrl;
+
+      switch (_roleEnumValue) {
+        case Constants.RotaryRolesEnum.RotaryManager:
+          _getUrl = Constants.rotaryPersonCardUrl + "/roleHierarchyByAll";
+          break;
+        case Constants.RotaryRolesEnum.AreaManager:
+          _getUrl = Constants.rotaryPersonCardUrl + "/roleHierarchyByAreaId/${aPersonCardRoleAndHierarchyIdObject.areaId}";
+          break;
+        case Constants.RotaryRolesEnum.ClusterManager:
+          _getUrl = Constants.rotaryPersonCardUrl + "/roleHierarchyByClusterId/${aPersonCardRoleAndHierarchyIdObject.clusterId}";
+          break;
+        case Constants.RotaryRolesEnum.ClubManager:
+          _getUrl = Constants.rotaryPersonCardUrl + "/roleHierarchyByClubId/${aPersonCardRoleAndHierarchyIdObject.clubId}";
+          break;
+
+        case Constants.RotaryRolesEnum.Gizbar:
+        case Constants.RotaryRolesEnum.Member:
+        default:
+          return [];
       }
-      //***** for debug *****
+      print ("_getUrl: $_getUrl");
 
-      /// PersonCardListUrl: 'http://.......'
-      Response response = await get(Constants.rotaryGetPersonCardListUrl);
+      Response response = await get(_getUrl);
 
       if (response.statusCode <= 300) {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        await LoggerService.log('<PersonCardService> Get PersonCard ByPersonCardGuidId From Server >>> OK\nHeader: $contentType \nPersonCardListFromJSON: $jsonResponse');
+        await LoggerService.log('<PersonCardService> Get PersonCardsList By Role Hierarchy Permission >>> OK\nHeader: $contentType \nPersonCardsListFromJSON: $jsonResponse');
 
-        var personCardList = jsonDecode(jsonResponse) as List;    // List of PersonCard to display;
-        List<PersonCardObject> personCardObjList = personCardList.map((personCardJson) => PersonCardObject.fromJson(personCardJson)).toList();
+        // var personCardsIdList = jsonDecode(jsonResponse) as List;
+        List<dynamic> personCardsIdList = jsonDecode(jsonResponse) as List;
 
-        return personCardObjList;
-
+        return personCardsIdList;
       } else {
-        await LoggerService.log('<PersonCardService> Get PersonCard By PersonCardGuidId From Server >>> Failed: ${response.statusCode}');
-        print('<PersonCardService> Get PersonCard By PersonCardGuidId From Server >>> Failed: ${response.statusCode}');
+        await LoggerService.log('<PersonCardService> Get PersonCardsList By Role Hierarchy Permission >>> Failed: ${response.statusCode}');
+        print('<PersonCardService> Get PersonCardsList By Role Hierarchy Permission >>> Failed: ${response.statusCode}');
         return null;
       }
     }
     catch (e) {
-      await LoggerService.log('<RegistrationService> Get PersonCard By PersonCardGuidId From Server >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<PersonCardService> Get PersonCardsList By Role Hierarchy Permission >>> ERROR: ${e.toString()}');
       developer.log(
-        'getPersonalCardByPersonCardGuidIdFromServer',
+        'getPersonCardListByRoleHierarchyPermission',
         name: 'PersonCardService',
-        error: 'PersonCard By PersonCardGuidId >>> ERROR: ${e.toString()}',
+        error: 'Get PersonCardsList By Role Hierarchy Permission >>> ERROR: ${e.toString()}',
       );
       return null;
     }
   }
+  //#endregion
 
-  Future getPersonCardByPersonId(String aPersonId, {bool withPopulate = false}) async {
+  //#region * Get Person Card By PersonId [GET]
+  // =========================================================
+  Future getPersonCardByPersonId(String aPersonCardId, {bool withPopulate = false}) async {
     try {
       String _getUrl;
 
-      if (withPopulate) _getUrl = Constants.rotaryPersonUrl + "/personId/$aPersonId/populated";
-      else _getUrl = Constants.rotaryPersonUrl + "/$aPersonId";
+      if (withPopulate) _getUrl = Constants.rotaryPersonCardUrl + "/personCardId/$aPersonCardId/populated";
+      else _getUrl = Constants.rotaryPersonCardUrl + "/personCardId/$aPersonCardId";
       print ("_getUrl: $_getUrl");
 
       Response response = await get(_getUrl);
 
       if (response.statusCode <= 300) {
         String jsonResponse = response.body;
-        print("getPersonCardByPersonId/ jsonResponse: $jsonResponse");
-        await LoggerService.log('<PersonCardService> Get PersonCard By PersonId >>> OK >>> PersonCardFromJSON: $jsonResponse');
 
-        var _personCard = jsonDecode(jsonResponse);
-        print ("_personCard: $_personCard");
-        PersonCardObject _personObj = PersonCardObject.fromJson(_personCard);
+        if (jsonResponse != "")
+        {
+          await LoggerService.log('<PersonCardService> Get PersonCard By PersonId >>> OK >>> PersonCardFromJSON: $jsonResponse');
 
-        print("_personObj: $_personObj");
+          var _personCard = jsonDecode(jsonResponse);
+          PersonCardObject _personObj = PersonCardObject.fromJson(_personCard);
 
-        return _personObj;
+          return _personObj;
+        } else {
+          await LoggerService.log('<PersonCardService>  Get PersonCard By PersonId >>> Failed');
+          print('<PersonCardService>  Get PersonCard By PersonId >>> Failed');
+          // Return Empty PersonCardObject
+          return null;
+        }
       } else {
         await LoggerService.log('<PersonCardService> Get PersonCard By PersonId >>> Failed: ${response.statusCode}');
         print('<PersonCardService> Get PersonCard By PersonId >>> Failed: ${response.statusCode}');
@@ -274,97 +240,161 @@ class PersonCardService {
   }
   //#endregion
 
-  //#region Get Personal Card WithDescription By PersonCardGuidId From Server [GET]
+  //#region * Get PersonCard By Id Populated [GET]
   // ========================================================================
-  Future getPersonCardWithDescriptionByGuidIdFromServer(String aPersonCardGuidId) async {
+
+  //#region Get PersonCard By Id Populated [PersonCard + Populate All Fields without Messages]
+  Future getPersonCardByIdPopulated(String aPersonCardId) async {
     try {
-
-      //***** for debug *****
-      // When the Server side will be ready >>> remove that calling
-      if (GlobalsService.isDebugMode) {
-        PersonCardWithDescriptionObject _personCardWithDescriptionObj =
-                  await RotaryDataBaseProvider.rotaryDB.getPersonCardWithDescriptionByGuidId(aPersonCardGuidId);
-        return _personCardWithDescriptionObj;
-      }
-      //***** for debug *****
-
-      /// PersonCardListUrl: 'http://.......'
-      Response response = await get(Constants.rotaryGetPersonCardListUrl);
+      String _getUrl = Constants.rotaryPersonCardUrl + "/personCardId/$aPersonCardId/populated";
+      Response response = await get(_getUrl);
 
       if (response.statusCode <= 300) {
-        Map<String, String> headers = response.headers;
-        String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        await LoggerService.log('<PersonCardService> Get PersonCard ByPersonCardGuidId From Server >>> OK\nHeader: $contentType \nPersonCardListFromJSON: $jsonResponse');
+        if (jsonResponse != "")
+        {
+          await LoggerService.log('<PersonCardService> Get PersonCard By Id Populated >>> OK >>> PersonCardPopulatedFromJSON: $jsonResponse');
 
-        var personCardList = jsonDecode(jsonResponse) as List;    // List of PersonCard to display;
-        List<PersonCardObject> personCardObjList = personCardList.map((personCardJson) => PersonCardObject.fromJson(personCardJson)).toList();
+          var _personCardPopulated = jsonDecode(jsonResponse);
+          PersonCardPopulatedObject _personCardPopulatedObj = PersonCardPopulatedObject.fromJson(_personCardPopulated);
 
-        return personCardObjList;
+          return _personCardPopulatedObj;
+        } else {
+          await LoggerService.log('<PersonCardService>  Get PersonCard By Id Populated >>> Failed');
+          print('<PersonCardService>  Get PersonCard By Id Populated >>> Failed');
 
+          return null;  // Return Empty PersonCardObject
+        }
       } else {
-        await LoggerService.log('<PersonCardService> Get PersonCard WithDescription By PersonCardGuidId From Server >>> Failed: ${response.statusCode}');
-        print('<PersonCardService> Get PersonCard WithDescription From Server >>> Failed: ${response.statusCode}');
+        await LoggerService.log('<PersonCardService> Get PersonCard By Id Populated >>> Failed: ${response.statusCode}');
+        print('<PersonCardService> Get PersonCard By Id Populated >>> Failed: ${response.statusCode}');
         return null;
       }
     }
     catch (e) {
-      await LoggerService.log('<RegistrationService> Get PersonCard WithDescription By PersonCardGuidId From Server >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<PersonCardService> Get PersonCard By Id Populated >>> ERROR: ${e.toString()}');
       developer.log(
-        'getPersonCardWithDescriptionByGuidIdFromServer',
+        'getPersonCardByIdPopulated',
         name: 'PersonCardService',
-        error: 'PersonCard By PersonCardGuidId >>> ERROR: ${e.toString()}',
+        error: 'Get PersonCard By Id Populated >>> ERROR: ${e.toString()}',
       );
       return null;
     }
   }
   //#endregion
 
-  //#region CRUD: Person Card
+  //#region Get PersonCard By Id Message Populated [PersonCard + Populate Only Messages List]
+  Future getPersonCardByIdMessagePopulated(String aPersonCardId) async {
+    try {
+      String _getUrl = Constants.rotaryPersonCardUrl + "/personCardId/$aPersonCardId/message_populated";
+      Response response = await get(_getUrl);
 
-  //#region * Insert PersonCard [WriteToDB]
-  //=============================================================================
-  Future insertPersonCardToDataBase(PersonCardObject aPersonCardObj) async {
-    try{
-      //***** for debug *****
-      if (GlobalsService.isDebugMode) {
-        var dbResult = await RotaryDataBaseProvider.rotaryDB.insertPersonCard(aPersonCardObj);
-        return dbResult;
-        //***** for debug *****
+      if (response.statusCode <= 300) {
+        String jsonResponse = response.body;
+        if (jsonResponse != "")
+        {
+          await LoggerService.log('<PersonCardService> Get PersonCard By Id Message Populated >>> OK >>> JSON: $jsonResponse');
+
+          var _personCardPopulated = jsonDecode(jsonResponse);
+          var messagesObjectList;
+          if (_personCardPopulated['messages'] != null) {
+            messagesObjectList = _personCardPopulated['messages'] as List;
+          } else {
+            messagesObjectList = [];
+          }
+
+          return messagesObjectList;
+        } else {
+          await LoggerService.log('<PersonCardService>  Get PersonCard By Id Message Populated >>> Failed');
+          print('<PersonCardService>  Get PersonCard By Id Message Populated >>> Failed');
+          // Return Empty PersonCardObject
+          return null;
+        }
+      } else {
+        await LoggerService.log('<PersonCardService> Get PersonCard By Id Message Populated >>> Failed: ${response.statusCode}');
+        print('<PersonCardService> Get PersonCard By Id Message Populated >>> Failed: ${response.statusCode}');
+        return null;
       }
     }
     catch (e) {
-      await LoggerService.log('<PersonCardService> Insert PersonCard To DataBase >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<PersonCardService> Get PersonCard By Id Message Populated >>> ERROR: ${e.toString()}');
       developer.log(
-        'insertPersonCardToDataBase',
+        'getPersonCardByIdMessagePopulated',
         name: 'PersonCardService',
-        error: 'Insert PersonCard To DataBase >>> ERROR: ${e.toString()}',
+        error: 'Get PersonCard By Id Populated >>> ERROR: ${e.toString()}',
       );
       return null;
     }
   }
+  //#endregion
 
-  Future insertPersonCard(PersonCardObject aPersonCardObj) async {
+  //#region Get PersonCard By Id All Populated [PersonCard + Populate All Fields]
+  Future getPersonCardByIdAllPopulated(String aPersonCardId) async {
     try {
+      String _getUrl = Constants.rotaryPersonCardUrl + "/personCardId/$aPersonCardId/all_populated";
+      Response response = await get(_getUrl);
+
+      if (response.statusCode <= 300) {
+        String jsonResponse = response.body;
+        if (jsonResponse != "")
+        {
+          await LoggerService.log('<PersonCardService> Get PersonCard By Id ALL Populated >>> OK >>> PersonCardPopulatedFromJSON: $jsonResponse');
+
+          var _personCardPopulated = jsonDecode(jsonResponse);
+          PersonCardPopulatedObject _personCardPopulatedObj = PersonCardPopulatedObject.fromJsonAllPopulated(_personCardPopulated);
+
+          return _personCardPopulatedObj;
+        } else {
+          await LoggerService.log('<PersonCardService>  Get PersonCard By Id ALL Populated >>> Failed');
+          print('<PersonCardService>  Get PersonCard By Id ALL Populated >>> Failed');
+          // Return Empty PersonCardObject
+          return null;
+        }
+      } else {
+        await LoggerService.log('<PersonCardService> Get PersonCard By Id ALL Populated >>> Failed: ${response.statusCode}');
+        print('<PersonCardService> Get PersonCard By Id Populated >>> Failed: ${response.statusCode}');
+        return null;
+      }
+    }
+    catch (e) {
+      await LoggerService.log('<PersonCardService> Get PersonCard By Id ALL Populated >>> ERROR: ${e.toString()}');
+      developer.log(
+        'getPersonCardByIdAllPopulated',
+        name: 'PersonCardService',
+        error: 'Get PersonCard By Id ALL Populated >>> ERROR: ${e.toString()}',
+      );
+      return null;
+    }
+  }
+  //#endregion
+
+  //#endregion
+
+  //#region CRUD: Person Card
+
+  //#region * Insert PersonCard [WriteToDB]
+  //=============================================================================
+  Future insertPersonCard(String aUserId, PersonCardObject aPersonCardObj) async {
+    try {
+      String _getUrl = Constants.rotaryPersonCardUrl + "/userId/$aUserId";
+      print ("_getUrl: $_getUrl");
+
       String jsonToPost = aPersonCardObj.personCardToJson(aPersonCardObj);
       print ('insertPersonCard / PersonCardObject / jsonToPost: $jsonToPost');
 
-      Response response = await post(Constants.rotaryPersonUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
+      Response response = await post(_getUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
       if (response.statusCode <= 300) {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
         print('insertPersonCard / PersonCardObject / jsonResponse: $jsonResponse');
 
-        bool returnVal = jsonResponse.toLowerCase() == 'true';
-        if (returnVal) {
-          await LoggerService.log('<PersonCardService> Insert PersonCard >>> OK');
-          return returnVal;
-        } else {
-          await LoggerService.log('<PersonCardService> Insert PersonCard >>> Failed');
-          print('<PersonCardService> Insert PersonCard >>> Failed');
-          return null;
-        }
+        await LoggerService.log('<PersonCardService> Insert PersonCard By Id >>> OK');
+        return jsonResponse;
+      } else {
+        await LoggerService.log('<PersonCardService> Insert PersonCard By Id >>> Failed >>> ${response.statusCode}');
+        print('<PersonCardService> Insert PersonCard By Id >>> Failed >>> ${response.statusCode}');
+        return null;
       }
     }
     catch (e) {
@@ -383,6 +413,11 @@ class PersonCardService {
   //=============================================================================
   Future insertPersonCardOnInitializeDataBase(PersonCardObject aPersonCardObj) async {
     try {
+
+      /// Convert PersonCardObj.personCardId[InitValue] ===>>> User._id
+      UserService userService = UserService();
+      UserObject userObj;
+      userObj = await userService.getUserByEmail(aPersonCardObj.email);
 
       /// Convert PersonCardObj.roleId[InitValue] ===>>> Role._id
       RotaryRoleService roleService = RotaryRoleService();
@@ -408,29 +443,29 @@ class PersonCardService {
       clubObj = await clubService.getRotaryClubByClubName(aPersonCardObj.clubId);
       aPersonCardObj.setClubId(clubObj.clubId);
 
+      String _getUrl = Constants.rotaryPersonCardUrl + "/userId/${userObj.userGuidId}";
+      print ("_getUrl: $_getUrl");
+
       String jsonToPost = aPersonCardObj.personCardToJson(aPersonCardObj);
 
-      Response response = await post(Constants.rotaryPersonUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
+      Response response = await post(_getUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
       if (response.statusCode <= 300) {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
 
-        bool returnVal = jsonResponse.toLowerCase() == 'true';
-        if (returnVal) {
-          await LoggerService.log('<PersonCardService> Insert PersonCard >>> OK');
-          return returnVal;
-        } else {
-          await LoggerService.log('<PersonCardService> Insert PersonCard >>> Failed');
-          print('<PersonCardService> Insert PersonCard >>> Failed');
-          return null;
-        }
+        await LoggerService.log('<PersonCardService> Insert PersonCard OnInitialize DataBase >>> OK');
+        return jsonResponse;
+      } else {
+        await LoggerService.log('<PersonCardService> Insert PersonCard By Id >>> Failed >>> ${response.statusCode}');
+        print('<PersonCardService> Insert PersonCard By Id >>> Failed >>> ${response.statusCode}');
+        return null;
       }
     }
     catch (e) {
       await LoggerService.log('<PersonCardService> Insert PersonCard >>> ERROR: ${e.toString()}');
       developer.log(
-        'insertPersonCard',
+        'insertPersonCardOnInitializeDataBase',
         name: 'PersonCardService',
         error: 'Insert PersonCard >>> ERROR: ${e.toString()}',
       );
@@ -441,53 +476,26 @@ class PersonCardService {
 
   //#region * Update PersonCard By Id [WriteToDB]
   //=============================================================================
-  Future updatePersonCardByGuidIdToDataBase(PersonCardObject aPersonCardObj) async {
-    try{
-      //***** for debug *****
-      if (GlobalsService.isDebugMode) {
-        var dbResult = await RotaryDataBaseProvider.rotaryDB.updatePersonCardByGuidId(aPersonCardObj);
-        return dbResult;
-        //***** for debug *****
-      }
-    }
-    catch (e) {
-      await LoggerService.log('<PersonCardService> Update PersonCard By GuidId To DataBase >>> ERROR: ${e.toString()}');
-      developer.log(
-        'updatePersonCardByGuidIdToDataBase',
-        name: 'PersonCardService',
-        error: 'Update PersonCard By GuidId To DataBase >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-
   Future updatePersonCardById(PersonCardObject aPersonCardObj) async {
     try {
-      // Convert ConnectedUserObject To Json
+      // Convert PersonCardObject To Json
       String jsonToPost = aPersonCardObj.personCardToJson(aPersonCardObj);
       print ('updatePersonCardById / PersonCardObject / jsonToPost: $jsonToPost');
 
-      String _updateUrl = Constants.rotaryPersonUrl + "/${aPersonCardObj.personCardGuidId}";
+      String _updateUrl = Constants.rotaryPersonCardUrl + "/${aPersonCardObj.personCardGuidId}";
 
       Response response = await put(_updateUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
       if (response.statusCode <= 300) {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        print ('updatePersonCardById / PersonCardObject / jsonResponse: $jsonResponse');
+        print ('<PersonCardService> Update PersonCard By Id >>> PersonCardObject / jsonResponse: $jsonResponse');
 
-        bool returnVal = jsonResponse.toLowerCase() == 'true';
-        if (returnVal) {
-          await LoggerService.log('<PersonCardService> Update User By Id >>> OK');
-          return returnVal;
-        } else {
-          await LoggerService.log('<PersonCardService> Update User By Id >>> Failed');
-          print('<PersonCardService> Update User By Id >>> Failed');
-          return null;
-        }
+        await LoggerService.log('<PersonCardService> Update PersonCard By Id >>> OK');
+        return jsonResponse;
       } else {
-        await LoggerService.log('<PersonCardService> Update User By Id >>> Failed >>> ${response.statusCode}');
-        print('<PersonCardService> Update User By Id >>> Failed >>> ${response.statusCode}');
+        await LoggerService.log('<PersonCardService> Update PersonCard By Id >>> Failed >>> ${response.statusCode}');
+        print('<PersonCardService> Update PersonCard By Id >>> Failed >>> ${response.statusCode}');
         return null;
       }
     }
@@ -505,29 +513,9 @@ class PersonCardService {
 
   //#region * Delete PersonCard By Id [WriteToDB]
   //=============================================================================
-  Future deletePersonCardByGuidIdFromDataBase(PersonCardObject aPersonCardObj) async {
-    try{
-      //***** for debug *****
-      if (GlobalsService.isDebugMode) {
-        var dbResult = await RotaryDataBaseProvider.rotaryDB.deletePersonCardByGuidId(aPersonCardObj);
-        return dbResult;
-        //***** for debug *****
-      }
-    }
-    catch (e) {
-      await LoggerService.log('<PersonCardService> Delete PersonCard By GuidId From DataBase >>> ERROR: ${e.toString()}');
-      developer.log(
-        'deletePersonCardByGuidIdFromDataBase',
-        name: 'PersonCardService',
-        error: 'Delete PersonCard By GuidId From DataBase >>> ERROR: ${e.toString()}',
-      );
-      return null;
-    }
-  }
-
   Future deletePersonCardById(PersonCardObject aPersonCardObj) async {
     try {
-      String _deleteUrl = Constants.rotaryPersonUrl + "/${aPersonCardObj.personCardGuidId}";
+      String _deleteUrl = Constants.rotaryPersonCardUrl + "/${aPersonCardObj.personCardGuidId}";
 
       Response response = await delete(_deleteUrl, headers: Constants.rotaryUrlHeader);
       if (response.statusCode <= 300) {
@@ -538,16 +526,16 @@ class PersonCardService {
 
         bool returnVal = jsonResponse.toLowerCase() == 'true';
         if (returnVal) {
-          await LoggerService.log('<PersonCardService> Delete User By Id >>> OK');
+          await LoggerService.log('<PersonCardService> Delete PersonCard By Id >>> OK');
           return returnVal;
         } else {
-          await LoggerService.log('<PersonCardService> Delete User By Id >>> Failed');
-          print('<PersonCardService> Delete User By Id >>> Failed');
+          await LoggerService.log('<PersonCardService> Delete PersonCard By Id >>> Failed');
+          print('<PersonCardService> Delete PersonCard By Id >>> Failed');
           return null;
         }
       } else {
-        await LoggerService.log('<PersonCardService> Delete User By Id >>> Failed >>> ${response.statusCode}');
-        print('<PersonCardService> Delete User By Id >>> Failed >>> ${response.statusCode}');
+        await LoggerService.log('<PersonCardService> Delete PersonCard By Id >>> Failed >>> ${response.statusCode}');
+        print('<PersonCardService> Delete PersonCard By Id >>> Failed >>> ${response.statusCode}');
         return null;
       }
     }

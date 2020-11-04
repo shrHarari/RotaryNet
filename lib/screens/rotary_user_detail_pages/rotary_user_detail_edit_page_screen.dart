@@ -90,7 +90,7 @@ class _UserDetailEditPageScreenState extends State<UserDetailEditPageScreen> {
 
       UserObject newUserObj =
       userService.createUserAsObject(
-          widget.argUserObject.userGuidId,
+          widget.argUserObject.userGuidId, '',
           _emailId, _firstName, _lastName,
           _password, _userType, _stayConnected);
 
