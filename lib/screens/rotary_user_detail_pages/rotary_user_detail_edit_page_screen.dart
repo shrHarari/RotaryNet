@@ -90,17 +90,17 @@ class _UserDetailEditPageScreenState extends State<UserDetailEditPageScreen> {
 
       UserObject newUserObj =
       userService.createUserAsObject(
-          widget.argUserObject.userGuidId, '',
+          widget.argUserObject.userId, '',
           _emailId, _firstName, _lastName,
           _password, _userType, _stayConnected);
 
       /// 1. Update Database
-      aUserBloc.updateUserByGuidId(widget.argUserObject, newUserObj);
+      aUserBloc.updateUserById(widget.argUserObject, newUserObj);
 
       /// If the USER is also the CURRENT user:
       var userGlobal = ConnectedUserGlobal();
       ConnectedUserObject currentConnectedUserObj = userGlobal.getConnectedUserObject();
-      if (newUserObj.userGuidId == currentConnectedUserObj.userGuidId)
+      if (newUserObj.userId == currentConnectedUserObj.userId)
       {
         /// 2. App Global: Update Global Current Connected User
         ConnectedUserObject newConnectedUserObj = await ConnectedUserObject.getConnectedUserObjectFromUserObject(newUserObj);

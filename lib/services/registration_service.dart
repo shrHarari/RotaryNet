@@ -3,7 +3,6 @@ import 'package:rotary_net/objects/connected_user_object.dart';
 import 'package:rotary_net/objects/user_object.dart';
 import 'package:rotary_net/services/logger_service.dart';
 import 'package:rotary_net/services/user_service.dart';
-import 'package:rotary_net/shared/constants.dart' as Constants;
 import 'dart:developer' as developer;
 
 class RegistrationService {

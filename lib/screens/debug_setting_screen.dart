@@ -1,14 +1,12 @@
 import 'dart:io';
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:enum_to_string/enum_to_string.dart';
 import 'package:rotary_net/database/init_database_service.dart';
 import 'package:rotary_net/objects/connected_user_global.dart';
 import 'package:rotary_net/objects/connected_user_object.dart';
 import 'package:rotary_net/objects/user_object.dart';
 import 'package:rotary_net/services/connected_user_service.dart';
 import 'package:rotary_net/services/globals_service.dart';
-import 'package:rotary_net/services/login_service.dart';
 import 'package:rotary_net/services/rotary_area_service.dart';
 import 'package:rotary_net/services/user_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
@@ -127,10 +125,10 @@ class _DebugSettingsScreen extends State<DebugSettingsScreen> {
     }
     dropdownUserItems = _userDropDownItems;
 
-    // Find the UserObject Element in a UsersList By GuidId ===>>> Set DropDown Initial Value
+    // Find the UserObject Element in a UsersList By Id ===>>> Set DropDown Initial Value
     int _initialListIndex;
-    if (aConnectedUserObj.userGuidId != null) {
-      _initialListIndex = aUserObjectsList.indexWhere((listElement) => listElement.userGuidId == aConnectedUserObj.userGuidId);
+    if (aConnectedUserObj.userId != null) {
+      _initialListIndex = aUserObjectsList.indexWhere((listElement) => listElement.userId == aConnectedUserObj.userId);
       selectedUserObj = dropdownUserItems[_initialListIndex].value;
     } else {
       _initialListIndex = null;

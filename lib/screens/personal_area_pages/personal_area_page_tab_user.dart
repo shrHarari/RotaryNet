@@ -72,7 +72,7 @@ class _PersonalAreaPageTabUserState extends State<PersonalAreaPageTabUser> {
       String _password = (passwordController.text != null) ? (passwordController.text) : '';
 
       ConnectedUserObject newConnectedUserObj = connectedUserService.createConnectedUserAsObject(
-          widget.argConnectedUser.userGuidId,
+          widget.argConnectedUser.userId,
           widget.argConnectedUser.personCardId,
           _email, _firstName, _lastName, _password,
           widget.argConnectedUser.userType, newStayConnected);

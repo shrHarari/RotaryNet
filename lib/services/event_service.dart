@@ -5,14 +5,13 @@ import 'package:rotary_net/objects/event_object.dart';
 import 'package:rotary_net/services/logger_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 import 'dart:developer' as developer;
-import 'globals_service.dart';
 
 class EventService {
 
   //#region Create Event As Object
   //=============================================================================
   EventObject createEventAsObject(
-      String aEventGuidId,
+      String aEventId,
       String aEventName,
       String aEventPictureUrl,
       String aEventDescription,
@@ -22,9 +21,9 @@ class EventService {
       String aEventManager,
       )
   {
-    if (aEventGuidId == null)
+    if (aEventId == null)
       return EventObject(
-          eventGuidId: '',
+          eventId: '',
           eventName: '',
           eventPictureUrl: '',
           eventDescription: '',
@@ -35,7 +34,7 @@ class EventService {
       );
     else
       return EventObject(
-        eventGuidId: aEventGuidId,
+        eventId: aEventId,
         eventName: aEventName,
         eventPictureUrl: aEventPictureUrl,
         eventDescription: aEventDescription,
@@ -52,8 +51,6 @@ class EventService {
   Future getEventsListBySearchQuery(String aValueToSearch) async {
     try {
       String _getUrl = Constants.rotaryEventUrl + "/query/$aValueToSearch";
-      print ("_getUrl: $_getUrl");
-
       Response response = await get(_getUrl);
 
       if (response.statusCode <= 300) {
@@ -131,7 +128,7 @@ class EventService {
   }
   //#endregion
 
-  //#region * Update Event By EventGuidId To DataBase [WriteToDB]
+  //#region * Update Event By EventId To DataBase [WriteToDB]
   //=============================================================================
   Future updateEventById(EventObject aEventObj) async {
     try {
@@ -139,7 +136,7 @@ class EventService {
       String jsonToPost = aEventObj.eventToJson(aEventObj);
       print ('updateEventByEventId / EventObject / jsonToPost: $jsonToPost');
 
-      String _updateUrl = Constants.rotaryEventUrl + "/${aEventObj.eventGuidId}";
+      String _updateUrl = Constants.rotaryEventUrl + "/${aEventObj.eventId}";
 
       Response response = await put(_updateUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
       if (response.statusCode <= 300) {
@@ -168,11 +165,11 @@ class EventService {
   }
   //#endregion
 
-  //#region * Delete Event By EventGuidId From DataBase [WriteToDB]
+  //#region * Delete Event By EventId From DataBase [WriteToDB]
   //=============================================================================
   Future deleteEventById(EventObject aEventObj) async {
     try {
-      String _deleteUrl = Constants.rotaryEventUrl + "/${aEventObj.eventGuidId}";
+      String _deleteUrl = Constants.rotaryEventUrl + "/${aEventObj.eventId}";
 
       Response response = await delete(_deleteUrl, headers: Constants.rotaryUrlHeader);
       if (response.statusCode <= 300) {

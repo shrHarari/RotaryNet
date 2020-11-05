@@ -16,7 +16,7 @@ class ConnectedUserService {
   //#region Create User As Object
   //=============================================================================
   ConnectedUserObject createConnectedUserAsObject(
-      String aUserGuidId,
+      String aUserId,
       String aPersonCardId,
       String aEmail,
       String aFirstName,
@@ -27,7 +27,7 @@ class ConnectedUserService {
 
     if (aEmail == null)
       return ConnectedUserObject(
-          userGuidId: '',
+          userId: '',
           personCardId: '',
           email: '',
           firstName: '',
@@ -37,7 +37,7 @@ class ConnectedUserService {
           stayConnected: false);
     else
       return ConnectedUserObject(
-          userGuidId: aUserGuidId,
+          userId: aUserId,
           personCardId: aPersonCardId,
           email: aEmail,
           firstName: aFirstName,
@@ -53,7 +53,7 @@ class ConnectedUserService {
   //#region Read Connected User Object Data From Secure Storage [ReadFromSS]
   //=============================================================================
   Future<ConnectedUserObject> readConnectedUserObjectDataFromSecureStorage() async {
-    String _userGuidId;
+    String _userId;
     String _personCardId;
     String _email;
     String _firstName;
@@ -65,7 +65,7 @@ class ConnectedUserService {
     try{
       final secureStorage = new FlutterSecureStorage();
 
-      _userGuidId = await secureStorage.read(key: Constants.rotaryUserGuidId);
+      _userId = await secureStorage.read(key: Constants.rotaryUserId);
       _personCardId = await secureStorage.read(key: Constants.rotaryUserPersonCardId);
       _email = await secureStorage.read(key: Constants.rotaryUserEmail);
       _firstName = await secureStorage.read(key: Constants.rotaryUserFirstName);
@@ -78,7 +78,7 @@ class ConnectedUserService {
           : _stayConnected = false;
 
       return createConnectedUserAsObject(
-          _userGuidId,
+          _userId,
           _personCardId,
           _email,
           _firstName,
@@ -108,8 +108,8 @@ class ConnectedUserService {
 
       final secureStorage = new FlutterSecureStorage();
 
-      if (aConnectedUserObj.userGuidId != null) {
-        await secureStorage.write(key: Constants.rotaryUserGuidId, value: aConnectedUserObj.userGuidId);
+      if (aConnectedUserObj.userId != null) {
+        await secureStorage.write(key: Constants.rotaryUserId, value: aConnectedUserObj.userId);
       }
       if (aConnectedUserObj.personCardId != null) {
         await secureStorage.write(key: Constants.rotaryUserPersonCardId, value: aConnectedUserObj.personCardId);
@@ -159,7 +159,7 @@ class ConnectedUserService {
     try {
       final secureStorage = new FlutterSecureStorage();
 
-      await secureStorage.delete(key: Constants.rotaryUserGuidId);
+      await secureStorage.delete(key: Constants.rotaryUserId);
       await secureStorage.delete(key: Constants.rotaryUserPersonCardId);
       await secureStorage.delete(key: Constants.rotaryUserEmail);
       await secureStorage.delete(key: Constants.rotaryUserFirstName);

@@ -61,7 +61,7 @@ class PersonCardsListBloc implements BloC {
     }
   }
 
-  Future<void> updatePersonCardByGuidId(PersonCardObject aOldPersonCardObj, PersonCardObject aNewPersonCardObj) async {
+  Future<void> updatePersonCardById(PersonCardObject aOldPersonCardObj, PersonCardObject aNewPersonCardObj) async {
     if (_personCardsList.contains(aOldPersonCardObj)) {
 
       await personCardService.updatePersonCardById(aNewPersonCardObj);
@@ -73,7 +73,7 @@ class PersonCardsListBloc implements BloC {
     }
   }
 
-  Future<void> deletePersonCardByGuidId(PersonCardObject aUsrObj) async {
+  Future<void> deletePersonCardById(PersonCardObject aUsrObj) async {
     if (_personCardsList.contains(aUsrObj)) {
       await personCardService.deletePersonCardById(aUsrObj);
 

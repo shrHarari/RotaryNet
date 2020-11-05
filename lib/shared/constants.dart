@@ -18,11 +18,9 @@ const String rotaryLoggerFileName = 'Rotary_Log.txt';
 // ==============================================================
 const Map<String, String> rotaryUrlHeader = {"Content-type": "application/json"};
 
-const String rotaryUserRegistrationUrl = 'http://159.89.225.231:7775/api/registration/';
-
-// const String rotaryGetUsersUrl = 'http://localhost:3030/api/user/';
+/////// const String rotaryUserUrl = 'http://localhost:3030/api/user/';
 /////// ----------------------- localhost = 10.100.102.6 [using ipconfig <command on cmd>]
-// const String rotaryGetUsersUrl = 'http://10.100.102.6:3030/api/user';
+
 const String rotaryRoleUrl = 'http://10.100.102.6:3030/api/role';
 const String rotaryAreaUrl = 'http://10.100.102.6:3030/api/area';
 const String rotaryClusterUrl = 'http://10.100.102.6:3030/api/cluster';
@@ -34,32 +32,19 @@ const String rotaryMessageUrl = 'http://10.100.102.6:3030/api/message';
 
 const String rotaryUserLoginUrl = 'http://10.100.102.6:3030/api/user/login';
 
-const String rotaryGetPersonCardListUrl = 'http://159.89.225.231:7775/api/registration/';
-const String rotaryPersonCardWriteToDataBaseRequestUrl = 'http://159.89.225.231:7775/api/registration/';
-const String rotaryEventWriteToDataBaseRequestUrl = 'http://159.89.225.231:7775/api/registration/';
-//#endregion
+const String rotaryMenuPagesContentUrl = 'http://10.100.102.6:3030/api/menupage';
 
-//#region Application Assets URL
-// ==============================================================
-const String rotaryAssetPersonCardImageUrl = 'C:/FLUTTER_OCTIA/rotary_net/assets/images/person_cards/';
-const String rotaryAssetEventImageUrl = 'C:/FLUTTER_OCTIA/rotary_net/assets/images/events';
 //#endregion
 
 //#region User Data: Secure Storage [Key Name]
 // ==============================================================
-const String rotaryUserGuidId = 'Rotary User Guid ID';
+const String rotaryUserId = 'Rotary User Guid ID';
 const String rotaryUserPersonCardId = 'Rotary User Person Card ID';
 const String rotaryUserEmail = 'Rotary User Email';
 const String rotaryUserFirstName = 'Rotary User First Name';
 const String rotaryUserLastName = 'Rotary User Family Name';
 const String rotaryUserPassword = 'Rotary User Password';
 const String rotaryUserStayConnected = 'Rotary User StayConnected';
-//#endregion
-
-//#region Login Status [Key Name]+[Enum]
-// ==============================================================
-const String rotaryLoginStatus = 'Rotary Login Status';
-enum LoginStatusEnum{NoRequest, Waiting, Accepted, Rejected, NoStatus}
 //#endregion
 
 //#region UserType [Key Name]+[Enum]

@@ -14,7 +14,6 @@ import 'package:rotary_net/services/rotary_area_service.dart';
 import 'package:rotary_net/services/rotary_club_service.dart';
 import 'package:rotary_net/services/rotary_cluster_service.dart';
 import 'package:rotary_net/services/rotary_role_service.dart';
-import 'package:rotary_net/shared/constants.dart';
 import 'package:rotary_net/shared/decoration_style.dart';
 import 'package:rotary_net/shared/error_message_screen.dart';
 import 'package:rotary_net/shared/loading.dart';
@@ -380,21 +379,19 @@ class _PersonCardDetailEditPageScreenState extends State<PersonCardDetailEditPag
       if (currentPersonCardImage != null)
         _pictureUrl = currentPersonCardImage;
 
-      RotaryRolesEnum _rotaryRolesEnum;
       PersonCardObject _newPersonCardObj = personCardService.createPersonCardAsObject(
-          widget.argPersonCardObject.personCardGuidId,
+          widget.argPersonCardObject.personCardId,
           _email, _firstName, _lastName, _firstNameEng, _lastNameEng,
           _phoneNumber, _phoneNumberDialCode, _phoneNumberParse, _phoneNumberCleanLongFormat,
           _pictureUrl, _cardDescription, _internetSiteUrl, _address,
           selectedRotaryAreaObj.areaId, selectedRotaryClusterObj.clusterId, selectedRotaryClubObj.clubId,
-          // _rotaryRolesEnum.convertToEnum(selectedRotaryRoleObj.roleId),
           selectedRotaryRoleObj.roleId);
 
       RichText _personCardHierarchyTitle = PersonCardRoleAndHierarchyObject.getPersonCardHierarchyTitleRichText(
           selectedRotaryRoleObj.roleName, selectedRotaryAreaObj.areaName,
           selectedRotaryClusterObj.clusterName, selectedRotaryClubObj.clubName);
 
-      await aPersonCardBloc.updatePersonCardByGuidId(widget.argPersonCardObject, _newPersonCardObj);
+      await aPersonCardBloc.updatePersonCardById(widget.argPersonCardObject, _newPersonCardObj);
 
       /// Return multiple data using MAP
       Map<String, dynamic> returnMap = {

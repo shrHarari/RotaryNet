@@ -153,16 +153,6 @@ class InitDatabaseService {
   }
   //#endregion
 
-  //#region insert All Started Messages To DB
-  Future insertAllStartedMessagesToDb() async {
-    List<MessageObject> starterMessagesList;
-
-    starterMessagesList = await initializeMessagesTableData();
-
-    // starterMessagesList.forEach((MessageObject messageObj) async => await RotaryDataBaseProvider.rotaryDB.insertMessage(messageObj));
-  }
-  //#endregion
-
   //#region Initialize Rotary Role Table Data [INIT Role BY JSON DATA]
   // ========================================================================
   Future initializeRotaryRoleTableData() async {

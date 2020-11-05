@@ -64,7 +64,7 @@ class EventsListBloc implements BloC {
     }
   }
 
-  Future<void> deleteEventByEventGuidId(EventObject aEventObj) async {
+  Future<void> deleteEventByEventId(EventObject aEventObj) async {
     if (_eventsList.contains(aEventObj)) {
       await eventService.deleteEventById(aEventObj);
 

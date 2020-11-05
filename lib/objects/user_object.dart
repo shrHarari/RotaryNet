@@ -4,7 +4,7 @@ import 'package:rotary_net/objects/connected_user_object.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class UserObject {
-  final String userGuidId;
+  final String userId;
   final String personCardId;
   final String email;
   final String firstName;
@@ -14,7 +14,7 @@ class UserObject {
   bool stayConnected;
 
   UserObject({
-    this.userGuidId,
+    this.userId,
     this.personCardId,
     this.email,
     this.firstName,
@@ -27,7 +27,7 @@ class UserObject {
   //===========================================
   static Future <UserObject> getUserObjectFromConnectedUserObject(ConnectedUserObject aConnectedUserObject) async {
     return UserObject(
-        userGuidId: aConnectedUserObject.userGuidId,
+        userId: aConnectedUserObject.userId,
         personCardId: aConnectedUserObject.personCardId,
         email: aConnectedUserObject.email,
         firstName : aConnectedUserObject.firstName,
@@ -55,7 +55,7 @@ class UserObject {
   String toString() {
     return
       '{'
-        ' ${this.userGuidId},'
+        ' ${this.userId},'
         ' ${this.personCardId},'
         ' ${this.email},'
         ' ${this.firstName},'
@@ -78,7 +78,7 @@ class UserObject {
 
     if (parsedJson['_id'] == null) {
       return UserObject(
-          userGuidId: '',
+          userId: '',
           personCardId: parsedJson['personCardId'],
           email: parsedJson['email'],
           firstName : parsedJson['firstName'],
@@ -89,7 +89,7 @@ class UserObject {
       );
     } else {
       return UserObject(
-          userGuidId: parsedJson['_id'],
+          userId: parsedJson['_id'],
           personCardId: parsedJson['personCardId'],
           email: parsedJson['email'],
           firstName : parsedJson['firstName'],
@@ -124,7 +124,7 @@ class UserObject {
     jsonFromMap['stayConnected'] == 0 ? _stayConnected = false : _stayConnected = true;
 
     return UserObject(
-      // userGuidId: jsonFromMap['_id'],
+      // userIdId: jsonFromMap['_id'],
       personCardId: jsonFromMap['personCardId'],
       email: jsonFromMap['email'],
       firstName : jsonFromMap['firstName'],
@@ -140,7 +140,7 @@ class UserObject {
     String _userType = EnumToString.parse(userType);
 
     return {
-      if ((userGuidId != null) && (userGuidId != '')) '_id': userGuidId,
+      if ((userId != null) && (userId != '')) '_id': userId,
       if ((personCardId != null) && (personCardId != '')) 'personCardId': personCardId,
       'email': email,
       'firstName': firstName,

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class EventObject {
-  final String eventGuidId;
+  final String eventId;
   final String eventName;
   String eventPictureUrl;
   final String eventDescription;
@@ -11,7 +11,7 @@ class EventObject {
   final String eventManager;
 
   EventObject({
-    this.eventGuidId,
+    this.eventId,
     this.eventName,
     this.eventPictureUrl,
     this.eventDescription,
@@ -39,7 +39,7 @@ class EventObject {
   @override
   String toString() {
     return '{'
-        ' ${this.eventGuidId},'
+        ' ${this.eventId},'
         ' ${this.eventName},'
         ' ${this.eventPictureUrl},'
         ' ${this.eventDescription},'
@@ -54,7 +54,7 @@ class EventObject {
 
     if (parsedJson['_id'] == null) {
       return EventObject(
-          eventGuidId: '',
+          eventId: '',
           eventName: parsedJson['eventName'],
           eventPictureUrl : parsedJson['eventPictureUrl'],
           eventDescription : parsedJson['eventDescription'],
@@ -65,7 +65,7 @@ class EventObject {
       );
     } else {
       return EventObject(
-          eventGuidId: parsedJson['_id'],
+          eventId: parsedJson['_id'],
           eventName: parsedJson['eventName'],
           eventPictureUrl : parsedJson['eventPictureUrl'],
           eventDescription : parsedJson['eventDescription'],
@@ -96,7 +96,7 @@ class EventObject {
     DateTime _eventEndDateTime = DateTime.parse(jsonFromMap['eventEndDateTime']);
 
     return EventObject(
-          // eventGuidId: jsonFromMap['_id'],
+          // eventId: jsonFromMap['_id'],
           eventName: jsonFromMap['eventName'],
           eventPictureUrl : jsonFromMap['eventPictureUrl'],
           eventDescription : jsonFromMap['eventDescription'],
@@ -114,7 +114,7 @@ class EventObject {
     String _eventEndDateTime = eventEndDateTime.toIso8601String();
 
     return {
-      if ((eventGuidId != null) && (eventGuidId != '')) '_id': eventGuidId,
+      if ((eventId != null) && (eventId != '')) '_id': eventId,
       'eventName': eventName,
       'eventPictureUrl': eventPictureUrl,
       'eventDescription': eventDescription,

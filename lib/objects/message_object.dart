@@ -2,14 +2,14 @@ import 'dart:convert';
 import 'package:rotary_net/objects/message_populated_object.dart';
 
 class MessageObject {
-  final String messageGuidId;
+  final String messageId;
   final String composerId;
   final String messageText;
   final DateTime messageCreatedDateTime;
   final List<String> personCards;
 
   MessageObject({
-    this.messageGuidId,
+    this.messageId,
     this.composerId,
     this.messageText,
     this.messageCreatedDateTime,
@@ -20,7 +20,7 @@ class MessageObject {
   static Future <MessageObject> getMessageObjectFromMessagePopulatedObject(MessagePopulatedObject aMessagePopulatedObject) async {
 
     return MessageObject(
-      messageGuidId: aMessagePopulatedObject.messageGuidId,
+      messageId: aMessagePopulatedObject.messageId,
       composerId: aMessagePopulatedObject.composerId,
       messageText: aMessagePopulatedObject.messageText,
       messageCreatedDateTime: aMessagePopulatedObject.messageCreatedDateTime,
@@ -39,7 +39,7 @@ class MessageObject {
 
     return
       '{'
-        ' ${this.messageGuidId},'
+        ' ${this.messageId},'
         ' ${this.composerId},'
         ' ${this.messageText},'
         ' $_messageCreatedDateTime,'
@@ -56,7 +56,7 @@ class MessageObject {
     if (dynPersonCardsList != null) personCardsList = dynPersonCardsList.cast<String>();
 
     return MessageObject(
-      messageGuidId: parsedJson['_id'],
+      messageId: parsedJson['_id'],
       composerId: parsedJson['composerId'],
       messageText: parsedJson['messageText'],
       messageCreatedDateTime: _messageCreatedDateTime,
@@ -81,7 +81,7 @@ class MessageObject {
     DateTime _messageCreatedDateTime = DateTime.parse(jsonFromMap['messageCreatedDateTime']);
 
     return MessageObject(
-      // messageGuidId: jsonFromMap['_id'],
+      // messageId: jsonFromMap['_id'],
       composerId: jsonFromMap['composerId'],
       messageText: jsonFromMap['messageText'],
       messageCreatedDateTime: _messageCreatedDateTime,
@@ -94,7 +94,7 @@ class MessageObject {
     String _messageCreatedDateTime = messageCreatedDateTime.toIso8601String();
 
     return {
-      if ((messageGuidId != null) && (messageGuidId != '')) '_id': messageGuidId,
+      if ((messageId != null) && (messageId != '')) '_id': messageId,
       'composerId': composerId,
       'messageText': messageText,
       'messageCreatedDateTime': _messageCreatedDateTime,

@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:rotary_net/services/menu_pages_service.dart';
 import 'package:rotary_net/shared/error_message_screen.dart';
 import 'package:rotary_net/shared/loading.dart';
+import 'package:rotary_net/utils/utils_class.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PrivacyPolicyScreen extends StatefulWidget {
@@ -26,7 +27,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
 
   Future<Map<String, Object>> getMenuPrivacyPolicyContent() async {
     MenuPagesService menuPagesService = MenuPagesService();
-    dynamic aContent = await menuPagesService.getMenuPrivacyPolicyContentFromServer();
+    dynamic aContent = await menuPagesService.getMenuPageContentByPageName("PrivacyPolicyContent");
 
     return aContent;
   }
@@ -73,74 +74,74 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: privacyPolicyContentMap['rotary_introduction_start'],
+                                text: Utils.convertTextBreakLineFromDB(privacyPolicyContentMap['rotary_introduction_start']),
                                 style: TextStyle(
                                     fontFamily: 'Heebo-Light',
-                                    fontSize: 17.0,
+                                    fontSize: 18.5,
                                     height: 1.5,
                                     color: Colors.black87
                                 ),
                               ),
                               TextSpan(
-                                text: privacyPolicyContentMap['rotary_introduction_service'],
+                                text: Utils.convertTextBreakLineFromDB(privacyPolicyContentMap['rotary_introduction_service']),
                                 style: TextStyle(
                                     fontFamily: 'Heebo-Light',
                                     fontSize: 17.0,
-                                    height: 1.5,
+                                    height: 1.7,
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
                                 ),
                               ),
                               TextSpan(
-                                text: privacyPolicyContentMap['rotary_introduction_end'],
+                                text: Utils.convertTextBreakLineFromDB(privacyPolicyContentMap['rotary_introduction_end']),
                                 style: TextStyle(
                                     fontFamily: 'Heebo-Light',
-                                    fontSize: 17.0,
+                                    fontSize: 18.5,
                                     height: 1.5,
                                     color: Colors.black87
                                 ),
                               ),
                               TextSpan(
-                                text: privacyPolicyContentMap['privacy_introduction'],
+                                text: Utils.convertTextBreakLineFromDB(privacyPolicyContentMap['privacy_introduction']),
                                 style: TextStyle(
                                     fontFamily: 'Heebo-Light',
-                                    fontSize: 17.0,
+                                    fontSize: 18.5,
                                     height: 1.5,
                                     color: Colors.black87
                                 ),
                               ),
                               TextSpan(
-                                text: privacyPolicyContentMap['add_line_1'],
+                                text: Utils.convertTextBreakLineFromDB(privacyPolicyContentMap['add_line_1']),
                                 style: TextStyle(
                                     fontFamily: 'Heebo-Light',
-                                    fontSize: 17.0,
+                                    fontSize: 18.5,
                                     height: 1.5,
                                     color: Colors.black87
                                 ),
                               ),
                               TextSpan(
-                                text: privacyPolicyContentMap['add_line_2'],
+                                text: Utils.convertTextBreakLineFromDB(privacyPolicyContentMap['add_line_2']),
                                 style: TextStyle(
                                     fontFamily: 'Heebo-Light',
-                                    fontSize: 17.0,
+                                    fontSize: 18.5,
                                     height: 1.5,
                                     color: Colors.black87
                                 ),
                               ),
                               TextSpan(
-                                text: privacyPolicyContentMap['rotary_privacy_condition'],
+                                text: Utils.convertTextBreakLineFromDB(privacyPolicyContentMap['rotary_privacy_condition']),
                                 style: TextStyle(
                                     fontFamily: 'Heebo-Light',
-                                    fontSize: 17.0,
+                                    fontSize: 18.5,
                                     height: 1.5,
                                     color: Colors.black87
                                 ),
                               ),
                               TextSpan(
-                                text: privacyPolicyContentMap['rotary_privacy_condition_mail'],
+                                text: Utils.convertTextBreakLineFromDB(privacyPolicyContentMap['rotary_privacy_condition_mail']),
                                 style: TextStyle(
                                     fontFamily: 'Heebo-Light',
-                                    fontSize: 17.0,
+                                    fontSize: 18.5,
                                     height: 1.5,
                                     color: Colors.blue,
                                     fontWeight: FontWeight.bold,

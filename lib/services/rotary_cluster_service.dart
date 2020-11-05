@@ -5,7 +5,6 @@ import 'package:rotary_net/objects/rotary_cluster_object.dart';
 import 'package:rotary_net/services/logger_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 import 'dart:developer' as developer;
-import 'globals_service.dart';
 
 class RotaryClusterService {
 
@@ -38,7 +37,7 @@ class RotaryClusterService {
         String jsonResponse = response.body;
         await LoggerService.log('<RotaryClusterService> Get All Rotary Cluster List >>> OK\nHeader: $contentType \nRotaryClusterListFromJSON: $jsonResponse');
 
-        var clustersList = jsonDecode(jsonResponse) as List;    // List of PersonCard to display;
+        var clustersList = jsonDecode(jsonResponse) as List;
         List<RotaryClusterObject> clustersObjList = clustersList.map((clusterJson) => RotaryClusterObject.fromJson(clusterJson)).toList();
 
         return clustersObjList;
@@ -73,7 +72,6 @@ class RotaryClusterService {
 
       if (response.statusCode <= 300) {
         String jsonResponse = response.body;
-        print("getRotaryClusterByClusterId/ jsonResponse: $jsonResponse");
         await LoggerService.log('<RotaryClusterService> Get RotaryCluster By ClusterId >>> OK >>> RotaryClusterFromJSON: $jsonResponse');
 
         var _cluster = jsonDecode(jsonResponse);
@@ -141,14 +139,12 @@ class RotaryClusterService {
   Future insertRotaryCluster(RotaryClusterObject aRotaryClusterObj) async {
     try{
       String jsonToPost = aRotaryClusterObj.rotaryClusterObjectToJson(aRotaryClusterObj);
-      print ('insertRotaryCluster / RotaryClusterObject / jsonToPost: $jsonToPost');
 
       Response response = await post(Constants.rotaryClusterUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
       if (response.statusCode <= 300) {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        print ('insertRotaryCluster / RotaryClusterObject / jsonResponse: $jsonResponse');
 
         bool returnVal = jsonResponse.toLowerCase() == 'true';
         if (returnVal) {
@@ -184,7 +180,6 @@ class RotaryClusterService {
       String _getUrl = Constants.rotaryClusterUrl + "/areaId/$aAreaId";
 
       String jsonToPost = aRotaryClusterObj.rotaryClusterObjectToJson(aRotaryClusterObj);
-      print ('insertRotaryClusterWithArea / RotaryClusterObject / jsonToPost: $jsonToPost');
 
       Response response = await post(_getUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
 
@@ -192,7 +187,6 @@ class RotaryClusterService {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        print ('insertRotaryClusterWithArea / RotaryClusterObject / jsonResponse: $jsonResponse');
 
         bool returnVal = jsonResponse.toLowerCase() == 'true';
         if (returnVal) {
@@ -226,7 +220,6 @@ class RotaryClusterService {
   Future updateRotaryClusterByClusterId(RotaryClusterObject aRotaryClusterObj) async {
     try {
       String jsonToPost = aRotaryClusterObj.rotaryClusterObjectToJson(aRotaryClusterObj);
-      print ('updateRotaryClusterByAreaClusterId / RotaryClusterObject / jsonToPost: $jsonToPost');
 
       String _updateUrl = Constants.rotaryClusterUrl + "/${aRotaryClusterObj.clusterId}";
 
@@ -235,26 +228,24 @@ class RotaryClusterService {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        print('updateRotaryClusterByAreaClusterId / RotaryClusterObject / jsonResponse: $jsonResponse');
 
         bool returnVal = jsonResponse.toLowerCase() == 'true';
         if (returnVal) {
-          await LoggerService.log('<RotaryClusterService> Update RotaryCluster By AreaClusterId >>> OK');
+          await LoggerService.log('<RotaryClusterService> Update RotaryCluster By ClusterId >>> OK');
           return returnVal;
         } else {
-          await LoggerService.log(
-              '<RotaryClusterService> Update RotaryCluster By AreaClusterId >>> Failed');
-          print('<RotaryClusterService> Update RotaryCluster By AreaClusterId >>> Failed');
+          await LoggerService.log('<RotaryClusterService> Update RotaryCluster By ClusterId >>> Failed');
+          print('<RotaryClusterService> Update RotaryCluster By ClusterId >>> Failed');
           return null;
         }
       }
     }
     catch (e) {
-      await LoggerService.log('<RotaryClusterService> Update RotaryCluster By AreaClusterId >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<RotaryClusterService> Update RotaryCluster By ClusterId >>> ERROR: ${e.toString()}');
       developer.log(
-        'updateRotaryClusterByAreaClusterId',
+        'updateRotaryClusterByClusterId',
         name: 'RotaryClusterService',
-        error: 'Update RotaryCluster By AreaClusterId >>> ERROR: ${e.toString()}',
+        error: 'Update RotaryCluster By ClusterId >>> ERROR: ${e.toString()}',
       );
       return null;
     }
@@ -272,25 +263,24 @@ class RotaryClusterService {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        print('deleteRotaryClusterByAreaClusterId / RotaryClusterObject / jsonResponse: $jsonResponse');
 
         bool returnVal = jsonResponse.toLowerCase() == 'true';
         if (returnVal) {
-          await LoggerService.log('<RotaryClusterService> Delete Rotary Cluster By AreaClusterId >>> OK');
+          await LoggerService.log('<RotaryClusterService> Delete Rotary Cluster By ClusterId >>> OK');
           return returnVal;
         } else {
-          await LoggerService.log('<RotaryClusterService> Delete Rotary Cluster By AreaClusterId >>> Failed');
-          print('<RotaryClusterService> Delete Rotary Cluster By AreaClusterId >>> Failed');
+          await LoggerService.log('<RotaryClusterService> Delete Rotary Cluster By ClusterId >>> Failed');
+          print('<RotaryClusterService> Delete Rotary Cluster By ClusterId >>> Failed');
           return null;
         }
       }
     }
     catch (e) {
-      await LoggerService.log('<RotaryClusterService> Delete Rotary Cluster By AreaClusterId >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<RotaryClusterService> Delete Rotary Cluster By ClusterId >>> ERROR: ${e.toString()}');
       developer.log(
-        'deleteRotaryClusterByAreaClusterId',
+        'deleteRotaryClusterByClusterId',
         name: 'RotaryClusterService',
-        error: 'Delete Rotary Cluster By AreaClusterId >>> ERROR: ${e.toString()}',
+        error: 'Delete Rotary Cluster By ClusterId >>> ERROR: ${e.toString()}',
       );
       return null;
     }

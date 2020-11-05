@@ -72,7 +72,7 @@ class RotaryUsersListBloc implements BloC {
     }
   }
 
-  Future<void> updateUserByGuidId(UserObject aOldUserObj, UserObject aNewUserObj) async {
+  Future<void> updateUserById(UserObject aOldUserObj, UserObject aNewUserObj) async {
     if (_usersList.contains(aOldUserObj)) {
       await userService.updateUserById(aNewUserObj);
 
@@ -83,7 +83,7 @@ class RotaryUsersListBloc implements BloC {
     }
   }
 
-  Future<void> deleteUserByGuidId(UserObject aUserObj) async {
+  Future<void> deleteUserById(UserObject aUserObj) async {
     if (_usersList.contains(aUserObj)) {
       await userService.deleteUserById(aUserObj);
 

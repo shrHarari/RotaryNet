@@ -205,7 +205,7 @@ class _RotaryUserDetailPageScreenState extends State<RotaryUserDetailPageScreen>
                   Column(
                     textDirection: TextDirection.rtl,
                     children: <Widget>[
-                      buildDetailImageIcon(Icons.language, aUserObj.userGuidId),
+                      buildDetailImageIcon(Icons.language, aUserObj.userId),
                       buildDetailImageIcon(Icons.mail_outline, aUserObj.email, aFunc: Utils.sendEmail),
                       buildDetailImageIcon(Icons.lock, aUserObj.password),
                       buildStayConnectedCheckBox(),
@@ -368,7 +368,7 @@ class _RotaryUserDetailPageScreenState extends State<RotaryUserDetailPageScreen>
 
           return RaisedButton.icon(
             onPressed: () {
-              usersBloc.deleteUserByGuidId(displayUserObject);
+              usersBloc.deleteUserById(displayUserObject);
               Navigator.pop(context);
             },
             shape: RoundedRectangleBorder(

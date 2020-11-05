@@ -13,23 +13,23 @@ class MessageService {
   //#region Create Message As Object
   //=============================================================================
   MessageObject createMessageAsObject(
-      String aMessageGuidId,
-      String aComposerGuidId,
+      String aMessageId,
+      String aComposerId,
       String aMessageText,
       DateTime aMessageCreatedDateTime,
       )
   {
-    if (aMessageGuidId == null)
+    if (aMessageId == null)
       return MessageObject(
-        messageGuidId: '',
+        messageId: '',
         composerId: '',
         messageText: '',
         messageCreatedDateTime: null,
       );
     else
       return MessageObject(
-        messageGuidId: aMessageGuidId,
-        composerId: aComposerGuidId,
+        messageId: aMessageId,
+        composerId: aComposerId,
         messageText: aMessageText,
         messageCreatedDateTime: aMessageCreatedDateTime,
       );
@@ -39,7 +39,7 @@ class MessageService {
   //#region Create Message Populated As Object
   //=============================================================================
   MessagePopulatedObject createMessagePopulatedAsObject(
-      String aMessageGuidId,
+      String aMessageId,
       String aComposerId,
       String aComposerFirstName,
       String aComposerLastName,
@@ -54,16 +54,16 @@ class MessageService {
       String aClubName,
       String aClubAddress,
       String aClubMail,
-      String aClubManagerGuidId,
+      String aClubManagerId,
       String aRoleId,
       int aRoleEnum,
       String aRoleName,
       List<String> aPersonCards,
       )
   {
-    if (aMessageGuidId == null)
+    if (aMessageId == null)
       return MessagePopulatedObject(
-        messageGuidId: '',
+        messageId: '',
         composerId: '',
         composerFirstName: '',
         composerLastName: '',
@@ -78,7 +78,7 @@ class MessageService {
         clubName: '',
         clubAddress: '',
         clubMail: '',
-        clubManagerGuidId: '',
+        clubManagerId: '',
         roleId: '',
         roleEnum: null,
         roleName: '',
@@ -86,7 +86,7 @@ class MessageService {
       );
     else
       return MessagePopulatedObject(
-        messageGuidId: aMessageGuidId,
+        messageId: aMessageId,
         composerId: aComposerId,
         composerFirstName: aComposerFirstName,
         composerLastName: aComposerLastName,
@@ -101,7 +101,7 @@ class MessageService {
         clubName: aClubName,
         clubAddress: aClubAddress,
         clubMail: aClubMail,
-        clubManagerGuidId: aClubManagerGuidId,
+        clubManagerId: aClubManagerId,
         roleId: aRoleId,
         roleEnum: aRoleEnum,
         roleName: aRoleName,
@@ -213,8 +213,6 @@ class MessageService {
   Future insertMessage(MessageObject aMessageObj) async {
     try {
       String _getUrl = Constants.rotaryMessageUrl;
-      print ("_getUrl: $_getUrl");
-
       String jsonToPost = aMessageObj.messageObjectToJson(aMessageObj);
 
       Response response = await post(_getUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
@@ -250,7 +248,7 @@ class MessageService {
       String jsonToPost = aMessageObj.messageObjectToJson(aMessageObj);
       print ('updateMessageById / MessageObject / jsonToPost: $jsonToPost');
 
-      String _updateUrl = Constants.rotaryMessageUrl + "/${aMessageObj.messageGuidId}";
+      String _updateUrl = Constants.rotaryMessageUrl + "/${aMessageObj.messageId}";
       print ("_updateUrl: $_updateUrl");
 
       Response response = await put(_updateUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
@@ -284,7 +282,7 @@ class MessageService {
   //=============================================================================
   Future deleteMessageById(MessageObject aMessageObj) async {
     try {
-      String _deleteUrl = Constants.rotaryMessageUrl + "/${aMessageObj.messageGuidId}";
+      String _deleteUrl = Constants.rotaryMessageUrl + "/${aMessageObj.messageId}";
 
       Response response = await delete(_deleteUrl, headers: Constants.rotaryUrlHeader);
       if (response.statusCode <= 300) {
@@ -324,7 +322,7 @@ class MessageService {
   //=============================================================================
   Future removeMessageFromPersonCardMessageQueue(MessageObject aMessageObj, String aPersonCardId) async {
     try {
-      String _deleteUrl = Constants.rotaryMessageUrl + "/removeMessageQueue/${aMessageObj.messageGuidId}/personCard/$aPersonCardId";
+      String _deleteUrl = Constants.rotaryMessageUrl + "/removeMessageQueue/${aMessageObj.messageId}/personCard/$aPersonCardId";
 
       Response response = await put(_deleteUrl, headers: Constants.rotaryUrlHeader);
       if (response.statusCode <= 300) {
@@ -364,7 +362,7 @@ class MessageService {
   //=============================================================================
   Future addMessageBackToPersonCardMessageQueue(MessageObject aMessageObj, String aPersonCardId) async {
     try {
-      String _addMessageUrl = Constants.rotaryMessageUrl + "/addMessageQueue/${aMessageObj.messageGuidId}/personCard/$aPersonCardId";
+      String _addMessageUrl = Constants.rotaryMessageUrl + "/addMessageQueue/${aMessageObj.messageId}/personCard/$aPersonCardId";
       print ("_addUrl: $_addMessageUrl");
 
       Response response = await put(_addMessageUrl, headers: Constants.rotaryUrlHeader);

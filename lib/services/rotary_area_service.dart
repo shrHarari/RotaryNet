@@ -5,7 +5,6 @@ import 'package:rotary_net/objects/rotary_area_object.dart';
 import 'package:rotary_net/services/logger_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 import 'dart:developer' as developer;
-import 'globals_service.dart';
 
 class RotaryAreaService {
 
@@ -148,14 +147,12 @@ class RotaryAreaService {
   Future insertRotaryArea(RotaryAreaObject aRotaryAreaObj) async {
     try {
       String jsonToPost = aRotaryAreaObj.rotaryAreaObjectToJson(aRotaryAreaObj);
-      print ('insertRotaryArea / RotaryAreaObject / jsonToPost: $jsonToPost');
 
       Response response = await post(Constants.rotaryAreaUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
       if (response.statusCode <= 300) {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        print ('insertRotaryArea / RotaryAreaObject / jsonResponse: $jsonResponse');
 
         bool returnVal = jsonResponse.toLowerCase() == 'true';
         if (returnVal) {
@@ -189,7 +186,6 @@ class RotaryAreaService {
   Future updateRotaryAreaByAreaId(RotaryAreaObject aRotaryAreaObj) async {
     try {
       String jsonToPost = aRotaryAreaObj.rotaryAreaObjectToJson(aRotaryAreaObj);
-      print ('updateRotaryAreaByAreaId / RotaryAreaObject / jsonToPost: $jsonToPost');
 
       String _updateUrl = Constants.rotaryAreaUrl + "/${aRotaryAreaObj.areaId}";
 
@@ -198,7 +194,6 @@ class RotaryAreaService {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        print('updateRotaryAreaByAreaId / RotaryAreaObject / jsonResponse: $jsonResponse');
 
         bool returnVal = jsonResponse.toLowerCase() == 'true';
         if (returnVal) {
@@ -215,7 +210,7 @@ class RotaryAreaService {
     catch (e) {
       await LoggerService.log('<RotaryAreaService> Update RotaryArea By AreaId >>> ERROR: ${e.toString()}');
       developer.log(
-        'updateRotaryAreaByAreaIdToDataBase',
+        'updateRotaryAreaByAreaId',
         name: 'RotaryAreaService',
         error: 'Update RotaryArea By AreaId >>> ERROR: ${e.toString()}',
       );
@@ -235,13 +230,10 @@ class RotaryAreaService {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        print(
-            'deleteRotaryAreaByAreaId / RotaryAreaObject / jsonResponse: $jsonResponse');
 
         bool returnVal = jsonResponse.toLowerCase() == 'true';
         if (returnVal) {
-          await LoggerService.log(
-              '<RotaryAreaService> Delete Rotary Area By AreaId >>> OK');
+          await LoggerService.log('<RotaryAreaService> Delete Rotary Area By AreaId >>> OK');
           return returnVal;
         } else {
           await LoggerService.log('<RotaryAreaService> Delete Rotary Area By AreaId >>> Failed');

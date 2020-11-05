@@ -40,22 +40,22 @@ class RotaryClubService {
         String jsonResponse = response.body;
         await LoggerService.log('<RotaryClubService> Get All Rotary Club List >>> OK\nHeader: $contentType \nRotaryClubListFromJSON: $jsonResponse');
 
-        var clubsList = jsonDecode(jsonResponse) as List;    // List of PersonCard to display;
+        var clubsList = jsonDecode(jsonResponse) as List;
         List<RotaryClubObject> clubsObjList = clubsList.map((clubJson) => RotaryClubObject.fromJson(clubJson)).toList();
 
         return clubsObjList;
       } else {
         await LoggerService.log('<RotaryClubService> Get All RotaryClub List >>> Failed: ${response.statusCode}');
-        print('<RotaryClubService> Get All RotaryArea List >>> Failed: ${response.statusCode}');
+        print('<RotaryClubService> Get All RotaryClub List >>> Failed: ${response.statusCode}');
         return null;
       }
     }
     catch (e) {
-      await LoggerService.log('<RotaryClubService> Get All RotaryClub List From Server >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<RotaryClubService> Get All RotaryClub List >>> ERROR: ${e.toString()}');
       developer.log(
-        'getAllRotaryClubListFromServer',
+        'getAllRotaryClubList',
         name: 'RotaryClubService',
-        error: 'Get All RotaryClub List From Server >>> ERROR: ${e.toString()}',
+        error: 'Get All RotaryClub List >>> ERROR: ${e.toString()}',
       );
       return null;
     }
@@ -72,24 +72,24 @@ class RotaryClubService {
 
       if (response.statusCode <= 300) {
         String jsonResponse = response.body;
-        await LoggerService.log('<RotaryClubService> Get All RotaryClub By AreaClusterClubId >>> OK >>> RotaryClubFromJSON: $jsonResponse');
+        await LoggerService.log('<RotaryClubService> Get All RotaryClub By ClubId >>> OK >>> RotaryClubFromJSON: $jsonResponse');
 
         var _club = jsonDecode(jsonResponse);
         RotaryClubObject _clubObj = RotaryClubObject.fromJson(_club);
 
         return _clubObj;
       } else {
-        await LoggerService.log('<RotaryClubService> Get All RotaryClub By AreaClusterClubId >>> Failed: ${response.statusCode}');
-        print('<RotaryClubService> Get All RotaryClub By AreaClusterClubId >>> Failed: ${response.statusCode}');
+        await LoggerService.log('<RotaryClubService> Get All RotaryClub By ClubId >>> Failed: ${response.statusCode}');
+        print('<RotaryClubService> Get All RotaryClub By ClubId >>> Failed: ${response.statusCode}');
         return null;
       }
     }
     catch (e) {
-      await LoggerService.log('<RotaryClubService> Get All RotaryClub By AreaClusterClubId >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<RotaryClubService> Get All RotaryClub By ClubId >>> ERROR: ${e.toString()}');
       developer.log(
-        'getRotaryClubByAreaClusterClubId',
+        'getRotaryClubByClubId',
         name: 'RotaryClubService',
-        error: 'Get All RotaryClub By AreaClusterClubId >>> ERROR: ${e.toString()}',
+        error: 'Get All RotaryClub By ClubId >>> ERROR: ${e.toString()}',
       );
       return null;
     }
@@ -137,14 +137,12 @@ class RotaryClubService {
   Future insertRotaryClub(RotaryClubObject aRotaryClubObj) async {
     try{
       String jsonToPost = aRotaryClubObj.rotaryClubObjectToJson(aRotaryClubObj);
-      print ('insertRotaryClub / RotaryAreaObject / jsonToPost: $jsonToPost');
 
       Response response = await post(Constants.rotaryClubUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
       if (response.statusCode <= 300) {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        print ('insertRotaryClub / RotaryClubObject / jsonResponse: $jsonResponse');
 
         bool returnVal = jsonResponse.toLowerCase() == 'true';
         if (returnVal) {
@@ -180,7 +178,6 @@ class RotaryClubService {
       String _getUrl = Constants.rotaryClubUrl + "/clusterId/$aClusterId";
 
       String jsonToPost = aRotaryClubObj.rotaryClubObjectToJson(aRotaryClubObj);
-      print ('insertRotaryClubWithCluster / RotaryClubObject / jsonToPost: $jsonToPost');
 
       Response response = await post(_getUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
 
@@ -188,7 +185,6 @@ class RotaryClubService {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        print ('insertRotaryClubWithCluster / RotaryClubObject / jsonResponse: $jsonResponse');
 
         bool returnVal = jsonResponse.toLowerCase() == 'true';
         if (returnVal) {
@@ -222,7 +218,6 @@ class RotaryClubService {
   Future updateRotaryClubByClubId(RotaryClubObject aRotaryClubObj) async {
     try {
       String jsonToPost = aRotaryClubObj.rotaryClubObjectToJson(aRotaryClubObj);
-      print ('updateRotaryClubByAreaClusterClubId / RotaryClubObject / jsonToPost: $jsonToPost');
 
       String _updateUrl = Constants.rotaryClubUrl + "/${aRotaryClubObj.clubId}";
 
@@ -231,26 +226,24 @@ class RotaryClubService {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        print('updateRotaryClubByAreaClusterClubId / RotaryClubObject / jsonResponse: $jsonResponse');
 
         bool returnVal = jsonResponse.toLowerCase() == 'true';
         if (returnVal) {
-          await LoggerService.log('<RotaryClubService> Update RotaryClub By AreaClusterClubId >>> OK');
+          await LoggerService.log('<RotaryClubService> Update RotaryClub By ClubId >>> OK');
           return returnVal;
         } else {
-          await LoggerService.log(
-              '<RotaryClubService> Update RotaryClub By AreaClusterClubId >>> Failed');
-          print('<RotaryClubService> Update RotaryClub By AreaClusterClubId >>> Failed');
+          await LoggerService.log('<RotaryClubService> Update RotaryClub By ClubId >>> Failed');
+          print('<RotaryClubService> Update RotaryClub By ClubId >>> Failed');
           return null;
         }
       }
     }
     catch (e) {
-      await LoggerService.log('<RotaryClubService> Update RotaryClub By AreaClusterClubId >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<RotaryClubService> Update RotaryClub By ClubId >>> ERROR: ${e.toString()}');
       developer.log(
-        'updateRotaryClubByAreaClusterClubIdToDataBase',
+        'updateRotaryClubByClubId',
         name: 'RotaryClubService',
-        error: 'Update RotaryClub By AreaClusterClubId >>> ERROR: ${e.toString()}',
+        error: 'Update RotaryClub By ClubId >>> ERROR: ${e.toString()}',
       );
       return null;
     }
@@ -268,25 +261,24 @@ class RotaryClubService {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        print('deleteRotaryClubByAreaClusterClubId / RotaryClubObject / jsonResponse: $jsonResponse');
 
         bool returnVal = jsonResponse.toLowerCase() == 'true';
         if (returnVal) {
-          await LoggerService.log('<RotaryClubService> Delete Rotary Club By AreaClusterClubId >>> OK');
+          await LoggerService.log('<RotaryClubService> Delete Rotary Club By ClubId >>> OK');
           return returnVal;
         } else {
-          await LoggerService.log('<RotaryClubService> Delete Rotary Club By AreaClusterClubId >>> Failed');
-          print('<RotaryClubService> Delete Rotary Club By AreaClusterClubId >>> Failed');
+          await LoggerService.log('<RotaryClubService> Delete Rotary Club By ClubId >>> Failed');
+          print('<RotaryClubService> Delete Rotary Club By ClubId >>> Failed');
           return null;
         }
       }
     }
     catch (e) {
-      await LoggerService.log('<RotaryClubService> Delete Rotary Club By AreaClusterClubId >>> ERROR: ${e.toString()}');
+      await LoggerService.log('<RotaryClubService> Delete Rotary Club By ClubId >>> ERROR: ${e.toString()}');
       developer.log(
-        'deleteRotaryClubByAreaClusterClubId',
+        'deleteRotaryClubByClubId',
         name: 'RotaryClubService',
-        error: 'Delete Rotary Club By AreaClusterClubId >>> ERROR: ${e.toString()}',
+        error: 'Delete Rotary Club By ClubId >>> ERROR: ${e.toString()}',
       );
       return null;
     }

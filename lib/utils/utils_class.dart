@@ -214,4 +214,12 @@ class Utils {
     }
   }
   //#endregion
+
+  //#region Convert Text Break Line From DB
+  static String convertTextBreakLineFromDB(String aText) {
+    String pageItemText = aText.replaceAll('\\n', '\n');
+    return pageItemText;
+  }
+  //#endregion
+
 }

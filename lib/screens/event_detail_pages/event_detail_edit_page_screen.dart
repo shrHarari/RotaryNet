@@ -63,7 +63,7 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
 
     if (aEvent != null)
     {
-      isEventExist = true;   /// If Exist ? Update(has Guid) : Insert(copy Guid)
+      isEventExist = true;   /// If Exist ? Update(has Id) : Insert(copy Guid)
 
       currentEventImage = aEvent.eventPictureUrl;
       currentHebrewEventTimeLabel = widget.argHebrewEventTimeLabel;
@@ -123,7 +123,7 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
       EventObject _newEventObj;
       if (isEventExist) {
         _newEventObj = eventService.createEventAsObject(
-            widget.argEventObject.eventGuidId,
+            widget.argEventObject.eventId,
             _eventName, _pictureUrl, _eventDescription,
             selectedPickStartDateTime, selectedPickEndDateTime,
             _eventLocation, _eventManager,);
@@ -131,9 +131,9 @@ class _EventDetailEditPageScreenState extends State<EventDetailEditPageScreen> {
         await aEventBloc.updateEvent(widget.argEventObject, _newEventObj);
       }
       else {
-        String _eventGuidId = await Utils.createGuidUserId();
+        String _eventId = await Utils.createGuidUserId();
         _newEventObj = eventService.createEventAsObject(
-            _eventGuidId,
+            _eventId,
             _eventName, _pictureUrl, _eventDescription,
             selectedPickStartDateTime, selectedPickEndDateTime,
             _eventLocation, _eventManager,);

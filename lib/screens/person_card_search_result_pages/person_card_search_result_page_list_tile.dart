@@ -87,6 +87,7 @@ class PersonCardSearchResultPageListTile extends StatelessWidget {
     );
   }
 
+ //#region Build Empty PersonCard Image Icon
   Widget buildEmptyPersonCardImageIcon(IconData aIcon, {Function aFunc}) {
     return Container(
         height: 60.0,
@@ -109,4 +110,5 @@ class PersonCardSearchResultPageListTile extends StatelessWidget {
         )
       );
   }
+  //#endregion
 }

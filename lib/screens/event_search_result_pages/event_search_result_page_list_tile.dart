@@ -125,7 +125,7 @@ class EventSearchResultPageListTile extends StatelessWidget {
 
         return MaterialButton(
           onPressed: () async {
-            await bloc.deleteEventByEventGuidId(argEventObj);
+            await bloc.deleteEventByEventId(argEventObj);
           },
           color: Colors.white,
           shape: CircleBorder(side: BorderSide(color: Colors.blue)),

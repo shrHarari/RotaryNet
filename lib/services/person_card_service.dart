@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
-import 'package:rotary_net/objects/message_populated_object.dart';
 import 'package:rotary_net/objects/person_card_object.dart';
 import 'package:rotary_net/objects/person_card_populated_object.dart';
 import 'package:rotary_net/objects/person_card_role_and_hierarchy_object.dart';
@@ -24,7 +23,7 @@ class PersonCardService {
   //#region Create PersonCard As Object
   //=============================================================================
   PersonCardObject createPersonCardAsObject(
-      String aPersonCardGuidId,
+      String aPersonCardId,
       String aEmail,
       String aFirstName,
       String aLastName,
@@ -44,9 +43,9 @@ class PersonCardService {
       String aRoleId,
       )
     {
-      if (aPersonCardGuidId == null)
+      if (aPersonCardId == null)
         return PersonCardObject(
-            personCardGuidId: '',
+            personCardId: '',
             email: '',
             firstName: '',
             lastName: '',
@@ -67,7 +66,7 @@ class PersonCardService {
         );
       else
         return PersonCardObject(
-            personCardGuidId: aPersonCardGuidId,
+            personCardId: aPersonCardId,
             email: aEmail,
             firstName: aFirstName,
             lastName: aLastName,
@@ -97,15 +96,12 @@ class PersonCardService {
 
       if (withPopulate) _getUrl = Constants.rotaryPersonCardUrl + "/query/$aValueToSearch/populated";
       else _getUrl = Constants.rotaryPersonCardUrl + "/query/$aValueToSearch";
-      print ("_getUrl: $_getUrl");
-
       Response response = await get(_getUrl);
 
       if (response.statusCode <= 300) {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        print("getPersonCardsListBySearchQuery/ jsonResponse: $jsonResponse");
         await LoggerService.log('<PersonCardService> Get PersonCardsList By SearchQuery >>> OK\nHeader: $contentType \nPersonCardsListFromJSON: $jsonResponse');
 
         var personCardList = jsonDecode(jsonResponse) as List;    // List of PersonCard to display;
@@ -161,8 +157,6 @@ class PersonCardService {
         default:
           return [];
       }
-      print ("_getUrl: $_getUrl");
-
       Response response = await get(_getUrl);
 
       if (response.statusCode <= 300) {
@@ -201,7 +195,6 @@ class PersonCardService {
 
       if (withPopulate) _getUrl = Constants.rotaryPersonCardUrl + "/personCardId/$aPersonCardId/populated";
       else _getUrl = Constants.rotaryPersonCardUrl + "/personCardId/$aPersonCardId";
-      print ("_getUrl: $_getUrl");
 
       Response response = await get(_getUrl);
 
@@ -377,17 +370,14 @@ class PersonCardService {
   Future insertPersonCard(String aUserId, PersonCardObject aPersonCardObj) async {
     try {
       String _getUrl = Constants.rotaryPersonCardUrl + "/userId/$aUserId";
-      print ("_getUrl: $_getUrl");
 
       String jsonToPost = aPersonCardObj.personCardToJson(aPersonCardObj);
-      print ('insertPersonCard / PersonCardObject / jsonToPost: $jsonToPost');
 
       Response response = await post(_getUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
       if (response.statusCode <= 300) {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        print('insertPersonCard / PersonCardObject / jsonResponse: $jsonResponse');
 
         await LoggerService.log('<PersonCardService> Insert PersonCard By Id >>> OK');
         return jsonResponse;
@@ -443,8 +433,7 @@ class PersonCardService {
       clubObj = await clubService.getRotaryClubByClubName(aPersonCardObj.clubId);
       aPersonCardObj.setClubId(clubObj.clubId);
 
-      String _getUrl = Constants.rotaryPersonCardUrl + "/userId/${userObj.userGuidId}";
-      print ("_getUrl: $_getUrl");
+      String _getUrl = Constants.rotaryPersonCardUrl + "/userId/${userObj.userId}";
 
       String jsonToPost = aPersonCardObj.personCardToJson(aPersonCardObj);
 
@@ -480,16 +469,14 @@ class PersonCardService {
     try {
       // Convert PersonCardObject To Json
       String jsonToPost = aPersonCardObj.personCardToJson(aPersonCardObj);
-      print ('updatePersonCardById / PersonCardObject / jsonToPost: $jsonToPost');
 
-      String _updateUrl = Constants.rotaryPersonCardUrl + "/${aPersonCardObj.personCardGuidId}";
+      String _updateUrl = Constants.rotaryPersonCardUrl + "/${aPersonCardObj.personCardId}";
 
       Response response = await put(_updateUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
       if (response.statusCode <= 300) {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        print ('<PersonCardService> Update PersonCard By Id >>> PersonCardObject / jsonResponse: $jsonResponse');
 
         await LoggerService.log('<PersonCardService> Update PersonCard By Id >>> OK');
         return jsonResponse;
@@ -515,14 +502,13 @@ class PersonCardService {
   //=============================================================================
   Future deletePersonCardById(PersonCardObject aPersonCardObj) async {
     try {
-      String _deleteUrl = Constants.rotaryPersonCardUrl + "/${aPersonCardObj.personCardGuidId}";
+      String _deleteUrl = Constants.rotaryPersonCardUrl + "/${aPersonCardObj.personCardId}";
 
       Response response = await delete(_deleteUrl, headers: Constants.rotaryUrlHeader);
       if (response.statusCode <= 300) {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        print ('deletePersonCardById / PersonCardObject / jsonResponse: $jsonResponse');
 
         bool returnVal = jsonResponse.toLowerCase() == 'true';
         if (returnVal) {
@@ -544,7 +530,7 @@ class PersonCardService {
       developer.log(
         'deletePersonCardById',
         name: 'PersonCardService',
-        error: 'Delete PersonCard By GuidId From DataBase >>> ERROR: ${e.toString()}',
+        error: 'Delete PersonCard By Id From DataBase >>> ERROR: ${e.toString()}',
       );
       return null;
     }

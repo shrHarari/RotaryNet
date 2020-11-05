@@ -64,14 +64,14 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
     ConnectedUserObject _connectedUserObj = ConnectedUserGlobal.currentConnectedUserObject;
 
     PersonCardService _personCardService = PersonCardService();
-    String _personCardGuidId;
+    String _personCardId;
     if (widget.argMessagePopulatedObject == null)
-      _personCardGuidId = _connectedUserObj.personCardId;
+      _personCardId = _connectedUserObj.personCardId;
     else
-      _personCardGuidId = widget.argMessagePopulatedObject.composerId;
+      _personCardId = widget.argMessagePopulatedObject.composerId;
 
     PersonCardPopulatedObject _personCardPopulatedObject =
-              await _personCardService.getPersonCardByIdPopulated(_personCardGuidId);
+              await _personCardService.getPersonCardByIdPopulated(_personCardId);
 
     setState(() {
       loading = false;
@@ -147,7 +147,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
 
       if (isMessageExist) {
         _newMessagePopulatedObj = messageService.createMessagePopulatedAsObject(
-            widget.argMessagePopulatedObject.messageGuidId,
+            widget.argMessagePopulatedObject.messageId,
             widget.argMessagePopulatedObject.composerId,
             widget.argMessagePopulatedObject.composerFirstName,
             widget.argMessagePopulatedObject.composerLastName,
@@ -162,7 +162,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
             widget.argMessagePopulatedObject.clubName,
             widget.argMessagePopulatedObject.clubAddress,
             widget.argMessagePopulatedObject.clubMail,
-            widget.argMessagePopulatedObject.clubManagerGuidId,
+            widget.argMessagePopulatedObject.clubManagerId,
             widget.argMessagePopulatedObject.roleId,
             widget.argMessagePopulatedObject.roleEnum,
             widget.argMessagePopulatedObject.roleName,
@@ -182,7 +182,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
 
         _newMessagePopulatedObj = messageService.createMessagePopulatedAsObject(
             '',
-            currentDataRequired.personCardPopulatedObject.personCardGuidId,
+            currentDataRequired.personCardPopulatedObject.personCardId,
             currentDataRequired.personCardPopulatedObject.firstName,
             currentDataRequired.personCardPopulatedObject.lastName,
             currentDataRequired.personCardPopulatedObject.email,
@@ -196,7 +196,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
             currentDataRequired.personCardPopulatedObject.clubName,
             currentDataRequired.personCardPopulatedObject.clubAddress,
             currentDataRequired.personCardPopulatedObject.clubMail,
-            currentDataRequired.personCardPopulatedObject.clubManagerGuidId,
+            currentDataRequired.personCardPopulatedObject.clubManagerId,
             currentDataRequired.personCardPopulatedObject.roleId,
             currentDataRequired.personCardPopulatedObject.roleEnum,
             currentDataRequired.personCardPopulatedObject.roleName,
@@ -213,10 +213,10 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
   //#endregion
 
   //#region Open Composer Person Card Detail Screen
-  openComposerPersonCardDetailScreen(String aComposerGuidId) async {
+  openComposerPersonCardDetailScreen(String aComposerId) async {
 
     PersonCardService _personCardService = PersonCardService();
-    PersonCardObject _personCardObj = await _personCardService.getPersonCardByPersonId(aComposerGuidId);
+    PersonCardObject _personCardObj = await _personCardService.getPersonCardByPersonId(aComposerId);
 
     Navigator.push(
       context,
@@ -483,7 +483,7 @@ class _MessageDetailEditPageScreenState extends State<MessageDetailEditPageScree
             MaterialButton(
               elevation: 0.0,
               onPressed: () {
-                aFunc(aPersonCardPopulatedObj.personCardGuidId);
+                aFunc(aPersonCardPopulatedObj.personCardId);
               },
               color: Colors.blue[10],
               child:

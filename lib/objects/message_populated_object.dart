@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class MessagePopulatedObject {
-  final String messageGuidId;
+  final String messageId;
   final String composerId;
   final String composerFirstName;
   final String composerLastName;
@@ -16,14 +16,14 @@ class MessagePopulatedObject {
   final String clubName;
   final String clubAddress;
   final String clubMail;
-  final String clubManagerGuidId;
+  final String clubManagerId;
   final String roleId;
   final int roleEnum;
   final String roleName;
   final List<String> personCards;
 
   MessagePopulatedObject({
-    this.messageGuidId,
+    this.messageId,
     this.composerId,
     this.composerFirstName,
     this.composerLastName,
@@ -38,7 +38,7 @@ class MessagePopulatedObject {
     this.clubName,
     this.clubAddress,
     this.clubMail,
-    this.clubManagerGuidId,
+    this.clubManagerId,
     this.roleId,
     this.roleEnum,
     this.roleName,
@@ -46,7 +46,7 @@ class MessagePopulatedObject {
   });
 
   MessagePopulatedObject.copy(MessagePopulatedObject uniqueObject) :
-        messageGuidId = uniqueObject.messageGuidId,
+        messageId = uniqueObject.messageId,
         composerId = uniqueObject.composerId,
         composerFirstName = uniqueObject.composerFirstName,
         composerLastName = uniqueObject.composerLastName,
@@ -61,7 +61,7 @@ class MessagePopulatedObject {
         clubName = uniqueObject.clubName,
         clubAddress = uniqueObject.clubAddress,
         clubMail = uniqueObject.clubMail,
-        clubManagerGuidId = uniqueObject.clubManagerGuidId,
+        clubManagerId = uniqueObject.clubManagerId,
         roleId = uniqueObject.roleId,
         roleEnum = uniqueObject.roleEnum,
         roleName = uniqueObject.roleName,
@@ -72,7 +72,7 @@ class MessagePopulatedObject {
   String toString() {
     return
       '{'
-          ' ${this.messageGuidId},'
+          ' ${this.messageId},'
           ' ${this.composerId},'
           ' ${this.composerFirstName},'
           ' ${this.composerLastName},'
@@ -87,7 +87,7 @@ class MessagePopulatedObject {
           ' ${this.clubName},'
           ' ${this.clubAddress},'
           ' ${this.clubMail},'
-          ' ${this.clubManagerGuidId},'
+          ' ${this.clubManagerId},'
           ' ${this.roleId},'
           ' ${this.roleEnum},'
           ' ${this.roleName},'
@@ -111,7 +111,7 @@ class MessagePopulatedObject {
     DateTime _messageCreatedDateTime = DateTime.parse(parsedJson['messageCreatedDateTime']);
 
     return MessagePopulatedObject(
-      messageGuidId: parsedJson['_id'],
+      messageId: parsedJson['_id'],
       composerId: parsedJson['composerId']['_id'],
       composerFirstName: parsedJson['composerId']['firstName'],
       composerLastName: parsedJson['composerId']['lastName'],
@@ -126,7 +126,7 @@ class MessagePopulatedObject {
       clubName: parsedJson['composerId']['clubId']['clubName'],
       clubAddress: parsedJson['composerId']['clubId']['clubAddress'],
       clubMail: parsedJson['composerId']['clubId']['clubMail'],
-      clubManagerGuidId: parsedJson['composerId']['clubId']['clubManagerGuidId'],
+      clubManagerId: parsedJson['composerId']['clubId']['clubManagerId'],
       roleId : parsedJson['composerId']['roleId']['_id'],
       roleEnum : parsedJson['composerId']['roleId']['roleEnum'],
       roleName: parsedJson['composerId']['roleId']['roleName'],
@@ -152,7 +152,7 @@ class MessagePopulatedObject {
     DateTime _messageCreatedDateTime = DateTime.parse(jsonFromMap['messageCreatedDateTime']);
 
     return MessagePopulatedObject(
-      // messageGuidId: jsonFromMap['_id'],
+      // messageId: jsonFromMap['_id'],
       composerId: jsonFromMap['composerId'],
       composerFirstName: jsonFromMap['composerFirstName'],
       composerLastName: jsonFromMap['composerLastName'],
@@ -167,7 +167,7 @@ class MessagePopulatedObject {
       clubName: jsonFromMap['clubName'],
       clubAddress: jsonFromMap['clubAddress'],
       clubMail: jsonFromMap['clubMail'],
-      clubManagerGuidId: jsonFromMap['clubManagerGuidId'],
+      clubManagerId: jsonFromMap['clubManagerId'],
       roleId: jsonFromMap['roleId'],
       roleEnum: jsonFromMap['roleEnum'],
       roleName: jsonFromMap['roleName'],
@@ -180,7 +180,7 @@ class MessagePopulatedObject {
     String _messageCreatedDateTime = messageCreatedDateTime.toIso8601String();
 
     return {
-      if ((messageGuidId != null) && (messageGuidId != '')) '_id': messageGuidId,
+      if ((messageId != null) && (messageId != '')) '_id': messageId,
       'composerId': composerId,
       'composerFirstName': composerFirstName,
       'composerLastName': composerLastName,
@@ -195,7 +195,7 @@ class MessagePopulatedObject {
       'clubName': clubName,
       'clubAddress': clubAddress,
       'clubMail': clubMail,
-      'clubManagerGuidId': clubManagerGuidId,
+      'clubManagerId': clubManagerId,
       'roleId': roleId,
       'roleEnum': roleEnum,
       'roleName': roleName,

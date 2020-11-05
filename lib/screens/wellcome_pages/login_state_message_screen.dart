@@ -62,7 +62,7 @@ class _LoginStateMessageScreen extends State<LoginStateMessageScreen> {
             'אנא המתן ואנו נשלח אליך מייל לאישור בקשתך\n';
 
         currentConnectedUserData = 'User Data To Display: \n'
-            'User Guid Id: ${currentConnectedUserObj.userGuidId}\n'
+            'User Guid Id: ${currentConnectedUserObj.userId}\n'
             'User EmailId: ${currentConnectedUserObj.email}\n'
             'User Name: ${currentConnectedUserObj.firstName} '
                        '${currentConnectedUserObj.lastName}\n'

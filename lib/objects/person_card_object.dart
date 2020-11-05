@@ -1,8 +1,7 @@
 import 'dart:convert';
-import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class PersonCardObject {
-  final String personCardGuidId;
+  final String personCardId;
   String email;
   final String firstName;
   final String lastName;
@@ -23,7 +22,7 @@ class PersonCardObject {
   final List<String> messages;
 
   PersonCardObject({
-    this.personCardGuidId,
+    this.personCardId,
     this.email,
     this.firstName,
     this.lastName,
@@ -80,7 +79,7 @@ class PersonCardObject {
   String toString() {
     return
       '{'
-          ' ${this.personCardGuidId},'
+          ' ${this.personCardId},'
           ' ${this.email},'
           ' ${this.firstName},'
           ' ${this.lastName},'
@@ -103,16 +102,16 @@ class PersonCardObject {
   }
 
   factory PersonCardObject.fromJson(Map<String, dynamic> parsedJson){
-    // RoleId: Convert [int] to [Enum]
-    Constants.RotaryRolesEnum _roleEnum;
-    Constants.RotaryRolesEnum _roleEnumValue = _roleEnum.convertToEnum(parsedJson['roleId']);
+    // // RoleId: Convert [int] to [Enum]
+    // Constants.RotaryRolesEnum _roleEnum;
+    // Constants.RotaryRolesEnum _roleEnumValue = _roleEnum.convertToEnum(parsedJson['roleId']);
 
     List<dynamic> dynMessagesList = parsedJson['messages'] as List<dynamic>;
     List<String> messagesList;
     if (dynMessagesList != null) messagesList = dynMessagesList.cast<String>();
 
     return PersonCardObject(
-      personCardGuidId: parsedJson['_id'],
+      personCardId: parsedJson['_id'],
       email: parsedJson['email'],
       firstName : parsedJson['firstName'],
       lastName : parsedJson['lastName'],
@@ -153,7 +152,7 @@ class PersonCardObject {
     // Constants.RotaryRolesEnum _roleEnumValue = _roleEnum.convertToEnum(jsonFromMap['roleEnum']);
 
     return PersonCardObject(
-      // personCardGuidId: jsonFromMap['_id'],
+      // personCardId: jsonFromMap['_id'],
       email: jsonFromMap['email'],
       firstName: jsonFromMap['firstName'],
       lastName: jsonFromMap['lastName'],
@@ -182,7 +181,7 @@ class PersonCardObject {
     // int _roleEnumValue = _roleEnum.value;
 
     return {
-      if ((personCardGuidId != null) && (personCardGuidId != '')) '_id': personCardGuidId,
+      if ((personCardId != null) && (personCardId != '')) '_id': personCardId,
       'email': email,
       'firstName': firstName,
       'lastName': lastName,

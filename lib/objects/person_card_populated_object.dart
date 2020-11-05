@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'package:rotary_net/objects/message_object.dart';
-import 'package:rotary_net/shared/constants.dart' as Constants;
 
 class PersonCardPopulatedObject {
-  final String personCardGuidId;
+  final String personCardId;
   final String email;
   final String firstName;
   final String lastName;
@@ -25,14 +24,14 @@ class PersonCardPopulatedObject {
   final String clubName;
   final String clubAddress;
   final String clubMail;
-  final String clubManagerGuidId;
+  final String clubManagerId;
   final String roleId;
   final int roleEnum;
   final String roleName;
   List<MessageObject> messagesList;
 
   PersonCardPopulatedObject({
-    this.personCardGuidId,
+    this.personCardId,
     this.email,
     this.firstName,
     this.lastName,
@@ -54,7 +53,7 @@ class PersonCardPopulatedObject {
     this.clubName,
     this.clubAddress,
     this.clubMail,
-    this.clubManagerGuidId,
+    this.clubManagerId,
     this.roleId,
     this.roleEnum,
     this.roleName,
@@ -66,7 +65,7 @@ class PersonCardPopulatedObject {
   String toString() {
     return
       '{'
-          ' ${this.personCardGuidId},'
+          ' ${this.personCardId},'
           ' ${this.email},'
           ' ${this.firstName},'
           ' ${this.lastName},'
@@ -88,7 +87,7 @@ class PersonCardPopulatedObject {
           ' ${this.clubName},'
           ' ${this.clubAddress},'
           ' ${this.clubMail},'
-          ' ${this.clubManagerGuidId},'
+          ' ${this.clubManagerId},'
           ' ${this.roleId},'
           ' ${this.roleEnum},'
           ' ${this.roleName},'
@@ -109,7 +108,7 @@ class PersonCardPopulatedObject {
     // }
 
     return PersonCardPopulatedObject(
-      personCardGuidId: parsedJson['_id'],
+      personCardId: parsedJson['_id'],
       email: parsedJson['email'],
       firstName: parsedJson['firstName'],
       lastName: parsedJson['lastName'],
@@ -131,7 +130,7 @@ class PersonCardPopulatedObject {
       clubName: parsedJson['clubId']['clubName'],
       clubAddress: parsedJson['clubId']['clubAddress'],
       clubMail: parsedJson['clubId']['clubMail'],
-      clubManagerGuidId: parsedJson['clubId']['clubManagerGuidId'],
+      clubManagerId: parsedJson['clubId']['clubManagerId'],
       roleId : parsedJson['roleId']['_id'],
       roleEnum : parsedJson['roleId']['roleEnum'],
       roleName: parsedJson['roleId']['roleName'],
@@ -153,7 +152,7 @@ class PersonCardPopulatedObject {
     }
 
     return PersonCardPopulatedObject(
-      personCardGuidId: parsedJson['_id'],
+      personCardId: parsedJson['_id'],
       email: parsedJson['email'],
       firstName: parsedJson['firstName'],
       lastName: parsedJson['lastName'],
@@ -175,7 +174,7 @@ class PersonCardPopulatedObject {
       clubName: parsedJson['clubId']['clubName'],
       clubAddress: parsedJson['clubId']['clubAddress'],
       clubMail: parsedJson['clubId']['clubMail'],
-      clubManagerGuidId: parsedJson['clubId']['clubManagerGuidId'],
+      clubManagerId: parsedJson['clubId']['clubManagerId'],
       roleId : parsedJson['roleId']['_id'],
       roleEnum : parsedJson['roleId']['roleEnum'],
       roleName: parsedJson['roleId']['roleName'],
@@ -197,7 +196,7 @@ class PersonCardPopulatedObject {
     }
 
     return PersonCardPopulatedObject(
-      personCardGuidId: parsedJson['_id'],
+      personCardId: parsedJson['_id'],
       email: parsedJson['email'],
       firstName: parsedJson['firstName'],
       lastName: parsedJson['lastName'],
@@ -219,7 +218,7 @@ class PersonCardPopulatedObject {
       clubName: parsedJson['clubId']['clubName'],
       clubAddress: parsedJson['clubId']['clubAddress'],
       clubMail: parsedJson['clubId']['clubMail'],
-      clubManagerGuidId: parsedJson['clubId']['clubManagerGuidId'],
+      clubManagerId: parsedJson['clubId']['clubManagerId'],
       roleId : parsedJson['roleId']['_id'],
       roleEnum : parsedJson['roleId']['roleEnum'],
       roleName: parsedJson['roleId']['roleName'],
@@ -249,7 +248,7 @@ class PersonCardPopulatedObject {
   factory PersonCardPopulatedObject.fromMap(Map<String, dynamic> jsonFromMap, List<MessageObject> aMessageList) {
 
     return PersonCardPopulatedObject(
-      // personCardGuidId: jsonFromMap['_id'],
+      // personCardId: jsonFromMap['_id'],
       email: jsonFromMap['email'],
       firstName: jsonFromMap['firstName'],
       lastName: jsonFromMap['lastName'],
@@ -271,7 +270,7 @@ class PersonCardPopulatedObject {
       clubName: jsonFromMap['clubId']['clubName'],
       clubAddress: jsonFromMap['clubId']['clubAddress'],
       clubMail: jsonFromMap['clubId']['clubMail'],
-      clubManagerGuidId: jsonFromMap['clubId']['clubManagerGuidId'],
+      clubManagerId: jsonFromMap['clubId']['clubManagerId'],
       roleId : jsonFromMap['roleId']['_id'],
       roleEnum : jsonFromMap['roleId']['roleEnum'],
       roleName: jsonFromMap['roleId']['roleName'],
@@ -286,7 +285,7 @@ class PersonCardPopulatedObject {
     // int _roleEnumValue = _roleEnum.value;
 
     return {
-      if ((personCardGuidId != null) && (personCardGuidId != '')) '_id': personCardGuidId,
+      if ((personCardId != null) && (personCardId != '')) '_id': personCardId,
       'email': email,
       'firstName': firstName,
       'lastName': lastName,
@@ -308,7 +307,7 @@ class PersonCardPopulatedObject {
       'clubName': clubName,
       'clubAddress': clubAddress,
       'clubMail': clubMail,
-      'clubManagerGuidId': clubManagerGuidId,
+      'clubManagerId': clubManagerId,
       'roleId': roleId,
       'roleEnum': roleEnum,
       'roleName': roleName,

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:rotary_net/objects/user_object.dart';
-import 'package:rotary_net/services/globals_service.dart';
 import 'package:rotary_net/services/logger_service.dart';
 import 'package:rotary_net/shared/constants.dart' as Constants;
 import 'dart:developer' as developer;
@@ -12,7 +11,7 @@ class UserService {
   //#region Create User As Object
   //=============================================================================
   UserObject createUserAsObject(
-      String aUserGuidId,
+      String aUserId,
       String aPersonCardId,
       String aEmail,
       String aFirstName,
@@ -23,7 +22,7 @@ class UserService {
 
     if (aEmail == null)
       return UserObject(
-          userGuidId: '',
+          userId: '',
           personCardId: '',
           email: '',
           firstName: '',
@@ -33,7 +32,7 @@ class UserService {
           stayConnected: false);
     else
       return UserObject(
-          userGuidId: aUserGuidId,
+          userId: aUserId,
           personCardId: aPersonCardId,
           email: aEmail,
           firstName: aFirstName,
@@ -86,7 +85,6 @@ class UserService {
 
     try {
       String _getUrl = Constants.rotaryUserUrl + "/query/$aValueToSearch";
-      print ("_getUrl: $_getUrl");
 
       Response response = await get(_getUrl);
 
@@ -94,14 +92,12 @@ class UserService {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        print("getUsersListBySearchQuery/ jsonResponse: $jsonResponse");
         await LoggerService.log('<UserService> Get User By SearchQuery >>> OK\nHeader: $contentType \nUserListFromJSON: $jsonResponse');
 
         var userList = jsonDecode(jsonResponse) as List;    // List of PersonCard to display;
         List<UserObject> userObjList = userList.map((userJson) => UserObject.fromJson(userJson)).toList();
 
         userObjList.sort((a, b) => a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
-        print("userObjList: ${userObjList[0]}");
 
         return userObjList;
       } else {
@@ -127,7 +123,6 @@ class UserService {
 
     try {
       String _getUrl = Constants.rotaryUserUrl + "/email/$aEmail";
-      print ("_getUrl: $_getUrl");
 
       Response response = await get(_getUrl);
 
@@ -209,7 +204,7 @@ class UserService {
       String jsonToPost = aUserObj.userToJson(aUserObj);
       print ('updateUserById / UserObject / jsonToPost: $jsonToPost');
 
-      String _updateUrl = Constants.rotaryUserUrl + "/${aUserObj.userGuidId}";
+      String _updateUrl = Constants.rotaryUserUrl + "/${aUserObj.userId}";
 
       Response response = await put(_updateUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
       if (response.statusCode <= 300) {
@@ -242,7 +237,7 @@ class UserService {
   //=============================================================================
   Future deleteUserById(UserObject aUserObj) async {
     try {
-      String _deleteUrl = Constants.rotaryUserUrl + "/${aUserObj.userGuidId}";
+      String _deleteUrl = Constants.rotaryUserUrl + "/${aUserObj.userId}";
 
       Response response = await delete(_deleteUrl, headers: Constants.rotaryUrlHeader);
       if (response.statusCode <= 300) {

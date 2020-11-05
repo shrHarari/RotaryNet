@@ -43,7 +43,7 @@ class RotaryRoleService {
         String jsonResponse = response.body;
         await LoggerService.log('<RotaryRoleService> Get All Rotary Roles List >>> OK\nHeader: $contentType \nRotaryRoleListFromJSON: $jsonResponse');
 
-        var rolesList = jsonDecode(jsonResponse) as List;    // List of PersonCard to display;
+        var rolesList = jsonDecode(jsonResponse) as List;
         List<RotaryRoleObject> rolesObjList = rolesList.map((roleJson) => RotaryRoleObject.fromJson(roleJson)).toList();
 
         return rolesObjList;
@@ -70,20 +70,15 @@ class RotaryRoleService {
   Future getRotaryRoleByRoleId(String aRoleId) async {
     try {
       String _getUrl = Constants.rotaryRoleUrl + "/$aRoleId";
-      print ("_getUrl: $_getUrl");
 
       Response response = await get(_getUrl);
 
       if (response.statusCode <= 300) {
         String jsonResponse = response.body;
-        print("getRotaryRoleByRoleId/ jsonResponse: $jsonResponse");
         await LoggerService.log('<RotaryRoleService> Get RotaryRole By RoleId >>> OK >>> RotaryRoleFromJSON: $jsonResponse');
 
         var _role = jsonDecode(jsonResponse);
-        print ("_role: $_role");
         RotaryRoleObject _roleObj = RotaryRoleObject.fromJson(_role);
-
-        print("_roleObj: $_roleObj");
 
         return _roleObj;
       } else {
@@ -110,20 +105,15 @@ class RotaryRoleService {
   Future getRotaryRoleByRoleEnum(int aRoleEnum) async {
     try {
       String _getUrl = Constants.rotaryRoleUrl + "/roleEnum/$aRoleEnum";
-      print ("_getUrl: $_getUrl");
 
       Response response = await get(_getUrl);
 
       if (response.statusCode <= 300) {
         String jsonResponse = response.body;
-        print("getRotaryRoleByRoleEnum/ jsonResponse: $jsonResponse");
         await LoggerService.log('<RotaryRoleService> Get RotaryRole By RoleEnum >>> OK >>> RotaryRoleFromJSON: $jsonResponse');
 
         var _role = jsonDecode(jsonResponse);
-        print ("_role: $_role");
         RotaryRoleObject _roleObj = RotaryRoleObject.fromJson(_role);
-
-        print("_roleObj: $_roleObj");
 
         return _roleObj;
       } else {
@@ -151,14 +141,12 @@ class RotaryRoleService {
   Future insertRotaryRole(RotaryRoleObject aRotaryRoleObj) async {
     try {
       String jsonToPost = aRotaryRoleObj.rotaryRoleObjectToJson(aRotaryRoleObj);
-      print ('insertRotaryRole / RotaryRoleObject / jsonToPost: $jsonToPost');
 
       Response response = await post(Constants.rotaryRoleUrl, headers: Constants.rotaryUrlHeader, body: jsonToPost);
       if (response.statusCode <= 300) {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        print ('insertRotaryRole / RotaryRoleObject / jsonResponse: $jsonResponse');
 
         bool returnVal = jsonResponse.toLowerCase() == 'true';
         if (returnVal) {
@@ -192,7 +180,6 @@ class RotaryRoleService {
   Future updateRotaryRoleByRoleId(RotaryRoleObject aRotaryRoleObj) async {
     try {
       String jsonToPost = aRotaryRoleObj.rotaryRoleObjectToJson(aRotaryRoleObj);
-      print ('updateRotaryRoleByRoleId / RotaryRoleObject / jsonToPost: $jsonToPost');
 
       String _updateUrl = Constants.rotaryRoleUrl + "/${aRotaryRoleObj.roleId}";
 
@@ -201,7 +188,6 @@ class RotaryRoleService {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        print('updateRotaryRole / RotaryRoleObject / jsonResponse: $jsonResponse');
 
         bool returnVal = jsonResponse.toLowerCase() == 'true';
         if (returnVal) {
@@ -238,7 +224,6 @@ class RotaryRoleService {
         Map<String, String> headers = response.headers;
         String contentType = headers['content-type'];
         String jsonResponse = response.body;
-        print ('deleteRotaryRoleByRoleId / RotaryRoleObject / jsonResponse: $jsonResponse');
 
         bool returnVal = jsonResponse.toLowerCase() == 'true';
         if (returnVal) {

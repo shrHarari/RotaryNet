@@ -100,7 +100,7 @@ class _PersonCardDetailPageScreenState extends State<PersonCardDetailPageScreen>
         _allowUpdate = true;
         break;
       case  Constants.UserTypeEnum.RotaryMember:
-        if (_connectedUserObj.userGuidId == displayPersonCardObject.personCardGuidId)
+        if (_connectedUserObj.userId == displayPersonCardObject.personCardId)
           _allowUpdate = true;
         break;
       case  Constants.UserTypeEnum.Guest:

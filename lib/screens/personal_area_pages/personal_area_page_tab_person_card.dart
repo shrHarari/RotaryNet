@@ -12,7 +12,6 @@ import 'package:rotary_net/services/rotary_area_service.dart';
 import 'package:rotary_net/services/rotary_club_service.dart';
 import 'package:rotary_net/services/rotary_cluster_service.dart';
 import 'package:rotary_net/services/rotary_role_service.dart';
-import 'package:rotary_net/shared/constants.dart';
 import 'package:rotary_net/shared/decoration_style.dart';
 import 'package:rotary_net/shared/error_message_screen.dart';
 import 'package:rotary_net/shared/loading.dart';
@@ -21,10 +20,10 @@ import 'package:path/path.dart' as Path;
 
 class PersonalAreaPageTabPersonCard extends StatefulWidget {
   final PersonCardObject argPersonCardObject;
-  final String argConnectedUserGuidId;
+  final String argConnectedUserId;
 
   PersonalAreaPageTabPersonCard({Key key,
-    @required this.argPersonCardObject, @required this.argConnectedUserGuidId}) : super(key: key);
+    @required this.argPersonCardObject, @required this.argConnectedUserId}) : super(key: key);
 
   @override
   _PersonalAreaPageTabPersonCardState createState() => _PersonalAreaPageTabPersonCardState();
@@ -414,22 +413,20 @@ class _PersonalAreaPageTabPersonCardState extends State<PersonalAreaPageTabPerso
         _pictureUrl = currentPersonCardImage;
 
       /// If Exist ? Update(has Guid) : Insert(copy Connected User Guid)
-      RotaryRolesEnum _rotaryRolesEnum;
       PersonCardObject newPersonCardObj =
           personCardService.createPersonCardAsObject(
-              widget.argPersonCardObject.personCardGuidId,
+              widget.argPersonCardObject.personCardId,
               _email, _firstName, _lastName, _firstNameEng, _lastNameEng,
               _phoneNumber, _phoneNumberDialCode, _phoneNumberParse, _phoneNumberCleanLongFormat,
               _pictureUrl, _cardDescription, _internetSiteUrl, _address,
               selectedRotaryAreaObj.areaId, selectedRotaryClusterObj.clusterId, selectedRotaryClubObj.clubId,
-              // _rotaryRolesEnum.convertToEnum(selectedRotaryRoleObj.roleId),
               selectedRotaryRoleObj.roleId);
 
       String returnVal;
       if (isPersonCardExist)
         returnVal = await personCardService.updatePersonCardById(newPersonCardObj);
       else
-        returnVal = await personCardService.insertPersonCard(widget.argConnectedUserGuidId, newPersonCardObj);
+        returnVal = await personCardService.insertPersonCard(widget.argConnectedUserId, newPersonCardObj);
 
       if (returnVal != '') {
         Navigator.pop(context);
